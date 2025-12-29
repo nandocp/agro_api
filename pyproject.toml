@@ -47,6 +47,7 @@ addopts = '-p no:warnings'
 
 [tool.taskipy.tasks]
 run = 'fastapi dev agro_api/app.py --host 0.0.0.0'
+serve = 'uvicorn agro_api.app:app --workers 2'
 
 lint = 'ruff check'
 
