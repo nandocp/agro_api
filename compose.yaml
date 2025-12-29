@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:18-alpine
+    env_file:
+      - .db.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #     network: host
+  #   volumes:
+  #     - ./:/home/agrouser/api
+  #     - poetry_cache:/opt/.cache/poetry
+  #     - pip_cache:/opt/.cache/pip
+  #     - python_cache:/opt/.cache/pip
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - db
+  #   env_file:
+  #     - .env
+  #   stdin_open: true
+  #   tty: true
+
+volumes:
+  postgres_data:
+    # poetry_cache:
+    # python_cache:
+    # pip_cache:
