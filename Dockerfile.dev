@@ -1,0 +1,28 @@
+FROM python:3-alpine AS base
+
+WORKDIR /home/agrouser/api
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+  PIP_NO_CACHE_DIR=off \
+  PYTHONUNBUFFERED=1 \
+  PYTHONDONTWRITEBYTECODE=1 \
+  PYTHONPATH=/app \
+  PYTHONUNBUFFERED=1 \
+  POETRY_NO_INTERACTION=1 \
+  POETRY_VIRTUALENVS_CREATE=false \
+  POETRY_CACHE_DIR=/opt/.cache/poetry \
+  PIP_CACHE_DIR=/opt/.cache/pip \
+  POETRY_VERSION=2.2.1
+
+RUN apk update \
+  && apk add libpq-dev pipx bash
+
+FROM base
+RUN pipx install poetry==${POETRY_VERSION} && pipx ensurepath
+
+RUN adduser -u 1000 --disabled-password --gecos "" agrouser
+USER agrouser
+
+EXPOSE 8000
+
+CMD ["poetry", "run", "uvicorn", "agro_api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
