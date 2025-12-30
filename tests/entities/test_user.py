@@ -3,9 +3,10 @@ from dataclasses import asdict
 from sqlalchemy import select
 
 from agro_api.entities.user import User
+from tests.factories.users import UserFactory
 
 
-def test_create_user(db_session, mock_db_time, mock_id):
+def test_create_user(session, mock_db_time, mock_id):
     time_columns = [
         'created_at',
         'updated_at',
@@ -15,24 +16,29 @@ def test_create_user(db_session, mock_db_time, mock_id):
 
     with mock_db_time(model=User, columns=time_columns) as time:
         with mock_id(model=User) as id:
-            new_user = User(
-                username='euzinho', email='euzinho@teste.br', password='123456'
+            new_user = UserFactory.stub()
+            user_data = User(
+                name=new_user.name,
+                email=new_user.email,
+                password=new_user.password,
             )
 
-            db_session.add(new_user)
-            db_session.commit()
+            session.add(user_data)
+            session.commit()
 
-            user = db_session.scalar(
-                select(User).where(User.email == 'euzinho@teste.br')
+            user = session.scalar(
+                select(User).where(User.email == new_user.email)
             )
 
     assert asdict(user) == {
         'id': id,
-        'username': 'euzinho',
-        'email': 'euzinho@teste.br',
-        'password': '123456',
+        'name': new_user.name,
+        'email': new_user.email,
+        'password': new_user.password,
         'created_at': time,
         'updated_at': time,
         'last_sign_in_at': time,
         'current_sign_in_at': time,
+        'deleted_at': None,
+        'is_active': True,
     }
