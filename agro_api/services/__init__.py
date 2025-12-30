@@ -1,1 +1,1 @@
-# Business logic layer
+# Business logic / Data access layer
