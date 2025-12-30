@@ -3,16 +3,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-# from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-# from agro_api.entities.user import User
 from agro_api.schemas.user import UserPostPayloadSchema, UserPostResponseSchema
 from agro_api.services.user import UserService
 from config.database import get_session
 
 router = APIRouter(prefix='/users', tags=['users'])
-
 session = Annotated[Session, Depends(get_session)]
 
 
