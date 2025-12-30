@@ -1,15 +1,18 @@
-from pydantic import UUID4, BaseModel, EmailStr, datetime
+from datetime import datetime
+
+from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
 
 
 class UserBase(BaseModel):
-    username: str
+    name: str
     email: EmailStr
+    model_config = ConfigDict(rom_attrbutes=True)
 
 
-class UserPostPayloadSchema(BaseModel):
+class UserPostPayloadSchema(UserBase):
     password: str
 
 
-class UserGetResponseSchema(UserBase):
+class UserPostResponseSchema(UserBase):
     id: UUID4
     created_at: datetime
