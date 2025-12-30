@@ -1,6 +1,6 @@
 from agro_api.entities.user import User
 from agro_api.repositories.user import UserRepository
-from config.security import hash_password
+from config.password import hash_password
 
 from .base import BaseService
 

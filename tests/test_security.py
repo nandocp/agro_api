@@ -1,6 +1,6 @@
 from secrets import token_hex
 
-from config.security import hash_password, verify_password
+from config.password import hash_password, verify_password
 
 
 def test_hash_password():

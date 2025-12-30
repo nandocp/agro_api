@@ -18,7 +18,7 @@ class UserRepository:
         if db_user:
             return {
                 'status_code': HTTPStatus.CONFLICT,
-                'detail': 'User already exists'
+                'detail': 'User already exists',
             }
 
         new_user = User(**schema_params.model_dump())
