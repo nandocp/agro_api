@@ -20,15 +20,13 @@ class User:
         nullable=False,
     )
 
-    username: Mapped[str] = mapped_column(unique=True)
+    name: Mapped[str] = mapped_column(unique=False)
 
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
 
     password: Mapped[str] = mapped_column()
 
-    is_active: Mapped[bool] = mapped_column(
-        init=False, default=True
-    )
+    is_active: Mapped[bool] = mapped_column(init=False, default=True)
 
     current_sign_in_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
@@ -42,10 +40,7 @@ class User:
     updated_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now(), onupdate=func.now()
     )
-    deleted_at: Mapped[datetime] = mapped_column(
-        init=False,
-        nullable=True
-    )
+    deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     # def __repr__(self):
     #     return f'{self.email}'
