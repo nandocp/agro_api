@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
+from agro_api.routers import users
 from config.settings import settings
 
 app = FastAPI(
@@ -23,19 +24,21 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
+app.include_router(users.router)
+
 
 @app.get('/', status_code=HTTPStatus.OK)
-async def root():
+def root():
     return {'message': 'AgroAPI', 'version': settings.VERSION}
 
 
 @app.get('/up', status_code=HTTPStatus.OK)
-async def up():
+def up():
     return {'message': 'ok'}
 
 
 @app.get('/html', status_code=HTTPStatus.OK, response_class=HTMLResponse)
-async def html():
+def html():
     return """<html>
         <head>AgroAPI</head>
         <body>🚜</body>
