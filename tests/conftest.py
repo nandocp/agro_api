@@ -6,9 +6,11 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
+from sqlalchemy.pool import StaticPool
 
 from agro_api.app import app
 from agro_api.entities.base import table_registry
+from config.database import get_session
 from config.settings import settings
 
 
@@ -49,18 +51,25 @@ def mock_db_time():
 
 
 @pytest.fixture
-def client():
-    return TestClient(app)
+def client(session):
+    def get_session_override():
+        return session
+
+    with TestClient(app) as client:
+        app.dependency_overrides[get_session] = get_session_override
+
+        yield client
+
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
-def db_session():
-    db_url = f'{settings.DATABASE_URL}_test'
-    print(db_url)
+def session():
+    engine = create_engine(
+        f'{settings.DATABASE_URL}_test', poolclass=StaticPool
+    )
 
-    engine = create_engine(db_url)
     table_registry.metadata.create_all(engine)
-
     with Session(engine) as session:
         yield session
 
