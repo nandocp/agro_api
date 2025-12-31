@@ -114,10 +114,7 @@ files = [
 ]
 
 [package.dependencies]
-cffi = [
-    {version = ">=1.0.1", markers = "python_version < \"3.14\""},
-    {version = ">=2.0.0b1", markers = "python_version >= \"3.14\""},
-]
+cffi = {version = ">=2.0.0b1", markers = "python_version >= \"3.14\""}
 
 [[package]]
 name = "certifi"
@@ -2531,5 +2528,5 @@ files = [
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.13,<4.0"
-content-hash = "78276a36e115011cd3d75e6bb9cd145add444f515c1f4624b261928eaaaec6e7"
+python-versions = ">=3.14,<4.0"
+content-hash = "320fbce915438637a9a3b7ccf785d2130623839ddf8f8e73d69ece1c31f4b038"
