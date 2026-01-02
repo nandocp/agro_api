@@ -17,7 +17,8 @@ router = APIRouter(prefix='/users', tags=['users'])
 
 
 @router.post('/',
-    status_code=HTTPStatus.CREATED, response_model=UserPostResponseSchema
+    status_code=HTTPStatus.CREATED,
+    response_model=UserPostResponseSchema
 )
 def create(user: UserPostPayloadSchema, session: session):
     service = UserService(session).create(user)
