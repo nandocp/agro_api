@@ -1,14 +1,14 @@
 from http import HTTPStatus
 from secrets import token_hex
 
-import pytest
+# import pytest
 from sqlalchemy import select
 
 from agro_api.entities.user import User
 from tests.factories.users import UserFactory
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_create_new_user(client, session, mock_id):
     new_user = UserFactory()
     user_data = {
@@ -38,7 +38,7 @@ def test_create_new_user(client, session, mock_id):
     }
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_create_existing_user(client):
     pwd = token_hex(4)
     user = UserFactory.build()
@@ -54,7 +54,7 @@ def test_create_existing_user(client):
     assert test_response.status_code == HTTPStatus.CONFLICT
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_show_user_with_auth(client, session, token, user, mock_db_time):
     response = client.get(
         f'/users/{user.id}',
@@ -69,7 +69,7 @@ def test_show_user_with_auth(client, session, token, user, mock_db_time):
     assert list(response.json().keys()) == columns
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_show_another_user_with_auth(client, session, token):
     user = UserFactory.create()
     session.add(user)
@@ -83,7 +83,7 @@ def test_show_another_user_with_auth(client, session, token):
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_show_user_without_auth(client, user):
     response = client.get(f'/users/{user.id}')
     assert response.status_code == HTTPStatus.UNAUTHORIZED
