@@ -2,20 +2,22 @@ from datetime import datetime, timedelta
 from secrets import token_hex
 
 import factory
-from faker import Faker
 
 from agro_api.entities.user import User
+from config.password import hash_password
 
-fake = Faker()
+Faker = factory.Faker
 
 
-class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+class UserFactory(factory.Factory):
     class Meta:
         model = User
+        exclude = ('pwd')
 
-    name = fake.name_nonbinary()
-    email = fake.ascii_free_email()
-    password = token_hex(4)
+    pwd = token_hex(4)
+    name = Faker('name_nonbinary')
+    email = Faker('ascii_free_email')
+    password = hash_password(pwd)
 
 
 class InactiveUserFactory(UserFactory):
