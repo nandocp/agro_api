@@ -94,6 +94,20 @@ def user(session):
 
 
 @pytest.fixture
+def other_user(session):
+    password = token_hex(4)
+    user = UserFactory.build(pwd=password)
+    user.password = hash_password(password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    user.clean_password = password
+
+    return user
+
+
+@pytest.fixture
 def token(client, user) -> str:
     response = client.post(
         '/auth/login',
