@@ -6,7 +6,7 @@ from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
 class UserBase(BaseModel):
     name: str
     email: EmailStr
-    model_config = ConfigDict(rom_attrbutes=True)
+    model_config = ConfigDict(from_attrbutes=True)
 
 
 class UserPostPayloadSchema(UserBase):
