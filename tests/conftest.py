@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from datetime import datetime
+from secrets import token_hex
 from uuid import uuid4
 
 import pytest
@@ -11,7 +12,9 @@ from sqlalchemy.pool import StaticPool
 from agro_api.app import app
 from agro_api.entities.base import table_registry
 from config.database import get_session
+from config.password import hash_password
 from config.settings import settings
+from tests.factories.users import UserFactory
 
 
 @contextmanager
@@ -74,3 +77,30 @@ def session():
         yield session
 
     table_registry.metadata.drop_all(engine)
+
+
+@pytest.fixture
+def user(session):
+    password = token_hex(4)
+    user = UserFactory.build(pwd=password)
+    user.password = hash_password(password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    user.clean_password = password
+
+    return user
+
+
+@pytest.fixture
+def token(client, user) -> str:
+    response = client.post(
+        '/auth/login',
+        data={
+            'username': user.email,
+            'password': user.clean_password
+        }
+    )
+
+    return response.headers['Authorization']
