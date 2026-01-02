@@ -32,10 +32,9 @@ class Estate:
 
     slug: Mapped[str] = mapped_column(unique=True, nullable=False)
 
-    kind: Mapped[EstateKind] = mapped_column()
-
     opened_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now()
+        nullable=True,
+        server_default=func.now()
     )
 
     closed_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
@@ -47,6 +46,8 @@ class Estate:
     updated_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now(), onupdate=func.now()
     )
+
+    kind: Mapped[EstateKind] = mapped_column(default=EstateKind('rural'))
 
     def is_urban(self):
         'urban' in self.kind
