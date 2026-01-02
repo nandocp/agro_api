@@ -1,7 +1,9 @@
 from datetime import datetime
-from random import choice
+from uuid import uuid4
 
+# from random import choice
 import factory
+import factory.fuzzy
 
 from agro_api.entities.estate import Estate, EstateKind
 
@@ -15,7 +17,8 @@ class EstateFactory(factory.Factory):
     label = Faker('word')
     slug = Faker('word')
     opened_at = datetime.now()
-    kind = choice(list(EstateKind)).value
+    kind = factory.fuzzy.FuzzyChoice(EstateKind)
+    user_id = uuid4
 
 
 class ClosedEstateFactory(EstateFactory):
