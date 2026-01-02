@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     # API
     API_PATH: str
     PROJECT_NAME: str = 'AgroAPI'
-    VERSION: str = '1.0.0'
+    VERSION: str = '0.2.0'
 
     # Database
     DATABASE_URL: PostgresDsn
