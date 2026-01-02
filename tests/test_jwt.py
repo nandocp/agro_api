@@ -8,8 +8,11 @@ from config.settings import settings
 def test_token_creation():
     data = {'sub': Faker().ascii_safe_email()}
     token = create_access_token(data)
+    for key in ['jwt', 'jti']:
+        assert key in token
+
     decoded = decode(
-        token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        token['jwt'], settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
     )
 
     assert decoded['sub'] == data['sub']
