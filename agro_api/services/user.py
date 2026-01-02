@@ -14,14 +14,19 @@ class UserService(BaseService):
         schema_params.password = hash_password(schema_params.password)
         return self.repository.create_user(schema_params)
 
-    def get_one(self, id: int):
-        pass
+    def get_one(self, id: str, jti: str):
+        user = self.repository.find_by_jti(jti)
+
+        if not user or str(user.id) != id:
+            return False
+
+        return user
 
     def get_many(self, *, skip: int = 0, limit: int = 100):
         pass
 
-    def update(self, *, db_obj, obj_in):
-        pass
+    def update(self, obj_id, obj_in):
+        return self.repository.update_user(obj_id, obj_in)
 
     def remove(self, *, id: int):
         pass

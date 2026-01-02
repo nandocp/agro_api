@@ -28,7 +28,7 @@ class BaseService(ABC, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     @abstractmethod
     def update(
-        self, *, db_obj: ModelType, obj_in: UpdateSchemaType
+        self, *, obj_id: str, obj_in: UpdateSchemaType
     ) -> ModelType:
         pass
 
