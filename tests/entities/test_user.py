@@ -41,5 +41,6 @@ def test_create_user(session, mock_db_time, mock_id):
         'current_sign_in_at': time,
         'deleted_at': None,
         'is_active': True,
-        'jti': None
+        'jti': None,
+        'estates': []
     }
