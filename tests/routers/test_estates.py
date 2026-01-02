@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from secrets import token_hex
 
 from agro_api.entities.estate import EstateKind
 from tests.factories.estates import EstateFactory
@@ -82,7 +83,7 @@ def test_get_index_estates_with_slug_query(
     client, token, user, session, other_user
 ):
     batch_size = 3
-    slug = EstateFactory().slug
+    slug = token_hex(4)
     slug_estate = EstateFactory.create(
         user_id=user.id, slug=slug
     )
