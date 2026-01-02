@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import UUID4, BaseModel, ConfigDict
 
 from agro_api.entities.estate import EstateKind
 
@@ -17,6 +17,6 @@ class EstatePostPayloadSchema(EstateBase):
 
 
 class EstatePostResponseSchema(EstatePostPayloadSchema):
-    id: str
+    id: UUID4
     created_at: datetime
     updated_at: datetime
