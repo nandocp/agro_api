@@ -1,10 +1,19 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import List
 
 from sqlalchemy import Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_as_dataclass, mapped_column
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_as_dataclass,
+    mapped_column,
+    relationship,
+)
 
 from .base import table_registry
+from .estate import Estate
 
 
 @mapped_as_dataclass(table_registry)
@@ -47,6 +56,12 @@ class User:
         init=False, server_default=func.now(), onupdate=func.now()
     )
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
+
+    estates: Mapped[List['Estate']] = relationship(
+        init=False,
+        cascade='all, delete-orphan',
+        lazy='selectin'
+    )
 
     # def __repr__(self):
     #     return f'{self.email}'
