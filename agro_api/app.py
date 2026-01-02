@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
-from agro_api.routers import auth, users
+from agro_api.routers import auth, estates, users
 from config.settings import settings
 
 app = FastAPI(
@@ -25,6 +25,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(estates.router)
 app.include_router(users.router)
 
 
