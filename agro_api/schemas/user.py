@@ -16,3 +16,17 @@ class UserPostPayloadSchema(UserBase):
 class UserPostResponseSchema(UserBase):
     id: UUID4
     created_at: datetime
+
+
+class UserGetResponseSchema(UserPostResponseSchema):
+    last_sign_in_at: datetime
+    current_sign_in_at: datetime
+    is_active: bool
+
+
+class UserUpdateResponseSchema(UserPostResponseSchema):
+    updated_at: datetime
+
+
+class UserUpdatePayloadSchema(BaseModel):
+    name: str
