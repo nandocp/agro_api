@@ -9,9 +9,9 @@ from .base import table_registry
 
 
 class EstateKind(Enum):
-    RURAL = 'rural'
-    INTRAURBAN = 'intraurban'
-    PERIURBAN = 'periurban'
+    rural = 'rural'
+    intraurban = 'intraurban'
+    periurban = 'periurban'
 
 
 @mapped_as_dataclass(table_registry)
@@ -50,4 +50,4 @@ class Estate:
     kind: Mapped[EstateKind] = mapped_column(default=EstateKind('rural'))
 
     def is_urban(self):
-        'urban' in self.kind
+        return 'urban' in self.kind.value
