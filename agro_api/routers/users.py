@@ -1,33 +1,58 @@
 from http import HTTPStatus
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException
 
-from agro_api.schemas.user import UserPostPayloadSchema, UserPostResponseSchema
+from agro_api.schemas.user import (
+    UserGetResponseSchema,
+    UserPostPayloadSchema,
+    UserPostResponseSchema,
+    UserUpdatePayloadSchema,
+    UserUpdateResponseSchema,
+)
 from agro_api.services.user import UserService
-from config.database import get_session
+from config.database import session
+from config.user import current_user, validate_current_user
 
 router = APIRouter(prefix='/users', tags=['users'])
-session = Annotated[Session, Depends(get_session)]
 
 
-@router.post(
-    '/', status_code=HTTPStatus.CREATED, response_model=UserPostResponseSchema
+@router.post('/',
+    status_code=HTTPStatus.CREATED, response_model=UserPostResponseSchema
 )
 def create(user: UserPostPayloadSchema, session: session):
-    response = UserService(session).create(user)
+    service = UserService(session).create(user)
 
-    if isinstance(response, dict):
-        raise HTTPException(**response)
+    if not service:
+        raise HTTPException(
+                status_code=HTTPStatus.CONFLICT,
+                detail='User already exists'
+            )
 
-    return response
+    return service
 
 
-# def show(user_id: str, session: Session=Depends(get_session)):
+@router.get('/{user_id}',
+    status_code=HTTPStatus.OK,
+    response_model=UserGetResponseSchema
+)
+def show(user_id: str, current_user: current_user, session: session):
+    validate_current_user(user_id, str(current_user.id))
+    return current_user
+
+
+@router.put('/{user_id}',
+    status_code=HTTPStatus.OK,
+    response_model=UserUpdateResponseSchema
+)
+def update(
+    user_id: str,
+    user_data: UserUpdatePayloadSchema,
+    current_user: current_user,
+    session: session
+):
+    validate_current_user(user_id, str(current_user.id))
+    return UserService(session).update(user_id, user_data)
 
 # def index():
-
-# def update():
 
 # def delete():
