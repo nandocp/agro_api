@@ -1,6 +1,6 @@
 [project]
 name = "agro-api"
-version = "0.2.1"
+version = "0.2.2"
 description = "API that allows owners to manage their agro estates"
 authors = [
     {name = "Fernando Caçador",email = "fernando.cacador@proton.me"}
