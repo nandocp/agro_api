@@ -1,4 +1,3 @@
-# import uuid
 from datetime import datetime
 
 from sqlalchemy import Uuid, func
@@ -27,6 +26,13 @@ class User:
     password: Mapped[str] = mapped_column()
 
     is_active: Mapped[bool] = mapped_column(init=False, default=True)
+
+    jti: Mapped[Uuid] = mapped_column(
+        UUID,
+        init=False,
+        nullable=True,
+        unique=True
+    )
 
     current_sign_in_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
