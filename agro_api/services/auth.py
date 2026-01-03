@@ -1,5 +1,4 @@
 from datetime import datetime
-from http import HTTPStatus
 
 from sqlalchemy.orm import Session
 
@@ -17,10 +16,7 @@ class AuthService:
         user = await self.get_form_user(form_data)
 
         if not user:
-            return {
-                'status_code': HTTPStatus.UNAUTHORIZED,
-                'detail': 'Incorrect email or password',
-            }
+            return False
 
         token_data = create_access_token({'sub': str(user.id)})
 
@@ -47,4 +43,10 @@ class AuthService:
         await self.session.commit()
         await self.session.refresh(user)
 
+        return True
+
+    async def logout_user(self, user: User):
+        user.jti = None
+        self.session.add(user)
+        await self.session.commit()
         return True
