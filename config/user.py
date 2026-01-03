@@ -14,14 +14,14 @@ from config.jwt import decode_access_token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/login')
 
 
-def get_user(
+async def get_user(
     session: Session = Depends(get_session),
-    token: str = Depends(oauth2_scheme)
+    token: str = Depends(oauth2_scheme),
 ) -> User:
     credentials_exception = HTTPException(
         status_code=HTTPStatus.UNAUTHORIZED,
         detail='Could not validate credentials',
-        headers={'WWW-Authenticate': 'Bearer'}
+        headers={'WWW-Authenticate': 'Bearer'},
     )
 
     try:
@@ -34,7 +34,7 @@ def get_user(
     except DecodeError:
         raise credentials_exception
 
-    user = UserService(session).get_one(jti=jti, id=sub)
+    user = await UserService(session).get_one(jti=jti, id=sub)
     if not user:
         raise credentials_exception
 
@@ -44,8 +44,7 @@ def get_user(
 def validate_current_user(target_id, user_id):
     if target_id != user_id:
         raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            detail='You shall not do it'
+            status_code=HTTPStatus.UNAUTHORIZED, detail='You shall not do it'
         )
 
     return True

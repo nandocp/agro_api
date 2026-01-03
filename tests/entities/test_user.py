@@ -1,12 +1,15 @@
 from dataclasses import asdict
 
+import pytest
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from agro_api.entities.user import User
 from tests.factories.users import UserFactory
 
 
-def test_create_user(session, mock_db_time, mock_id):
+@pytest.mark.asyncio
+async def test_create_user(session: AsyncSession, mock_db_time, mock_id):
     time_columns = [
         'created_at',
         'updated_at',
@@ -24,9 +27,9 @@ def test_create_user(session, mock_db_time, mock_id):
             )
 
             session.add(user_data)
-            session.commit()
+            await session.commit()
 
-            user = session.scalar(
+            user = await session.scalar(
                 select(User).where(User.email == new_user.email)
             )
 
@@ -42,5 +45,5 @@ def test_create_user(session, mock_db_time, mock_id):
         'deleted_at': None,
         'is_active': True,
         'jti': None,
-        'estates': []
+        'estates': [],
     }

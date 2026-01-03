@@ -16,44 +16,45 @@ from config.user import current_user, validate_current_user
 router = APIRouter(prefix='/users', tags=['users'])
 
 
-@router.post('/',
-    status_code=HTTPStatus.CREATED,
-    response_model=UserPostResponseSchema
+@router.post(
+    '/', status_code=HTTPStatus.CREATED, response_model=UserPostResponseSchema
 )
-def create(user: UserPostPayloadSchema, session: session):
-    service = UserService(session).create(user)
+async def create(user: UserPostPayloadSchema, session: session):
+    service = await UserService(session).create(user)
 
     if not service:
         raise HTTPException(
-                status_code=HTTPStatus.CONFLICT,
-                detail='User already exists'
-            )
+            status_code=HTTPStatus.CONFLICT, detail='User already exists'
+        )
 
     return service
 
 
-@router.get('/{user_id}',
+@router.get(
+    '/{user_id}',
     status_code=HTTPStatus.OK,
-    response_model=UserGetResponseSchema
+    response_model=UserGetResponseSchema,
 )
-def show(user_id: str, current_user: current_user, session: session):
+async def show(user_id: str, current_user: current_user, session: session):
     validate_current_user(user_id, str(current_user.id))
     return current_user
 
 
-@router.put('/{user_id}',
+@router.put(
+    '/{user_id}',
     status_code=HTTPStatus.OK,
-    response_model=UserUpdateResponseSchema
+    response_model=UserUpdateResponseSchema,
 )
-def update(
+async def update(
     user_id: str,
     user_data: UserUpdatePayloadSchema,
     current_user: current_user,
-    session: session
+    session: session,
 ):
     validate_current_user(user_id, str(current_user.id))
-    return UserService(session).update(user_id, user_data)
+    return await UserService(session).update(user_id, user_data)
 
-# def index():
 
-# def delete():
+# async def index():
+
+# async def delete():

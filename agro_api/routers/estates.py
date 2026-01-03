@@ -17,27 +17,34 @@ from config.user import current_user
 router = APIRouter(prefix='/estates', tags=['estates'])
 
 
-@router.post('/',
+@router.post(
+    '/',
     response_model=EstatePostResponseSchema,
-    status_code=HTTPStatus.CREATED
+    status_code=HTTPStatus.CREATED,
 )
-def create(
+async def create(
     session: session,
     current_user: current_user,
-    estate: EstatePostPayloadSchema
+    estate: EstatePostPayloadSchema,
 ):
-    return EstateService(session).create(estate, current_user.id)
+    return await EstateService(session).create(
+        estate, current_user.id
+    )
 
 
 @router.get('/', response_model=EstatesList, status_code=HTTPStatus.OK)
-def index(
+async def index(
     session: session,
     current_user: current_user,
-    filters: Annotated[EstateFilter, Query()]
+    filters: Annotated[EstateFilter, Query()],
 ):
-    return EstateService(session).get_many(current_user.id, filters)
+    return await EstateService(session).get_many(
+        current_user.id, filters
+    )
 
 
 @router.get('/{estate_id}', response_model=EstateGetResponseSchema)
-def show(session: session, current_user: current_user, estate_id: str):
-    return EstateService(session).get_one(current_user.id, estate_id)
+async def show(session: session, current_user: current_user, estate_id: str):
+    return await EstateService(session).get_one(
+        current_user.id, estate_id
+    )

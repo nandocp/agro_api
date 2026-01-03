@@ -33,8 +33,7 @@ class Estate:
     slug: Mapped[str] = mapped_column(unique=True, nullable=False)
 
     opened_at: Mapped[datetime] = mapped_column(
-        nullable=True,
-        server_default=func.now()
+        nullable=True, server_default=func.now()
     )
 
     closed_at: Mapped[datetime] = mapped_column(init=False, nullable=True)

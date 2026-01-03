@@ -4,9 +4,16 @@ from secrets import token_hex
 from uuid import uuid4
 
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
-from sqlalchemy.orm import Session
+from sqlalchemy import event
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    create_async_engine,
+)
+
+# from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
 from agro_api.app import app
@@ -66,55 +73,56 @@ def client(session):
     app.dependency_overrides.clear()
 
 
-@pytest.fixture
-def session():
-    engine = create_engine(
-        f'{settings.DATABASE_URL}_test', poolclass=StaticPool
+@pytest_asyncio.fixture
+async def session():
+    engine: AsyncEngine = create_async_engine(
+        f'{settings.DATABASE_URL}_test',
+        poolclass=StaticPool,
     )
 
-    table_registry.metadata.create_all(engine)
-    with Session(engine) as session:
+    async with engine.begin() as conn:
+        await conn.run_sync(table_registry.metadata.create_all)
+
+    async with AsyncSession(engine, expire_on_commit=False) as session:
         yield session
 
-    table_registry.metadata.drop_all(engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(table_registry.metadata.drop_all)
 
 
-@pytest.fixture
-def user(session):
+@pytest_asyncio.fixture
+async def user(session):
     password = token_hex(4)
     user = UserFactory.build(pwd=password)
     user.password = hash_password(password)
     session.add(user)
-    session.commit()
-    session.refresh(user)
+    await session.commit()
+    await session.refresh(user)
 
     user.clean_password = password
 
     return user
 
 
-@pytest.fixture
-def other_user(session):
+@pytest_asyncio.fixture
+async def other_user(session):
     password = token_hex(4)
     user = UserFactory.build(pwd=password)
     user.password = hash_password(password)
     session.add(user)
-    session.commit()
-    session.refresh(user)
+    await session.commit()
+    await session.refresh(user)
 
     user.clean_password = password
 
     return user
 
 
-@pytest.fixture
-def token(client, user) -> str:
+@pytest_asyncio.fixture
+async def token(client, user) -> str:
     response = client.post(
         '/auth/login',
-        data={
-            'username': user.email,
-            'password': user.clean_password
-        }
+        data={'username': user.email, 'password': user.clean_password},
     )
 
     return response.headers['Authorization']

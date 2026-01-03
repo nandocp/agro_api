@@ -11,12 +11,12 @@ router = APIRouter(prefix='/auth', tags=['auth'])
 
 
 @router.post('/login', status_code=HTTPStatus.NO_CONTENT)
-def login(
+async def login(
     response: Response,
     session: session,
     form_data: OAuth2PasswordRequestForm = Depends(),
 ):
-    service = AuthService(session).login(form_data)
+    service = await AuthService(session).login(form_data)
 
     if isinstance(service, dict):
         raise HTTPException(**service)
@@ -26,5 +26,5 @@ def login(
 
 
 @router.post('/logout', status_code=HTTPStatus.NO_CONTENT)
-def logout(session: session, current_user: current_user):
+async def logout(session: session, current_user: current_user):
     pass

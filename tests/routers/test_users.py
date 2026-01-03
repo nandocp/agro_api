@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from secrets import token_hex
 
-# import pytest
+import pytest
 from sqlalchemy import select
 
 from agro_api.entities.user import User
@@ -9,7 +9,8 @@ from tests.factories.users import UserFactory
 
 
 # @pytest.mark.skip
-def test_create_new_user(client, session, mock_id):
+@pytest.mark.asyncio
+async def test_create_new_user(client, session, mock_id):
     new_user = UserFactory()
     user_data = {
         'name': new_user.name,
@@ -17,14 +18,14 @@ def test_create_new_user(client, session, mock_id):
         'password': token_hex(4),
     }
 
-    user_db = session.scalar(
+    user_db = await session.scalar(
         select(User).where(User.email == user_data['email'])
     )
 
     assert not user_db
 
     response = client.post('/users', json=user_data)
-    user_db = session.scalar(
+    user_db = await session.scalar(
         select(User).where(User.email == user_data['email'])
     )
 
@@ -42,11 +43,7 @@ def test_create_new_user(client, session, mock_id):
 def test_create_existing_user(client):
     pwd = token_hex(4)
     user = UserFactory.build()
-    user_data = {
-        'name': user.name,
-        'email': user.email,
-        'password': pwd
-    }
+    user_data = {'name': user.name, 'email': user.email, 'password': pwd}
     original_response = client.post('/users', json=user_data)
     assert original_response.status_code == HTTPStatus.CREATED
 
@@ -57,27 +54,31 @@ def test_create_existing_user(client):
 # @pytest.mark.skip
 def test_show_user_with_auth(client, session, token, user, mock_db_time):
     response = client.get(
-        f'/users/{user.id}',
-        headers={'Authorization': f'Bearer {token}'}
+        f'/users/{user.id}', headers={'Authorization': f'Bearer {token}'}
     )
 
     columns = [
-        'name', 'email', 'id', 'created_at',
-        'last_sign_in_at', 'current_sign_in_at', 'is_active'
+        'name',
+        'email',
+        'id',
+        'created_at',
+        'last_sign_in_at',
+        'current_sign_in_at',
+        'is_active',
     ]
     assert response.status_code == HTTPStatus.OK
     assert list(response.json().keys()) == columns
 
 
 # @pytest.mark.skip
-def test_show_another_user_with_auth(client, session, token):
+@pytest.mark.asyncio
+async def test_show_another_user_with_auth(client, session, token):
     user = UserFactory.create()
     session.add(user)
-    session.commit()
+    await session.commit()
 
     response = client.get(
-        f'/users/{user.id}',
-        headers={'Authorization': f'Bearer {token}'}
+        f'/users/{user.id}', headers={'Authorization': f'Bearer {token}'}
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
@@ -95,7 +96,7 @@ def test_put_update_user(client, user, token):
     new_data = {
         'name': new_user.name,
         'email': new_user.email,
-        'password': token_hex(6)
+        'password': token_hex(6),
     }
 
     assert user.name != new_data['name']
@@ -103,7 +104,7 @@ def test_put_update_user(client, user, token):
     response = client.put(
         f'/users/{user.id}',
         json=new_data,
-        headers={'Authorization': f'Bearer {token}'}
+        headers={'Authorization': f'Bearer {token}'},
     )
 
     assert response.status_code == HTTPStatus.OK

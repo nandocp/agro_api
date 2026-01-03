@@ -12,7 +12,7 @@ Faker = factory.Faker
 class UserFactory(factory.Factory):
     class Meta:
         model = User
-        exclude = ('pwd')
+        exclude = 'pwd'
 
     pwd = token_hex(4)
     name = Faker('name_nonbinary')

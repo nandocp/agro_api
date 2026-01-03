@@ -16,24 +16,22 @@ class BaseService(ABC, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     @abstractmethod
     def get_one(self, id: int) -> Optional[ModelType]:
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def get_many(
         self, *, offset: int = 0, limit: int = 100
     ) -> List[ModelType]:
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def create(self, *, obj_in: CreateSchemaType) -> ModelType:
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
-    def update(
-        self, *, obj_id: str, obj_in: UpdateSchemaType
-    ) -> ModelType:
-        pass
+    def update(self, *, obj_id: str, obj_in: UpdateSchemaType) -> ModelType:
+        pass  # pragma: no cover
 
     @abstractmethod
     def remove(self, *, id: int) -> ModelType:
-        pass
+        pass  # pragma: no cover

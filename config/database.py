@@ -2,26 +2,34 @@ from typing import Annotated
 from warnings import warn
 
 from fastapi import Depends
-from sqlalchemy import Engine, create_engine
-from sqlalchemy.orm import Session
+
+# from sqlalchemy import Engine, create_engine
+# from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    create_async_engine,
+)
 
 from config.settings import settings
 
-engine: Engine = create_engine(
-    str(settings.DATABASE_URL), pool_pre_ping=True, max_overflow=64
+engine: AsyncEngine = create_async_engine(
+    str(settings.DATABASE_URL),
+    pool_pre_ping=True,
+    max_overflow=64,
 )
 
 
-def get_session():
-    with Session(engine) as session:
+async def get_session():
+    async with AsyncSession(engine, expire_on_commit=False) as session:
         try:
             yield session
         except Exception as error:
             print(error)
             warn('DB operation failed. Auto-rollbacking...')
-            session.rollback()
+            await session.rollback()
         finally:
-            session.close()
+            await session.close()
 
 
-session = Annotated[Session, Depends(get_session)]
+session = Annotated[AsyncSession, Depends(get_session)]

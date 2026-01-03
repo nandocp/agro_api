@@ -13,8 +13,8 @@ class AuthService:
     def __init__(self, session=Session | None):
         self.session = session
 
-    def login(self, form_data):
-        user = self.get_form_user(form_data)
+    async def login(self, form_data):
+        user = await self.get_form_user(form_data)
 
         if not user:
             return {
@@ -24,26 +24,27 @@ class AuthService:
 
         token_data = create_access_token({'sub': str(user.id)})
 
-        self.login_user(user, token_data['jti'])
+        await self.login_user(user, token_data['jti'])
 
         return token_data['jwt']
 
-    def get_form_user(self, form_data) -> User:
-        user = UserService(self.session).find_by_email(form_data.username)
+    async def get_form_user(self, form_data) -> User:
+        email = form_data.username
+        user = await UserService(self.session).find_by_email(email)
 
         if not user or not verify_password(form_data.password, user.password):
             return False
 
         return user
 
-    def login_user(self, user: User, jti: str):
+    async def login_user(self, user: User, jti: str):
         now = datetime.now()
 
         user.jti = jti
         user.current_sign_in_at = now
         user.last_sign_in_at = now
 
-        self.session.commit()
-        self.session.refresh(user)
+        await self.session.commit()
+        await self.session.refresh(user)
 
         return True

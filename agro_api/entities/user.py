@@ -37,10 +37,7 @@ class User:
     is_active: Mapped[bool] = mapped_column(init=False, default=True)
 
     jti: Mapped[Uuid] = mapped_column(
-        UUID,
-        init=False,
-        nullable=True,
-        unique=True
+        UUID, init=False, nullable=True, unique=True
     )
 
     current_sign_in_at: Mapped[datetime] = mapped_column(
@@ -58,9 +55,7 @@ class User:
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     estates: Mapped[List['Estate']] = relationship(
-        init=False,
-        cascade='all, delete-orphan',
-        lazy='selectin'
+        init=False, cascade='all, delete-orphan', lazy='selectin'
     )
 
     # def __repr__(self):
