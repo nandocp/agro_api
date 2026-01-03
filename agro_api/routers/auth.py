@@ -19,12 +19,15 @@ async def login(
     service = await AuthService(session).login(form_data)
 
     if isinstance(service, dict):
-        raise HTTPException(**service)
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail='Incorrect email or password',
+        )
 
     response.headers['Authorization'] = service
     response.headers['Authorization-Type'] = 'Bearer'
 
 
-@router.post('/logout', status_code=HTTPStatus.NO_CONTENT)
+@router.delete('/logout', status_code=HTTPStatus.NO_CONTENT)
 async def logout(session: session, current_user: current_user):
-    pass
+    await AuthService(session).logout_user(current_user)
