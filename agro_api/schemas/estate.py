@@ -22,7 +22,7 @@ class EstateItem(EstateCreate):
     user_id: UUID4
     created_at: datetime
     updated_at: datetime
-    closed_at: datetime
+    closed_at: datetime | None
 
 
 class EstatesList(BaseModel):
