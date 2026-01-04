@@ -2,7 +2,9 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query
+from sqlalchemy.exc import IntegrityError
 
+# from psycopg.errors import UniqueViolation
 from agro_api.schemas.estate import (
     EstateCreate,
     EstateFilter,
@@ -20,10 +22,13 @@ filters = Annotated[EstateFilter, Query()]
 
 @router.post('/', response_model=EstateItem, status_code=HTTPStatus.CREATED)
 async def create(session: session, user: current_user, estate: EstateCreate):
-    service = await EstateService(session, user).create(estate)
-
-    if isinstance(estate, dict):
-        raise HTTPException(**service)
+    try:
+        service = await EstateService(session, user).create(estate)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=HTTPStatus.UNPROCESSABLE_CONTENT,
+            detail='Slug already exists'
+        )
 
     return service
 
@@ -50,7 +55,13 @@ async def show(session: session, user: current_user, estate_id: str):
 async def update(
     params: EstateUpdate, user: current_user, estate_id: str, session: session
 ):
-    estate = await EstateService(session, user).update(estate_id, params)
+    try:
+        estate = await EstateService(session, user).update(estate_id, params)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=HTTPStatus.UNPROCESSABLE_CONTENT,
+            detail='Slug already exists'
+        )
 
     if not estate:
         raise HTTPException(
