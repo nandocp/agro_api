@@ -23,9 +23,9 @@ class EstateService(BaseService):
 
     async def get_one(self, estate_id: str):
         return await self.session.scalar(
-            select(Estate).where(
-                Estate.id == estate_id and Estate.user_id == self.user.id
-            )
+            select(Estate)
+            .where(Estate.id == estate_id)
+            .where(Estate.user_id == self.user.id)
         )
 
     async def get_many(self, filters):
@@ -45,9 +45,9 @@ class EstateService(BaseService):
 
     async def update(self, estate_id, params):
         estate = await self.session.scalar(
-            select(Estate).where(
-                Estate.id == estate_id and Estate.user_id == self.user.id
-            )
+            select(Estate)
+            .where(Estate.id == estate_id)
+            .where(Estate.user_id == self.user.id)
         )
 
         if not estate:
