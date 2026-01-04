@@ -47,3 +47,8 @@ async def test_create_user(session: AsyncSession, mock_db_time, mock_id):
         'jti': None,
         'estates': [],
     }
+
+
+@pytest.mark.asyncio
+async def test_custom_ref(user):
+    assert str(user) == f'{user.id}::{user.email}'
