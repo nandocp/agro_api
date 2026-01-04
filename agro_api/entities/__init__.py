@@ -1,4 +1,4 @@
 # ORM models constructors
 
-from .user import User
-from .estate import Estate
+from .estate import Estate as Estate
+from .user import User as User
