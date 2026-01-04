@@ -138,7 +138,9 @@ async def test_get_index_estates_with_label_query(
 
 
 @pytest.mark.asyncio
-async def test_get_one_estate_with_client_token(client, token, user, session):
+async def test_get_one_estate_with_correct_client_token(
+    client, token, user, session
+):
     estate = EstateFactory(user_id=user.id)
     estates = EstateFactory.create_batch(3, user_id=user.id)
     session.add(estate)
@@ -161,6 +163,46 @@ async def test_get_one_estate_with_client_token(client, token, user, session):
         'updated_at': str(estate.updated_at).replace(' ', 'T'),
         'user_id': str(estate.user_id),
     }
+
+
+@pytest.mark.asyncio
+async def test_get_one_estate_with_wrong_client_token(
+    client, token, other_user, session
+):
+    estate = EstateFactory(user_id=other_user.id)
+    session.add(estate)
+    await session.commit()
+
+    response = client.get(
+        f'/estates/{estate.id}', headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_update_mismatching_user_and_estate(
+    client, session, other_user, token
+):
+    estate = EstateFactory(user_id=other_user.id, kind=EstateKind.intraurban)
+    session.add(estate)
+    await session.commit()
+
+    estate_params = {
+        'kind': EstateKind.periurban.value,
+        'label': estate.label,
+        'opened_at': str(estate.opened_at),
+        'closed_at': None,
+        'slug': estate.slug
+    }
+
+    response = client.put(
+        f'/estates/{estate.id}',
+        json=estate_params,
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
 
 
 @pytest.mark.asyncio

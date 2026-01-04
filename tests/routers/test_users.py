@@ -32,10 +32,9 @@ async def test_create_new_user(client, session, mock_id):
     assert user_db
     assert response.status_code == HTTPStatus.CREATED
     assert response.json() == {
-        'name': user_data['name'],
-        'email': user_data['email'],
         'id': str(user_db.id),
         'created_at': str(user_db.created_at).replace(' ', 'T'),
+        'updated_at': str(user_db.updated_at).replace(' ', 'T'),
     }
 
 
@@ -58,10 +57,11 @@ def test_show_user_with_auth(client, session, token, user, mock_db_time):
     )
 
     columns = [
-        'name',
-        'email',
         'id',
         'created_at',
+        'updated_at',
+        'name',
+        'email',
         'last_sign_in_at',
         'current_sign_in_at',
         'is_active',
