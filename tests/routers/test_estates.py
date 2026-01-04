@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from http import HTTPStatus
 from secrets import token_hex
 
@@ -30,6 +31,28 @@ async def test_create_estate(client, session, user, token):
     #     'id': str(user_db.id),
     #     'created_at': str(user_db.created_at).replace(' ', 'T'),
     # }
+
+
+@pytest.mark.asyncio
+async def test_create_estate_with_existing_slug(client, session, user, token):
+    new_estate = EstateFactory(user_id=user.id)
+    session.add(new_estate)
+    await session.commit()
+    estate_data = {
+        'slug': new_estate.slug,
+        'label': new_estate.label,
+        'opened_at': str(new_estate.opened_at),
+        'kind': 'rural',
+    }
+
+    response = client.post(
+        '/estates',
+        json=estate_data,
+        headers={'Authorization': f'Bearer {token}'},
+    )
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_CONTENT
+    assert response.json()['detail'] == 'Slug already exists'
 
 
 @pytest.mark.asyncio
@@ -233,3 +256,82 @@ async def test_update_estate_kind(client, session, user, token):
 
     assert response.status_code == HTTPStatus.OK
     assert estate.kind.value == 'periurban'
+
+
+@pytest.mark.asyncio
+async def test_update_estate_with_existing_kind(
+    client, session, user, token
+):
+    estate1 = EstateFactory(user_id=user.id)
+    estate2 = EstateFactory(user_id=user.id)
+
+    session.add(estate1)
+    session.add(estate2)
+    await session.commit()
+
+    estate2_params = {
+        'kind': estate2.kind.value,
+        'label': estate2.label,
+        'opened_at': str(estate2.opened_at),
+        'closed_at': None,
+        'slug': estate1.slug
+    }
+
+    response = client.put(
+        f'/estates/{estate2.id}',
+        json=estate2_params,
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_CONTENT
+    assert response.json()['detail'] == 'Slug already exists'
+
+
+@pytest.mark.asyncio
+async def test_update_estate_label(client, session, user, token):
+    estate = EstateFactory(user_id=user.id, kind=EstateKind.intraurban)
+    session.add(estate)
+    await session.commit()
+
+    new_label = EstateFactory().label
+    estate_params = {
+        'kind': estate.kind.value,
+        'label': new_label,
+        'opened_at': str(estate.opened_at),
+        'closed_at': None,
+        'slug': estate.slug
+    }
+
+    response = client.put(
+        f'/estates/{estate.id}',
+        json=estate_params,
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert estate.label == new_label
+
+
+@pytest.mark.asyncio
+async def test_update_estate_closed_at(client, session, user, token):
+    estate = EstateFactory(user_id=user.id, kind=EstateKind.intraurban)
+    session.add(estate)
+    await session.commit()
+
+    closed_at = datetime.now() + timedelta(hours=2)
+    estate_params = {
+        'kind': estate.kind.value,
+        'label': estate.label,
+        'opened_at': str(estate.opened_at),
+        'closed_at': str(closed_at),
+        'slug': estate.slug
+    }
+
+    response = client.put(
+        f'/estates/{estate.id}',
+        json=estate_params,
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert estate.closed_at == closed_at
