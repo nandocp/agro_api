@@ -4,7 +4,7 @@ services:
     env_file:
       - .db.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
   # app:
@@ -27,7 +27,7 @@ services:
   #   tty: true
 
 volumes:
-  postgres_data:
+  pg_data:
     # poetry_cache:
     # python_cache:
     # pip_cache:

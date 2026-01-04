@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
+
+from agro_api.schemas.common import BaseSchema
 
 
 class UserBase(BaseModel):
@@ -9,24 +11,15 @@ class UserBase(BaseModel):
     model_config = ConfigDict(from_attrbutes=True)
 
 
-class UserPostPayloadSchema(UserBase):
+class UserCreate(UserBase):
     password: str
 
 
-class UserPostResponseSchema(UserBase):
-    id: UUID4
-    created_at: datetime
-
-
-class UserGetResponseSchema(UserPostResponseSchema):
+class UserItem(UserBase, BaseSchema):
     last_sign_in_at: datetime
     current_sign_in_at: datetime
     is_active: bool
 
 
-class UserUpdateResponseSchema(UserPostResponseSchema):
-    updated_at: datetime
-
-
-class UserUpdatePayloadSchema(BaseModel):
+class UserUpdate(BaseModel):
     name: str

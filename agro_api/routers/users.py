@@ -1,14 +1,9 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
-from agro_api.schemas.user import (
-    UserGetResponseSchema,
-    UserPostPayloadSchema,
-    UserPostResponseSchema,
-    UserUpdatePayloadSchema,
-    UserUpdateResponseSchema,
-)
+from agro_api.schemas.common import BaseSchema
+from agro_api.schemas.user import UserCreate, UserItem, UserUpdate
 from agro_api.services.user import UserService
 from config.database import session
 from config.user import current_user, validate_current_user
@@ -16,10 +11,8 @@ from config.user import current_user, validate_current_user
 router = APIRouter(prefix='/users', tags=['users'])
 
 
-@router.post(
-    '/', status_code=HTTPStatus.CREATED, response_model=UserPostResponseSchema
-)
-async def create(user: UserPostPayloadSchema, session: session):
+@router.post('/', status_code=HTTPStatus.CREATED, response_model=BaseSchema)
+async def create(user: UserCreate, session: session):
     service = await UserService(session).create(user)
 
     if not service:
@@ -30,31 +23,17 @@ async def create(user: UserPostPayloadSchema, session: session):
     return service
 
 
-@router.get(
-    '/{user_id}',
-    status_code=HTTPStatus.OK,
-    response_model=UserGetResponseSchema,
-)
-async def show(user_id: str, current_user: current_user, session: session):
-    validate_current_user(user_id, str(current_user.id))
-    return current_user
-
-
-@router.put(
-    '/{user_id}',
-    status_code=HTTPStatus.OK,
-    response_model=UserUpdateResponseSchema,
-)
-async def update(
-    user_id: str,
-    user_data: UserUpdatePayloadSchema,
-    current_user: current_user,
-    session: session,
+@router.get('/{user_id}', status_code=HTTPStatus.OK, response_model=UserItem)
+async def show(
+    user_id: str, user: current_user, session: session, request: Request
 ):
-    validate_current_user(user_id, str(current_user.id))
-    return await UserService(session).update(user_id, user_data)
+    validate_current_user(user_id, str(user.id))
+    return await UserService(session, user).get_one(user_id)
 
 
-# async def index():
-
-# async def delete():
+@router.put('/{user_id}', status_code=HTTPStatus.OK, response_model=UserItem)
+async def update(
+    user_id: str, user_data: UserUpdate, user: current_user, session: session
+):
+    validate_current_user(user_id, str(user.id))
+    return await UserService(session, user).update(user_data)

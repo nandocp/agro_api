@@ -6,11 +6,14 @@ from .base import BaseService
 
 
 class EstateService(BaseService):
-    def __init__(self, session=None):
-        super().__init__(Estate, session)
+    def __init__(self, session=None, user=None):
+        super().__init__(Estate, session, user)
 
-    async def create(self, schema_params, user_id):
-        new_estate = self.model(**schema_params.model_dump(), user_id=user_id)
+    async def create(self, schema_params):
+        new_estate = self.model(
+            **schema_params.model_dump(),
+            user_id=self.user.id
+        )
 
         self.session.add(new_estate)
         await self.session.commit()
@@ -18,15 +21,15 @@ class EstateService(BaseService):
 
         return new_estate
 
-    async def get_one(self, user_id: str, e_id: str):
+    async def get_one(self, estate_id: str):
         return await self.session.scalar(
             select(Estate).where(
-                Estate.id == e_id and Estate.user_id == user_id
+                Estate.id == estate_id and Estate.user_id == self.user.id
             )
         )
 
-    async def get_many(self, user_id, filters):
-        query = select(Estate).where(Estate.user_id == user_id)
+    async def get_many(self, filters):
+        query = select(Estate).where(Estate.user_id == self.user.id)
 
         if filters.kind:
             query = query.filter(Estate.kind == filters.kind)
@@ -40,9 +43,27 @@ class EstateService(BaseService):
         estates = await self.session.scalars(query)
         return {'estates': estates.all()}
 
-    async def update(self, obj_id, obj_in):
-        print(self)
-        return obj_in
+    async def update(self, estate_id, params):
+        estate = await self.session.scalar(
+            select(Estate).where(
+                Estate.id == estate_id and Estate.user_id == self.user.id
+            )
+        )
+
+        if not estate:
+            return False
+
+        estate.slug = params.slug
+        estate.label = params.label
+        estate.kind = params.kind
+        estate.opened_at = params.opened_at
+        estate.closed_at = params.closed_at
+
+        self.session.add(estate)
+        await self.session.commit()
+        await self.session.refresh(estate)
+
+        return estate
 
     async def remove(self, *, id: int):
         pass

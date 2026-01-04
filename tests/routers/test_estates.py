@@ -161,3 +161,33 @@ async def test_get_one_estate_with_client_token(client, token, user, session):
         'updated_at': str(estate.updated_at).replace(' ', 'T'),
         'user_id': str(estate.user_id),
     }
+
+
+@pytest.mark.asyncio
+async def test_update_estate_kind(client, session, user, token):
+    estate = EstateFactory(user_id=user.id, kind=EstateKind.intraurban)
+    session.add(estate)
+    await session.commit()
+
+    assert estate.kind.value == 'intraurban'
+
+    closed_at = estate.closed_at
+    if closed_at:
+        closed_at = str(closed_at)
+
+    estate_params = {
+        'kind': EstateKind.periurban.value,
+        'label': estate.label,
+        'opened_at': str(estate.opened_at),
+        'closed_at': closed_at,
+        'slug': estate.slug
+    }
+
+    response = client.put(
+        f'/estates/{estate.id}',
+        json=estate_params,
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert estate.kind.value == 'periurban'

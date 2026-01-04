@@ -13,26 +13,27 @@ class EstateBase(BaseModel):
     model_config = ConfigDict(from_attrbutes=True)
 
 
-class EstatePostPayloadSchema(EstateBase):
+class EstateCreate(EstateBase):
     opened_at: datetime
 
 
-class EstatePostResponseSchema(EstatePostPayloadSchema):
+class EstateItem(EstateCreate):
     id: UUID4
+    user_id: UUID4
     created_at: datetime
     updated_at: datetime
+    closed_at: datetime
 
 
-class EstateGetResponseSchema(EstatePostResponseSchema):
+class EstatesList(BaseModel):
+    estates: list[EstateItem]
+
+
+class EstateUpdate(EstateCreate):
     closed_at: datetime | None
-    user_id: UUID4
 
 
 class EstateFilter(FilterPage):
     label: str | None = Field(default=None, min_length=3, max_length=32)
     slug: str | None = Field(default=None, min_length=3)
     kind: EstateKind | None = None
-
-
-class EstatesList(BaseModel):
-    estates: list[EstateGetResponseSchema]

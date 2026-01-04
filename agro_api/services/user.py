@@ -1,14 +1,13 @@
 from sqlalchemy import select
 
 from agro_api.entities.user import User
+from agro_api.services.base import BaseService
 from config.password import hash_password
-
-from .base import BaseService
 
 
 class UserService(BaseService):
-    def __init__(self, session=None):
-        super().__init__(User, session)
+    def __init__(self, session=None, user=None):
+        super().__init__(User, session, user)
 
     async def create(self, schema_params):
         schema_params.password = hash_password(schema_params.password)
@@ -25,30 +24,22 @@ class UserService(BaseService):
 
         return new_user
 
-    async def get_one(self, id: str, jti: str):
-        user = await self.find_by_jti(jti)
+    async def get_one(self, user_id: str):
+        # eventualmente implementar caso de admin user
 
-        if not user or str(user.id) != id:
-            return False
-
-        return user
+        return self.user
 
     async def get_many(self, *, skip: int = 0, limit: int = 100):
+        # eventualmente implementar caso de admin user
         pass  # pragma: no cover
 
-    async def update(self, user_id, params):
-        db_user = await self.session.scalar(
-            select(User).where(User.id == user_id)
-        )
-
-        if not db_user:
-            return False
-
-        db_user.name = params.name
+    async def update(self, params):
+        self.user.name = params.name
+        self.session.add(self.user)
         await self.session.commit()
-        await self.session.refresh(db_user)
+        await self.session.refresh(self.user)
 
-        return db_user
+        return self.user
 
     async def remove(self, *, id: int):
         pass  # pragma: no cover

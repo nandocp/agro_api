@@ -12,8 +12,6 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     create_async_engine,
 )
-
-# from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
 from agro_api.app import app

@@ -34,8 +34,8 @@ async def get_user(
     except DecodeError:
         raise credentials_exception
 
-    user = await UserService(session).get_one(jti=jti, id=sub)
-    if not user:
+    user = await UserService(session).find_by_jti(jti)
+    if not user or str(user.id) != sub:
         raise credentials_exception
 
     return user

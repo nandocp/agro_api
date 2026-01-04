@@ -1,11 +1,11 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import ForeignKey, Uuid, func
+from sqlalchemy import ForeignKey, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_as_dataclass, mapped_column
 
-from .base import table_registry
+from agro_api.entities.base import table_registry
 
 
 class EstateKind(Enum):
@@ -17,6 +17,9 @@ class EstateKind(Enum):
 @mapped_as_dataclass(table_registry)
 class Estate:
     __tablename__ = 'estates'
+    __table_args__ = (
+        UniqueConstraint('user_id', 'slug'),
+    )
 
     id: Mapped[Uuid] = mapped_column(
         UUID,
