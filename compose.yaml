@@ -1,33 +1,41 @@
 services:
   db:
-    image: postgres:18-alpine
+    image: postgis/postgis:18-3.6-alpine
     env_file:
       - .db.env
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #     network: host
-  #   volumes:
-  #     - ./:/home/agrouser/api
-  #     - poetry_cache:/opt/.cache/poetry
-  #     - pip_cache:/opt/.cache/pip
-  #     - python_cache:/opt/.cache/pip
-  #   ports:
-  #     - "8000:8000"
-  #   depends_on:
-  #     - db
-  #   env_file:
-  #     - .env
-  #   stdin_open: true
-  #   tty: true
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      network: host
+    volumes:
+      - ./:/home/agrouser/api
+      # Volume dedicado para pacotes Python (venv)
+      - python_packages:/app/.venv
+      # Volume para caches
+      - pip_cache:/root/.cache/pip
+      - poetry_cache:/root/.cache/pypoetry
+    environment:
+      - PYTHONPATH=/app/.venv/lib/python3.11/site-packages:/app
+      - POETRY_VIRTUALENVS_IN_PROJECT=true
+      - POETRY_VIRTUALENVS_CREATE=false
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=development
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
 
 volumes:
   pg_data:
-    # poetry_cache:
-    # python_cache:
-    # pip_cache:
+  poetry_cache:
+  python_packages:
+  pip_cache:
