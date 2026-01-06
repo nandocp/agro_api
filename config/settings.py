@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     # App stuff
     FASTAPI_ENV: str
+    DEBUG: bool | None
 
     # API
     API_PATH: str
