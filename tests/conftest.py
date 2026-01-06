@@ -6,6 +6,8 @@ from uuid import uuid4
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
+from geoalchemy2.shape import from_shape
+from shapely.geometry import Point, Polygon
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -19,6 +21,7 @@ from agro_api.entities.base import table_registry
 from config.database import get_session
 from config.password import hash_password
 from config.settings import settings
+from tests.factories.estates import EstateFactory
 from tests.factories.users import UserFactory
 
 
@@ -76,6 +79,7 @@ async def session():
     engine: AsyncEngine = create_async_engine(
         f'{settings.DATABASE_URL}_test',
         poolclass=StaticPool,
+        plugins=["geoalchemy2"],
     )
 
     async with engine.begin() as conn:
@@ -124,3 +128,27 @@ async def token(client, user) -> str:
     )
 
     return response.headers['Authorization']
+
+
+@pytest_asyncio.fixture
+async def estate(session, user) -> str:
+    estate = EstateFactory(user_id=user.id)
+
+    coordinate_point = Point(-23.5489, -46.6388)
+    limits = [
+        (-23.551, -46.641),
+        (-23.551, -46.441),
+        (-23.331, -46.441),
+        (-23.331, -46.641),
+        (-23.551, -46.641),
+    ]
+    limits_polygon = Polygon(limits)
+
+    estate.coordinates = from_shape(coordinate_point, srid=4326)
+    estate.limits = from_shape(limits_polygon, srid=4326)
+
+    session.add(estate)
+    await session.commit()
+    await session.refresh(estate)
+
+    return estate
