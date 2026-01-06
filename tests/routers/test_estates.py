@@ -210,7 +210,7 @@ async def test_get_one_estate_with_correct_client_token(
         'user_id': str(estate.user_id),
         'coordinates': None,
         'limits': None,
-        'divisions': []
+        'plots': []
     }
 
 

@@ -15,7 +15,7 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import table_registry
-from agro_api.entities.estate_division import EstateDivision
+from agro_api.entities.estate_plot import EstatePlot
 from config.geometry import wkb_to_shape
 
 
@@ -80,8 +80,8 @@ class Estate:
         init=False, server_default=func.now(), onupdate=func.now()
     )
 
-    divisions: Mapped[List[EstateDivision]] = relationship(
-        'EstateDivision', init=False, back_populates='estate', lazy='selectin'
+    plots: Mapped[List[EstatePlot]] = relationship(
+        'EstatePlot', init=False, back_populates='estate', lazy='selectin'
     )
 
     kind: Mapped[EstateKind] = mapped_column(default=EstateKind('rural'))

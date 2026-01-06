@@ -4,8 +4,8 @@ import logging
 from enum import Enum
 from typing import Dict, Optional, Union
 
-import geoalchemy2.shape
 from geoalchemy2 import WKBElement
+from geoalchemy2.shape import from_shape, to_shape
 from shapely.geometry import Point, Polygon, shape
 from shapely.geometry.base import BaseGeometry
 
@@ -17,12 +17,28 @@ class EPSG(int, Enum):
     WEBM = 3857  # web-mercator: projected from WGS84
 
 
+def transform_point(raw_coordinates):
+    if not raw_coordinates:
+        return None
+
+    coord_as_point = Point(raw_coordinates)
+    return from_shape(coord_as_point, srid=4326)
+
+
+def transform_polygon(raw_limits):
+    if not raw_limits:
+        return None
+
+    limits_as_polygon = Polygon(raw_limits)
+    return from_shape(limits_as_polygon, srid=4326)
+
+
 def shape_to_wkb(
     shape: Union[BaseGeometry, WKBElement],
     srid: EPSG = EPSG.WGS84
 ) -> Optional[WKBElement]:
     if isinstance(shape, BaseGeometry):
-        return geoalchemy2.shape.from_shape(shape, srid=EPSG(srid).value)
+        return from_shape(shape, srid=EPSG(srid).value)
     elif isinstance(shape, WKBElement):
         return shape
     else:
@@ -33,7 +49,7 @@ def wkb_to_shape(
     wkb: Union[WKBElement, BaseGeometry]
 ) -> Optional[BaseGeometry]:
     if isinstance(wkb, WKBElement):
-        return geoalchemy2.shape.to_shape(wkb)
+        return to_shape(wkb)
     elif isinstance(wkb, BaseGeometry):
         return wkb
     else:
@@ -41,7 +57,6 @@ def wkb_to_shape(
 
 
 def create_polygon_geometry(v) -> Polygon:
-    breakpoint()
     if not v:
         return None
 

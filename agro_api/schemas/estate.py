@@ -30,7 +30,7 @@ class EstateItem(EstateCreate):
     created_at: datetime
     updated_at: datetime
     closed_at: datetime | None
-    divisions: List[Any]
+    plots: List[Any]
 
     _validate_limit = validator(
         'limits', pre=True, allow_reuse=True

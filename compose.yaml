@@ -25,6 +25,7 @@ services:
       - POETRY_VIRTUALENVS_CREATE=false
       - PYTHONUNBUFFERED=1
       - ENVIRONMENT=development
+      - DATABASE_URL="postgresql+psycopg://api_user:Agr0_420@db:5432/agro_db"
     ports:
       - "8000:8000"
     depends_on:
