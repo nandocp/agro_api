@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, List
 
 from pydantic import UUID4, BaseModel, ConfigDict, Field, validator
 
@@ -30,6 +30,7 @@ class EstateItem(EstateCreate):
     created_at: datetime
     updated_at: datetime
     closed_at: datetime | None
+    divisions: List[Any]
 
     _validate_limit = validator(
         'limits', pre=True, allow_reuse=True
