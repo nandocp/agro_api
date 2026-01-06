@@ -15,14 +15,37 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
   POETRY_VERSION=2.2.1
 
 RUN apk update \
-  && apk add libpq-dev pipx bash
+  && apk add build-base libpq-dev linux-headers
 
-FROM base
-RUN pipx install poetry==${POETRY_VERSION} && pipx ensurepath
+# Instala Poetry
+ENV POETRY_HOME="/opt/poetry"
+ENV POETRY_VIRTUALENVS_CREATE=false
+ENV POETRY_NO_INTERACTION=1
 
-RUN adduser -u 1000 --disabled-password --gecos "" agrouser
-USER agrouser
+RUN pip install poetry==${POETRY_VERSION}
 
-EXPOSE 8000
+# Configura caminho personalizado para pacotes (será sobrescrito pelo compose)
+ENV PYTHONPATH="/app/.venv/lib/python3.11/site-packages:/app"
+ENV PIP_CACHE_DIR="/app/.cache/pip"
+ENV POETRY_CACHE_DIR="/app/.cache/poetry"
 
-CMD ["poetry", "run", "uvicorn", "agro_api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Permite instalação de pacotes em volume externo
+RUN mkdir -p /app/.venv && chmod 777 /app/.venv
+
+# Entrypoint flexível para desenvolvimento
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+
+# FROM base
+# RUN pip install poetry==${POETRY_VERSION}
+
+# RUN adduser -u 1000 --disabled-password --gecos "" agrouser
+# USER agrouser
+
+# EXPOSE 8000
+
+# CMD ["poetry", "run", "uvicorn", "agro_api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
