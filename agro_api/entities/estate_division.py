@@ -1,9 +1,16 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 from geoalchemy2 import Geometry
 from sqlalchemy import ForeignKey, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_as_dataclass, mapped_column
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_as_dataclass,
+    mapped_column,
+    relationship,
+)
 
 from agro_api.entities.base import table_registry
 
@@ -23,7 +30,7 @@ class EstateDivision:
         nullable=False,
     )
 
-    estate_id: Mapped[Uuid] = mapped_column(ForeignKey('estate.id'))
+    estate_id: Mapped[Uuid] = mapped_column(ForeignKey('estates.id'))
 
     label: Mapped[str] = mapped_column(unique=False)
 
@@ -31,7 +38,7 @@ class EstateDivision:
 
     limits: Mapped[Geometry] = mapped_column(
         Geometry(
-            geometry_type='MULTIPOLYGON',
+            geometry_type='POLYGON',
             srid=4326,
             spatial_index=True,
         ),
@@ -46,6 +53,10 @@ class EstateDivision:
     merged_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     is_active: Mapped[bool] = mapped_column(init=False, default=True)
+
+    estate = relationship(
+        'Estate', init=False, back_populates='divisions'
+    )
 
     def __repr__(self):
         return f'<EstateDivision(slug={self.slug}, area={self.area()})>'

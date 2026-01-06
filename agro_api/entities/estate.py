@@ -1,12 +1,21 @@
+from __future__ import annotations
+
 from datetime import datetime
 from enum import Enum
+from typing import List
 
 from geoalchemy2 import Geometry
 from sqlalchemy import ForeignKey, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_as_dataclass, mapped_column
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_as_dataclass,
+    mapped_column,
+    relationship,
+)
 
 from agro_api.entities.base import table_registry
+from agro_api.entities.estate_division import EstateDivision
 from config.geometry import wkb_to_shape
 
 
@@ -69,6 +78,10 @@ class Estate:
 
     updated_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now(), onupdate=func.now()
+    )
+
+    divisions: Mapped[List[EstateDivision]] = relationship(
+        'EstateDivision', init=False, back_populates='estate', lazy='selectin'
     )
 
     kind: Mapped[EstateKind] = mapped_column(default=EstateKind('rural'))
