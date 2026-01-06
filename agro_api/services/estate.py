@@ -1,3 +1,5 @@
+from geoalchemy2.shape import from_shape
+from shapely.geometry import Point, Polygon
 from sqlalchemy import select
 
 from agro_api.entities.estate import Estate
@@ -59,6 +61,14 @@ class EstateService(BaseService):
         estate.opened_at = params.opened_at
         estate.closed_at = params.closed_at
 
+        if params.coordinates:
+            estate.coordinates = EstateService.transform_coordinates(
+                params.coordinates
+            )
+
+        if params.limits:
+            estate.limits = EstateService.transform_limits(params.limits)
+
         self.session.add(estate)
         await self.session.commit()
         await self.session.refresh(estate)
@@ -67,3 +77,17 @@ class EstateService(BaseService):
 
     async def remove(self, *, id: int):
         pass
+
+    def transform_coordinates(raw_coordinates):
+        if not raw_coordinates:
+            return None
+
+        coord_as_point = Point(raw_coordinates)
+        return from_shape(coord_as_point, srid=4326)
+
+    def transform_limits(raw_limits):
+        if not raw_limits:
+            return None
+
+        limits_as_polygon = Polygon(raw_limits)
+        return from_shape(limits_as_polygon, srid=4326)
