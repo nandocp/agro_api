@@ -25,12 +25,35 @@ async def test_create_estate(client, session, user, token):
     )
 
     assert response.status_code == HTTPStatus.CREATED
-    # assert response.json() == {
-    #     'name': user_data['name'],
-    #     'email': user_data['email'],
-    #     'id': str(user_db.id),
-    #     'created_at': str(user_db.created_at).replace(' ', 'T'),
-    # }
+
+
+@pytest.mark.asyncio
+async def test_create_estate_with_geo_data(
+    client, session, user, token
+):
+    new_estate = EstateFactory(user_id=user.id)
+    estate_data = {
+        'slug': new_estate.slug,
+        'label': new_estate.label,
+        'opened_at': str(new_estate.opened_at),
+        'kind': 'rural',
+        'coordinates': (-46.6388, -23.5489),
+        'limits': [
+            (-46.641, -23.551),
+            (-46.636, -23.551),
+            (-46.636, -23.546),
+            (-46.641, -23.546),
+            (-46.641, -23.551)
+        ]
+    }
+
+    response = client.post(
+        '/estates',
+        json=estate_data,
+        headers={'Authorization': f'Bearer {token}'},
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
 
 
 @pytest.mark.asyncio
@@ -185,6 +208,8 @@ async def test_get_one_estate_with_correct_client_token(
         'slug': estate.slug,
         'updated_at': str(estate.updated_at).replace(' ', 'T'),
         'user_id': str(estate.user_id),
+        'coordinates': None,
+        'limits': None
     }
 
 
@@ -216,7 +241,9 @@ async def test_update_mismatching_user_and_estate(
         'label': estate.label,
         'opened_at': str(estate.opened_at),
         'closed_at': None,
-        'slug': estate.slug
+        'slug': estate.slug,
+        'coordinates': None,
+        'limits': None
     }
 
     response = client.put(
@@ -245,7 +272,9 @@ async def test_update_estate_kind(client, session, user, token):
         'label': estate.label,
         'opened_at': str(estate.opened_at),
         'closed_at': closed_at,
-        'slug': estate.slug
+        'slug': estate.slug,
+        'coordinates': None,
+        'limits': None
     }
 
     response = client.put(
@@ -274,7 +303,9 @@ async def test_update_estate_with_existing_kind(
         'label': estate2.label,
         'opened_at': str(estate2.opened_at),
         'closed_at': None,
-        'slug': estate1.slug
+        'slug': estate1.slug,
+        'coordinates': None,
+        'limits': None
     }
 
     response = client.put(
@@ -299,7 +330,9 @@ async def test_update_estate_label(client, session, user, token):
         'label': new_label,
         'opened_at': str(estate.opened_at),
         'closed_at': None,
-        'slug': estate.slug
+        'slug': estate.slug,
+        'coordinates': None,
+        'limits': None
     }
 
     response = client.put(
@@ -324,7 +357,9 @@ async def test_update_estate_closed_at(client, session, user, token):
         'label': estate.label,
         'opened_at': str(estate.opened_at),
         'closed_at': str(closed_at),
-        'slug': estate.slug
+        'slug': estate.slug,
+        'coordinates': None,
+        'limits': None
     }
 
     response = client.put(
@@ -335,3 +370,66 @@ async def test_update_estate_closed_at(client, session, user, token):
 
     assert response.status_code == HTTPStatus.OK
     assert estate.closed_at == closed_at
+
+
+@pytest.mark.asyncio
+async def test_update_estate_coordinates(client, session, user, token):
+    estate = EstateFactory(user_id=user.id, kind=EstateKind.intraurban)
+    session.add(estate)
+    await session.commit()
+
+    closed_at = datetime.now() + timedelta(hours=2)
+    estate_params = {
+        'kind': estate.kind.value,
+        'label': estate.label,
+        'opened_at': str(estate.opened_at),
+        'closed_at': str(closed_at),
+        'slug': estate.slug,
+        'coordinates': (-23.5489, -46.6388),
+        'limits': None
+    }
+
+    response = client.put(
+        f'/estates/{estate.id}',
+        json=estate_params,
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert estate.closed_at == closed_at
+
+
+@pytest.mark.asyncio
+async def test_update_estate_limits(client, session, user, token):
+    estate = EstateFactory(user_id=user.id, kind=EstateKind.intraurban)
+    session.add(estate)
+    await session.commit()
+
+    closed_at = datetime.now() + timedelta(hours=2)
+    estate_params = {
+        'kind': estate.kind.value,
+        'label': estate.label,
+        'opened_at': str(estate.opened_at),
+        'closed_at': str(closed_at),
+        'slug': estate.slug,
+        'coordinates': None,
+        'limits': [
+            (-23.551, -46.641),
+            (-23.551, -46.636),
+            (-23.546, -46.636),
+            (-23.546, -46.641),
+            (-23.551, -46.641),
+        ]
+    }
+
+    response = client.put(
+        f'/estates/{estate.id}',
+        json=estate_params,
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    limits = response.json()['limits']
+    assert response.status_code == HTTPStatus.OK
+    assert isinstance(limits, dict)
+    for key in ['type', 'coordinates']:
+        assert key in limits
