@@ -16,7 +16,7 @@ from sqlalchemy.orm import (
 
 from agro_api.entities.base import table_registry
 from agro_api.entities.estate_plot import EstatePlot
-from config.geometry import wkb_to_shape
+from config.geometry import area_from_wkb
 
 
 class EstateKind(Enum):
@@ -87,11 +87,7 @@ class Estate:
     kind: Mapped[EstateKind] = mapped_column(default=EstateKind('rural'))
 
     def area(self):
-        if not self.limits:
-            return None
-
-        shape = wkb_to_shape(self.limits)
-        return f'{shape.area:.2f}'
+        return area_from_wkb(self.limits, formatter=2)
 
     def is_urban(self):
         return 'urban' in self.kind.value

@@ -6,6 +6,7 @@ from typing import Dict, Optional, Union
 
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import from_shape, to_shape
+from shapely import set_srid
 from shapely.geometry import Point, Polygon, shape
 from shapely.geometry.base import BaseGeometry
 
@@ -15,6 +16,7 @@ logger = logging.getLogger(__name__)
 class EPSG(int, Enum):
     WGS84 = 4326
     WEBM = 3857  # web-mercator: projected from WGS84
+    SIRGAS2000 = 31983
 
 
 def transform_point(raw_coordinates):
@@ -54,6 +56,30 @@ def wkb_to_shape(
         return wkb
     else:
         return None
+
+
+def area_from_wkb(
+    wkb: Union[WKBElement, BaseGeometry],
+    srid: EPSG = EPSG.SIRGAS2000,
+    formatter: int = None
+) -> float:
+    if not wkb:
+        return None
+
+    shape = wkb_to_shape(wkb)
+    area = shape_to_area(shape, srid)
+    if not formatter:
+        return area
+
+    formatter = f'{formatter}f'
+    formatted_area = f'{area:.{formatter}}'
+    return float(formatted_area)
+
+
+def shape_to_area(
+    shape: BaseGeometry, srid: EPSG = EPSG.SIRGAS2000
+) -> float:
+    return set_srid(shape, srid).area
 
 
 def create_polygon_geometry(v) -> Polygon:

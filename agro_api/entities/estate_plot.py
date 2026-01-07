@@ -14,7 +14,7 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import table_registry
-from config.geometry import wkb_to_shape
+from config.geometry import area_from_wkb
 
 
 class LandUses(Enum):
@@ -87,11 +87,7 @@ class EstatePlot:
     )
 
     def area(self):
-        if not self.limits:
-            return None
-
-        shape = wkb_to_shape(self.limits)
-        return f'{shape.area:.2f}'
+        return area_from_wkb(self.limits, formatter=2)
 
     def __repr__(self):
         attrs = [

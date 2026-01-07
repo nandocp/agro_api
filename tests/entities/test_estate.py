@@ -22,8 +22,11 @@ def test_is_urban_false(session, user):
     assert not estate.is_urban()
 
 
-def test_area_with_limits(estate):
-    assert estate.area() == '0.04'
+@pytest.mark.asyncio
+async def test_area_with_limits(estate, session):
+    area = estate.area()
+    expectation = 0.04
+    assert area == expectation
 
 
 @pytest.mark.asyncio
