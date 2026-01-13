@@ -50,6 +50,4 @@ class UserService(BaseService):
         )
 
     async def find_by_jti(self, jti) -> User | None:
-        return await self.session.scalar(
-            select(User).where(User.jti == jti)
-        )
+        return await self.session.scalar(select(User).where(User.jti == jti))

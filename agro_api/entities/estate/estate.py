@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import List
 
-from geoalchemy2 import Geometry
 from sqlalchemy import ForeignKey, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
@@ -15,11 +13,9 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import table_registry
-from agro_api.entities.estate_plot import EstatePlot
-from config.geometry import area_from_wkb
 
 
-class EstateKind(Enum):
+class EstateKind(str, Enum):
     rural = 'rural'
     intraurban = 'intraurban'
     periurban = 'periurban'
@@ -28,9 +24,7 @@ class EstateKind(Enum):
 @mapped_as_dataclass(table_registry)
 class Estate:
     __tablename__ = 'estates'
-    __table_args__ = (
-        UniqueConstraint('user_id', 'slug'),
-    )
+    __table_args__ = (UniqueConstraint('user_id', 'slug'),)
 
     id: Mapped[Uuid] = mapped_column(
         UUID,
@@ -46,31 +40,11 @@ class Estate:
 
     slug: Mapped[str] = mapped_column(unique=True, nullable=False)
 
-    coordinates: Mapped[Geometry] = mapped_column(
-        Geometry(
-            geometry_type='POINT',
-            srid=4326,
-            spatial_index=True,
-        ),
-        nullable=True,
-        init=False,
-    )
-
-    limits: Mapped[Geometry] = mapped_column(
-        Geometry(
-            geometry_type='MULTIPOLYGON',
-            srid=4326,
-            spatial_index=True,
-        ),
-        nullable=True,
-        init=False,
-    )
+    description: Mapped[str]  # = mapped_column(init=False)
 
     opened_at: Mapped[datetime] = mapped_column(
         nullable=True, server_default=func.now()
     )
-
-    closed_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
@@ -80,17 +54,20 @@ class Estate:
         init=False, server_default=func.now(), onupdate=func.now()
     )
 
-    plots: Mapped[List[EstatePlot]] = relationship(
-        'EstatePlot', init=False, back_populates='estate', lazy='selectin'
+    kind: Mapped[EstateKind] = mapped_column(default=EstateKind.rural)
+
+    user = relationship('User', init=False, back_populates='estates')
+
+    plots = relationship(
+        'Plot', init=False, back_populates='estate', lazy='selectin'
     )
 
-    kind: Mapped[EstateKind] = mapped_column(default=EstateKind('rural'))
-
-    def area(self):
-        return area_from_wkb(self.limits, formatter=2)
+    geo_data = relationship(
+        'Geo', init=False, back_populates='estate', lazy='selectin'
+    )
 
     def is_urban(self):
         return 'urban' in self.kind.value
 
     def __repr__(self):
-        return f'<Estate(slug={self.slug}, area={self.area()})>'
+        return f'<Estate(id={self.id}, slug={self.slug})>'

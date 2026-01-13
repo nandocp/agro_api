@@ -12,11 +12,17 @@ from shapely.geometry.base import BaseGeometry
 
 logger = logging.getLogger(__name__)
 
+# WKT: Well Known Text
+# WKB: how data is stores in the database
+# Polygon / Point: how data is manipulated by python / shapely
+
 
 class EPSG(int, Enum):
     WGS84 = 4326
     WEBM = 3857  # web-mercator: projected from WGS84
     SIRGAS2000 = 31983
+
+    ALT = 4979
 
 
 def transform_point(raw_coordinates):
@@ -36,8 +42,7 @@ def transform_polygon(raw_limits):
 
 
 def shape_to_wkb(
-    shape: Union[BaseGeometry, WKBElement],
-    srid: EPSG = EPSG.WGS84
+    shape: Union[BaseGeometry, WKBElement], srid: EPSG = EPSG.WGS84
 ) -> Optional[WKBElement]:
     if isinstance(shape, BaseGeometry):
         return from_shape(shape, srid=EPSG(srid).value)
@@ -48,7 +53,7 @@ def shape_to_wkb(
 
 
 def wkb_to_shape(
-    wkb: Union[WKBElement, BaseGeometry]
+    wkb: Union[WKBElement, BaseGeometry],
 ) -> Optional[BaseGeometry]:
     if isinstance(wkb, WKBElement):
         return to_shape(wkb)
@@ -61,7 +66,7 @@ def wkb_to_shape(
 def area_from_wkb(
     wkb: Union[WKBElement, BaseGeometry],
     srid: EPSG = EPSG.SIRGAS2000,
-    formatter: int = None
+    formatter: int = None,
 ) -> float:
     if not wkb:
         return None
@@ -76,9 +81,7 @@ def area_from_wkb(
     return float(formatted_area)
 
 
-def shape_to_area(
-    shape: BaseGeometry, srid: EPSG = EPSG.SIRGAS2000
-) -> float:
+def shape_to_area(shape: BaseGeometry, srid: EPSG = EPSG.SIRGAS2000) -> float:
     return set_srid(shape, srid).area
 
 
@@ -88,7 +91,7 @@ def create_polygon_geometry(v) -> Polygon:
 
     try:
         if isinstance(v, list):
-            return Polygon(*v)
+            return Polygon(v)
         elif isinstance(v, dict):
             return shape(v)
         elif hasattr(v, '__geo_interface__'):

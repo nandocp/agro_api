@@ -1,1 +1,1 @@
-# DTO layers
+# Schema layer

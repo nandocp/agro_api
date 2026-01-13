@@ -1,9 +1,8 @@
 from sqlalchemy import select
 
 from agro_api.entities.estate import Estate
+from agro_api.services.base import BaseService
 from config.geometry import transform_point, transform_polygon
-
-from .base import BaseService
 
 
 class EstateService(BaseService):
@@ -16,32 +15,19 @@ class EstateService(BaseService):
             user_id=self.user.id
         )
 
-        self.session.add(new_estate)
-        await self.session.commit()
-        await self.session.refresh(new_estate)
-
-        return new_estate
+        return await self.repository.create(new_estate)
 
     async def get_one(self, estate_id: str):
-        return await self.session.scalar(
-            select(Estate)
-            .where(Estate.id == estate_id)
-            .where(Estate.user_id == self.user.id)
-        )
+        filters = {'id': estate_id, 'user_id': self.user.id}
+        return await self.repository.find_by(filters)
+        # return await self.session.scalar(
+        #     select(Estate)
+        #     .where(Estate.id == estate_id)
+        #     .where(Estate.user_id == self.user.id)
+        # )
 
     async def get_many(self, filters):
-        query = select(Estate).where(Estate.user_id == self.user.id)
-
-        if filters.kind:
-            query = query.filter(Estate.kind == filters.kind)
-
-        if filters.label:
-            query = query.filter(Estate.label.contains(filters.label))
-
-        if filters.slug:
-            query = query.filter(Estate.slug == filters.slug)
-
-        estates = await self.session.scalars(query)
+        estates = await self.repository.query(filters, self.user.id)
         return {'estates': estates.all()}
 
     async def update(self, estate_id, params):

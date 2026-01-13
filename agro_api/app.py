@@ -26,6 +26,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(estates.router)
+# app.include_router(estate_plots.router)
 app.include_router(users.router)
 
 

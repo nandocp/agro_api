@@ -74,21 +74,18 @@ async def test_login_after_register(client):
 
 def test_logout_logged_in_user(client, token, user):
     first_response = client.get(
-        f'/users/{user.id}',
-        headers={'Authorization': f'Bearer {token}'}
+        f'/users/{user.id}', headers={'Authorization': f'Bearer {token}'}
     )
 
     assert first_response.status_code == HTTPStatus.OK
 
     logout_response = client.delete(
-        '/auth/logout',
-        headers={'Authorization': f'Bearer {token}'}
+        '/auth/logout', headers={'Authorization': f'Bearer {token}'}
     )
     assert logout_response.status_code == HTTPStatus.NO_CONTENT
 
     second_response = client.get(
-        f'/users/{user.id}',
-        headers={'Authorization': f'Bearer {token}'}
+        f'/users/{user.id}', headers={'Authorization': f'Bearer {token}'}
     )
 
     assert second_response.status_code == HTTPStatus.UNAUTHORIZED

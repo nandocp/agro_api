@@ -17,7 +17,7 @@ from agro_api.entities.base import table_registry
 from config.geometry import area_from_wkb
 
 
-class LandUses(Enum):
+class LandUses(str, Enum):
     agriculture = 'agriculture'
     pasture = 'pasture'
     industry = 'industry'
@@ -27,19 +27,17 @@ class LandUses(Enum):
     preservation = 'preservation'
 
 
-class PlotStatus(Enum):
-    active = "active"
-    inactive = "inactive"
-    merged = "merged"
-    divided = "divided"
+class PlotStatus(str, Enum):
+    active = 'active'
+    inactive = 'inactive'
+    merged = 'merged'
+    divided = 'divided'
 
 
 @mapped_as_dataclass(table_registry)
-class EstatePlot:
+class Plot:
     __tablename__ = 'estate_plots'
-    __table_args__ = (
-        UniqueConstraint('estate_id', 'slug'),
-    )
+    __table_args__ = (UniqueConstraint('estate_id', 'slug'),)
 
     id: Mapped[Uuid] = mapped_column(
         UUID,
@@ -51,18 +49,16 @@ class EstatePlot:
 
     estate_id: Mapped[Uuid] = mapped_column(ForeignKey('estates.id'))
     origin_plot_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('estate_plots.id'),
-        nullable=True,
-        init=False
+        ForeignKey('estate_plots.id'), nullable=True, init=False
     )
 
     land_use: Mapped[LandUses] = mapped_column(nullable=False)
 
-    note: Mapped[str] = mapped_column(default='')
+    slug: Mapped[str] = mapped_column(nullable=False)
 
-    status: Mapped[PlotStatus] = mapped_column(
-        default=PlotStatus('active')
-    )
+    label: Mapped[str] = mapped_column(unique=False)
+
+    status: Mapped[PlotStatus] = mapped_column(default=PlotStatus('active'))
 
     limits: Mapped[Geometry] = mapped_column(
         Geometry(geometry_type='POLYGON', srid=4326),
@@ -78,21 +74,15 @@ class EstatePlot:
         init=False, server_default=func.now(), onupdate=func.now()
     )
 
-    slug: Mapped[str] = mapped_column(nullable=False, default='')
-
-    label: Mapped[str] = mapped_column(unique=False, default='')
-
-    estate = relationship(
-        'Estate', init=False, back_populates='plots'
-    )
+    estate = relationship('Estate', back_populates='plots', lazy='selectin')
 
     def area(self):
         return area_from_wkb(self.limits, formatter=2)
 
     def __repr__(self):
         attrs = [
-            f'estate={self.estate.slug}',
+            # f'estate={self.estate.slug}',
             f'slug={self.slug}',
-            f'area={self.area()}'
+            f'area={self.area()}',
         ]
-        return f'<EstatePlot({', '.join(attrs)})>'
+        return f'<EstatePlot({", ".join(attrs)})>'

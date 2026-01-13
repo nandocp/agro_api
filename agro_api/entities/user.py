@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List
+from enum import Enum
 
 from sqlalchemy import Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -13,7 +13,14 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import table_registry
-from agro_api.entities.estate import Estate
+
+
+class UserRole(str, Enum):
+    agro_user = 'agro_user'
+    agro_admin = 'agro_admin'
+    estate_user = 'estate_user'
+    estate_coord = 'estate_coord'
+    estate_admin = 'estate_admin'
 
 
 @mapped_as_dataclass(table_registry)
@@ -54,9 +61,9 @@ class User:
     )
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
-    estates: Mapped[List['Estate']] = relationship(
-        init=False, cascade='all, delete-orphan', lazy='selectin'
+    estates = relationship(
+        'Estate', init=False, cascade='all, delete-orphan', lazy='selectin'
     )
 
     def __repr__(self):
-        return f'{self.id}::{self.email}'
+        return f'<User(id={self.id}, email={self.email})>'

@@ -1,6 +1,4 @@
 from datetime import datetime
-from secrets import token_hex
-from uuid import uuid4
 
 # from random import choice
 import factory
@@ -16,11 +14,7 @@ class EstateFactory(factory.Factory):
         model = Estate
 
     label = Faker('word')
-    slug = factory.LazyFunction(token_hex)
+    slug = factory.Sequence(lambda n: f'est#{n}')
     opened_at = datetime.now()
     kind = factory.fuzzy.FuzzyChoice(EstateKind)
-    user_id = uuid4
-
-
-class ClosedEstateFactory(EstateFactory):
-    closed_at = datetime.now()
+    description = Faker('sentence')

@@ -1,3 +1,4 @@
+import importlib
 from abc import ABC, abstractmethod
 from typing import Generic, List, Optional, TypeVar
 
@@ -11,16 +12,29 @@ CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
 UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
 
 
+def import_repository(name: str, session: Session):
+    _package = 'agro_api.repositories'
+    _klass = f'{name}Repository'
+
+    try:
+        module = importlib.import_module(_package)
+        my_class = getattr(module, _klass)
+        return my_class(session)
+    except Exception:
+        return None
+
+
 class BaseService(ABC, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(
         self,
         model: ModelType,
         session: None | Session = None,
-        current_user: User | None = None
+        current_user: User | None = None,
     ) -> None:
         self.model: ModelType = model
         self.session = session
         self.user = current_user
+        self.repository = import_repository(model.__name__, session)
 
     @abstractmethod
     def get_one(self, id: int) -> Optional[ModelType]:
