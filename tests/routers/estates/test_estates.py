@@ -170,7 +170,6 @@ async def test_get_estate_with_correct_client_token(
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'closed_at': None,
         'created_at': str(estate.created_at).replace(' ', 'T'),
         'id': str(estate.id),
         'kind': estate.kind.value,
@@ -179,25 +178,24 @@ async def test_get_estate_with_correct_client_token(
         'slug': estate.slug,
         'updated_at': str(estate.updated_at).replace(' ', 'T'),
         'user_id': str(estate.user_id),
-        'coordinates': None,
-        'limits': None,
         'plots': [],
+        'description': estate.description,
     }
 
 
-# @pytest.mark.asyncio
-# async def test_get_estate_with_wrong_client_token(
-#     client, token, other_user, session
-# ):
-#     estate = EstateFactory(user_id=other_user.id)
-#     session.add(estate)
-#     await session.commit()
+@pytest.mark.asyncio
+async def test_get_estate_with_wrong_client_token(
+    client, token, other_user, session
+):
+    estate = EstateFactory(user_id=other_user.id)
+    session.add(estate)
+    await session.commit()
 
-#     response = client.get(
-#         f'/estates/{estate.id}', headers={'Authorization': f'Bearer {token}'}
-#     )
+    response = client.get(
+        f'/estates/{estate.id}', headers={'Authorization': f'Bearer {token}'}
+    )
 
-#     assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.status_code == HTTPStatus.NOT_FOUND
 
 
 # @pytest.mark.asyncio

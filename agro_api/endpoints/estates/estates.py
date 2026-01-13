@@ -18,3 +18,10 @@ async def get_estates(
 ):
     args = {'model': Estate, 'session': session, 'current_user': user}
     return await EstateService(**args).index(filters)
+
+
+async def get_estate(
+    session: session, user: current_user, id: str
+):
+    args = {'model': Estate, 'session': session, 'current_user': user}
+    return await EstateService(**args).show(id)

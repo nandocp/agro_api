@@ -5,6 +5,7 @@ from .estate import (
     EstateItem,
     EstatesList,
 )
+from .plot import PlotItem
 
 __all__ = [
     'EstateBase',
@@ -12,4 +13,5 @@ __all__ = [
     'EstateFilter',
     'EstateItem',
     'EstatesList',
+    'PlotItem'
 ]

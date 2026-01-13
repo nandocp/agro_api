@@ -5,7 +5,7 @@ from agro_api.entities.estate import Estate
 from agro_api.schemas.estate import EstateCreate, EstateFilter
 from agro_api.services.base import BaseService
 from config.authentication import validate_current_user
-from config.http_misc import unprocessable
+from config.http_misc import not_found, unprocessable
 
 
 class EstateService(BaseService):
@@ -19,12 +19,11 @@ class EstateService(BaseService):
 
     async def show(self, estate_id: str):
         filters = {'id': estate_id, 'user_id': self.user.id}
-        return await self.repository.find_by(filters)
-        # return await self.session.scalar(
-        #     select(Estate)
-        #     .where(Estate.id == estate_id)
-        #     .where(Estate.user_id == self.user.id)
-        # )
+        estate = await self.repository.get_by(filters)
+        if not estate:
+            not_found()
+
+        return estate
 
     async def index(self, filters: EstateFilter):
         new_filters = BaseService.extract_filters(filters)

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any, List
 
 from pydantic import UUID4, BaseModel, ConfigDict, Field
 
@@ -24,8 +25,10 @@ class EstateCreate(EstateBase):
 
 class EstateItem(EstateBase):
     id: UUID4
+    user_id: UUID4
     created_at: datetime
     updated_at: datetime
+    plots: List[Any]
 
 
 class EstatesList(BaseModel):

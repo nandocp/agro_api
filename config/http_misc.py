@@ -25,5 +25,9 @@ def with_conflict(message: str = 'Action cannot be completed'):
     raise HTTPException(status_code=HTTPStatus.CONFLICT, detail=message)
 
 
+def not_found(message=''):
+    raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=message)
+
+
 def filters(filter_schema: Type[FilterSchemaType]):
     return Annotated[filter_schema, Query()]

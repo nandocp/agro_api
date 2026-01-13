@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from pydantic import UUID4, BaseModel, ConfigDict, validator
 
-from agro_api.entities.estate_plot import LandUses, PlotStatus
+from agro_api.entities.estate.plot import LandUses, PlotStatus
 from config.geometry import dump_geometry
 
 
@@ -26,7 +26,7 @@ class EstatePlotCreate(EstatePlotBase):
     )
 
 
-class EstatePlotItem(EstatePlotCreate):
+class PlotItem(EstatePlotCreate):
     id: UUID4
     origin_plot_id: Optional[UUID4] | None
 
