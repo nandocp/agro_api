@@ -22,7 +22,7 @@ from agro_api.entities.base import table_registry
 from config.database import get_session
 from config.password import hash_password
 from config.settings import settings
-from tests.factories.estates import EstateFactory  # , PlotFactory
+from tests.factories.estates import EstateFactory, PlotFactory
 from tests.factories.users import UserFactory
 
 
@@ -140,28 +140,17 @@ async def estate(session, user) -> str:
     return estate
 
 
-# @pytest_asyncio.fixture
-# async def estate_plot(session, estate) -> str:
-#     estate_plot = EstatePlotFactory(estate_id=estate.id)
+@pytest_asyncio.fixture
+async def plot(session, estate) -> str:
+    plot = PlotFactory(estate_id=estate.id)
+    session.add(plot)
+    await session.commit()
+    await session.refresh(plot)
 
-#     limits = [
-#         (-23.551, -46.641),
-#         (-23.551, -46.441),
-#         (-23.331, -46.441),
-#         (-23.331, -46.641),
-#         (-23.551, -46.641),
-#     ]
-#     limits_polygon = Polygon(limits)
-#     estate_plot.limits = from_shape(limits_polygon, srid=4326)
-
-#     session.add(estate_plot)
-#     await session.commit()
-#     await session.refresh(estate_plot)
-
-#     return estate_plot
+    return plot
 
 
-# # def estate_plot_params(estate):
+# # def plot_params(estate):
 # #     new_plot = EstatePlotFactory.build(estate_id=estate.id)
 # #     return {
 # #         'estate_id': str(estate.id),

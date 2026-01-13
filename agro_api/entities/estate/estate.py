@@ -40,7 +40,7 @@ class Estate:
 
     slug: Mapped[str] = mapped_column(unique=True, nullable=False)
 
-    description: Mapped[str]  # = mapped_column(init=False)
+    description: Mapped[str]
 
     opened_at: Mapped[datetime] = mapped_column(
         nullable=True, server_default=func.now()
@@ -68,6 +68,3 @@ class Estate:
 
     def is_urban(self):
         return 'urban' in self.kind.value
-
-    def __repr__(self):
-        return f'<Estate(id={self.id}, slug={self.slug})>'

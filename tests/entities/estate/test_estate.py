@@ -18,7 +18,3 @@ def test_is_urban_false(session, user):
     estate = EstateFactory(user_id=user.id, kind=EstateKind.rural)
 
     assert not estate.is_urban()
-
-
-def test_custom__repr__(estate):
-    assert str(estate) == f'<Estate(id={estate.id}, slug={estate.slug})>'

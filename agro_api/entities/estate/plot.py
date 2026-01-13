@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 
-from geoalchemy2 import Geometry
 from sqlalchemy import ForeignKey, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
@@ -60,12 +59,6 @@ class Plot:
 
     status: Mapped[PlotStatus] = mapped_column(default=PlotStatus('active'))
 
-    limits: Mapped[Geometry] = mapped_column(
-        Geometry(geometry_type='POLYGON', srid=4326),
-        nullable=True,
-        init=False,
-    )
-
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
     )
@@ -78,11 +71,3 @@ class Plot:
 
     def area(self):
         return area_from_wkb(self.limits, formatter=2)
-
-    def __repr__(self):
-        attrs = [
-            # f'estate={self.estate.slug}',
-            f'slug={self.slug}',
-            f'area={self.area()}',
-        ]
-        return f'<EstatePlot({", ".join(attrs)})>'
