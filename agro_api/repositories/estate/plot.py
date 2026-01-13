@@ -3,14 +3,12 @@ from sqlalchemy.exc import IntegrityError
 
 from agro_api.entities.estate import Plot
 from agro_api.repositories.base import BaseRepository
-from config.error_responses import unprocessable
+from config.http_misc import unprocessable
 
 
 class PlotRepository(BaseRepository):
     async def find_by_id(self, id: str) -> Plot:
-        return await self.session.scalar(
-            select(Plot).where(Plot.id == id)
-        )
+        return await self.session.scalar(select(Plot).where(Plot.id == id))
 
     async def get_active(self, estate_id=None):
         stmt = select(Plot).where(Plot.status == 'active')

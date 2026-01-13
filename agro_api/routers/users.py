@@ -1,39 +1,38 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter
 
-from agro_api.schemas.common import BaseSchema
-from agro_api.schemas.user import UserCreate, UserItem, UserUpdate
-from agro_api.services.user import UserService
-from config.database import session
-from config.user import current_user, validate_current_user
+from agro_api.endpoints import users as users_endpoint
+from agro_api.schemas.user import UserItem
 
 router = APIRouter(prefix='/users', tags=['users'])
 
 
-@router.post('/', status_code=HTTPStatus.CREATED, response_model=BaseSchema)
-async def create(user: UserCreate, session: session):
-    service = await UserService(session).create(user)
+router.add_api_route(
+    '/',
+    users_endpoint.create_user,
+    methods=['POST'],
+    response_model=UserItem,
+    status_code=HTTPStatus.CREATED,
+    summary='Register new User',
+)
 
-    if not service:
-        raise HTTPException(
-            status_code=HTTPStatus.CONFLICT, detail='User already exists'
-        )
+router.add_api_route(
+    '/{user_id}',
+    users_endpoint.get_user,
+    methods=['GET'],
+    response_model=UserItem,
+    status_code=HTTPStatus.OK,
+    summary='Get User',
+    description='Get User by id',
+)
 
-    return service
-
-
-@router.get('/{user_id}', status_code=HTTPStatus.OK, response_model=UserItem)
-async def show(
-    user_id: str, user: current_user, session: session, request: Request
-):
-    validate_current_user(user_id, str(user.id))
-    return await UserService(session, user).get_one(user_id)
-
-
-@router.put('/{user_id}', status_code=HTTPStatus.OK, response_model=UserItem)
-async def update(
-    user_id: str, user_data: UserUpdate, user: current_user, session: session
-):
-    validate_current_user(user_id, str(user.id))
-    return await UserService(session, user).update(user_data)
+router.add_api_route(
+    '/{user_id}',
+    users_endpoint.update_user,
+    methods=['PUT', 'POST'],
+    response_model=UserItem,
+    status_code=HTTPStatus.OK,
+    summary='Get User',
+    description='Update User by id',
+)

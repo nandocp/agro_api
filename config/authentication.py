@@ -7,7 +7,7 @@ from jwt import DecodeError
 from sqlalchemy.orm import Session
 
 from agro_api.entities.user import User
-from agro_api.services.user import UserService
+from agro_api.repositories.auth import AuthRepository
 from config.database import get_session
 from config.jwt import decode_access_token
 
@@ -34,7 +34,7 @@ async def get_user(
     except DecodeError:
         raise credentials_exception
 
-    user = await UserService(session).find_by_jti(jti)
+    user = await AuthRepository(User, session).find_by_jti(jti)
     if not user or str(user.id) != sub:
         raise credentials_exception
 

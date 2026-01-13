@@ -1,59 +1,44 @@
 import importlib
-from abc import ABC, abstractmethod
-from typing import Generic, List, Optional, TypeVar
+from abc import ABC
+from typing import TypeVar
 
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from agro_api.entities.user import User
 
 ModelType = TypeVar('ModelType')
-CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
-UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
 
 
-def import_repository(name: str, session: Session):
+def import_repository(model, session: Session):
     _package = 'agro_api.repositories'
-    _klass = f'{name}Repository'
+    _klass = f'{model.__name__}Repository'
 
     try:
         module = importlib.import_module(_package)
         my_class = getattr(module, _klass)
-        return my_class(session)
-    except Exception:
+        return my_class(model, session=session)
+    except Exception as err:
+        err.with_traceback()
         return None
 
 
-class BaseService(ABC, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class BaseService(ABC):
     def __init__(
         self,
         model: ModelType,
         session: None | Session = None,
         current_user: User | None = None,
     ) -> None:
-        self.model: ModelType = model
-        self.session = session
         self.user = current_user
-        self.repository = import_repository(model.__name__, session)
+        self.repository = import_repository(model, session)
 
-    @abstractmethod
-    def get_one(self, id: int) -> Optional[ModelType]:
-        pass  # pragma: no cover
+    async def get_many(self, filters):
+        return await self.repository.get_many(filters)
 
-    @abstractmethod
-    def get_many(
-        self, *, offset: int = 0, limit: int = 100
-    ) -> List[ModelType]:
-        pass  # pragma: no cover
+    def extract_filters(filters):
+        filters_dict = filters.dict()
+        for key in ['offset', 'limit']:
+            filters_dict.pop(key, None)
 
-    @abstractmethod
-    def create(self, *, obj_in: CreateSchemaType) -> ModelType:
-        pass  # pragma: no cover
-
-    @abstractmethod
-    def update(self, *, obj_id: str, obj_in: UpdateSchemaType) -> ModelType:
-        pass  # pragma: no cover
-
-    @abstractmethod
-    def remove(self, *, id: int) -> ModelType:
-        pass  # pragma: no cover
+        items = filters_dict.items()
+        return {key: val for key, val in items if val is not None}

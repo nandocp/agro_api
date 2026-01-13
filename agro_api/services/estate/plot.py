@@ -6,8 +6,8 @@ from shapely.validation import explain_validity
 from agro_api.entities.estate import Plot
 from agro_api.repositories.estate import EstateRepository
 from agro_api.services.base import BaseService
-from config.error_responses import unauthorized, unprocessable
 from config.geometry import create_polygon_geometry, shape_to_wkb, wkb_to_shape
+from config.http_misc import unauthorized, unprocessable
 
 
 def verify_limits(estate, plot):
@@ -70,9 +70,7 @@ class PlotService(BaseService):
     def get_one(self, id: int) -> Optional[Plot]:
         pass  # pragma: no cover
 
-    def get_many(
-        self, *, offset: int = 0, limit: int = 100
-    ) -> List[Plot]:
+    def get_many(self, *, offset: int = 0, limit: int = 100) -> List[Plot]:
         pass  # pragma: no cover
 
     def update(self, *, obj_id: str, obj_in) -> Plot:

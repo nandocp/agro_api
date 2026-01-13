@@ -1,23 +1,23 @@
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from agro_api.entities.estate import Estate
+from agro_api.schemas.estate import EstateCreate, EstateFilter
 from agro_api.services.base import BaseService
-from config.geometry import transform_point, transform_polygon
+from config.authentication import validate_current_user
+from config.http_misc import unprocessable
 
 
 class EstateService(BaseService):
-    def __init__(self, session=None, user=None):
-        super().__init__(Estate, session, user)
+    async def create(self, schema_params: EstateCreate):
+        validate_current_user(str(schema_params.user_id), str(self.user.id))
 
-    async def create(self, schema_params):
-        new_estate = self.model(
-            **schema_params.model_dump(),
-            user_id=self.user.id
-        )
+        try:
+            return await self.repository.create(obj_in=schema_params)
+        except IntegrityError:
+            unprocessable('Estate.slug already exists')
 
-        return await self.repository.create(new_estate)
-
-    async def get_one(self, estate_id: str):
+    async def show(self, estate_id: str):
         filters = {'id': estate_id, 'user_id': self.user.id}
         return await self.repository.find_by(filters)
         # return await self.session.scalar(
@@ -26,9 +26,15 @@ class EstateService(BaseService):
         #     .where(Estate.user_id == self.user.id)
         # )
 
-    async def get_many(self, filters):
-        estates = await self.repository.query(filters, self.user.id)
-        return {'estates': estates.all()}
+    async def index(self, filters: EstateFilter):
+        new_filters = BaseService.extract_filters(filters)
+        new_filters['user_id'] = self.user.id
+
+        estates = await self.repository.get_many(
+            new_filters, offset=filters.offset, limit=filters.limit
+        )
+
+        return {'estates': estates}
 
     async def update(self, estate_id, params):
         estate = await self.session.scalar(
@@ -45,12 +51,6 @@ class EstateService(BaseService):
         estate.kind = params.kind
         estate.opened_at = params.opened_at
         estate.closed_at = params.closed_at
-
-        if params.coordinates:
-            estate.coordinates = transform_point(params.coordinates)
-
-        if params.limits:
-            estate.limits = transform_polygon(params.limits)
 
         self.session.add(estate)
         await self.session.commit()

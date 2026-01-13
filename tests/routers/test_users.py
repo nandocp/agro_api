@@ -35,6 +35,13 @@ async def test_create_new_user(client, session, mock_id):
         'id': str(user_db.id),
         'created_at': str(user_db.created_at).replace(' ', 'T'),
         'updated_at': str(user_db.updated_at).replace(' ', 'T'),
+        'email': user_db.email,
+        'last_sign_in_at': str(user_db.last_sign_in_at).replace(' ', 'T'),
+        'current_sign_in_at': str(user_db.current_sign_in_at).replace(
+            ' ', 'T'
+        ),
+        'is_active': True,
+        'name': user_db.name,
     }
 
 
@@ -51,7 +58,7 @@ def test_create_existing_user(client):
 
 
 # @pytest.mark.skip
-def test_show_user_with_auth(client, session, token, user, mock_db_time):
+def test_show_user_with_auth(client, session, token, user):
     response = client.get(
         f'/users/{user.id}', headers={'Authorization': f'Bearer {token}'}
     )

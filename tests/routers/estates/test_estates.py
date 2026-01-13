@@ -1,186 +1,161 @@
 # from datetime import datetime, timedelta
-# from http import HTTPStatus
-# from secrets import token_hex
+from http import HTTPStatus
+from secrets import token_hex
 
-# import pytest
+import pytest
 
-# from agro_api.entities.estate import EstateKind
-# from tests.factories.estates import EstateFactory
-
-
-# @pytest.mark.asyncio
-# async def test_create_estate(client, session, user, token):
-#     new_estate = EstateFactory(user_id=user.id)
-#     estate_data = {
-#         'slug': new_estate.slug,
-#         'label': new_estate.label,
-#         'opened_at': str(new_estate.opened_at),
-#         'kind': 'rural',
-#     }
-
-#     response = client.post(
-#         '/estates',
-#         json=estate_data,
-#         headers={'Authorization': f'Bearer {token}'},
-#     )
-
-#     assert response.status_code == HTTPStatus.CREATED
+from agro_api.entities.estate import EstateKind
+from tests.factories.estates import EstateFactory
 
 
-# @pytest.mark.asyncio
-# async def test_create_estate_with_geo_data(client, session, user, token):
-#     new_estate = EstateFactory(user_id=user.id)
-#     estate_data = {
-#         'slug': new_estate.slug,
-#         'label': new_estate.label,
-#         'opened_at': str(new_estate.opened_at),
-#         'kind': 'rural',
-#         'coordinates': (-46.6388, -23.5489),
-#         'limits': [
-#             (-46.641, -23.551),
-#             (-46.636, -23.551),
-#             (-46.636, -23.546),
-#             (-46.641, -23.546),
-#             (-46.641, -23.551),
-#         ],
-#     }
+@pytest.mark.asyncio
+async def test_create_estate(client, user, token):
+    params = EstateFactory(user_id=user.id)
+    estate_data = {
+        'slug': params.slug,
+        'label': params.label,
+        'kind': params.kind.value,
+        'description': params.description,
+        'opened_at': str(params.opened_at),
+        'user_id': str(user.id),
+    }
 
-#     response = client.post(
-#         '/estates',
-#         json=estate_data,
-#         headers={'Authorization': f'Bearer {token}'},
-#     )
+    response = client.post(
+        '/estates',
+        json=estate_data,
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
-#     assert response.status_code == HTTPStatus.CREATED
+    assert response.status_code == HTTPStatus.CREATED
 
 
-# @pytest.mark.asyncio
-# async def test_create_estate_with_existing_slug(
-# client, session, user, token):
-#     new_estate = EstateFactory(user_id=user.id)
-#     session.add(new_estate)
-#     await session.commit()
-#     estate_data = {
-#         'slug': new_estate.slug,
-#         'label': new_estate.label,
-#         'opened_at': str(new_estate.opened_at),
-#         'kind': 'rural',
-#     }
+@pytest.mark.asyncio
+async def test_index_estates_without_query(
+    client, token, user, session, other_user
+):
+    batch_size = 3
+    estates = EstateFactory.create_batch(batch_size, user_id=user.id)
+    session.add_all(estates)
 
-#     response = client.post(
-#         '/estates',
-#         json=estate_data,
-#         headers={'Authorization': f'Bearer {token}'},
-#     )
+    other_estates = EstateFactory.create_batch(
+        batch_size, user_id=other_user.id
+    )
+    session.add_all(other_estates)
+    await session.commit()
 
-#     assert response.status_code == HTTPStatus.UNPROCESSABLE_CONTENT
-#     assert response.json()['detail'] == 'Slug already exists'
+    response = client.get(
+        '/estates', headers={'Authorization': f'Bearer {token}'}
+    )
 
-
-# @pytest.mark.asyncio
-# async def test_get_index_estates_without_query(
-#     client, token, user, session, other_user
-# ):
-#     batch_size = 3
-#     estates = EstateFactory.create_batch(batch_size, user_id=user.id)
-#     session.add_all(estates)
-
-#     other_estates = EstateFactory.create_batch(
-#         batch_size, user_id=other_user.id
-#     )
-#     session.add_all(other_estates)
-#     await session.commit()
-
-#     response = client.get(
-#         '/estates', headers={'Authorization': f'Bearer {token}'}
-#     )
-
-#     assert response.status_code == HTTPStatus.OK
-#     assert len(response.json()['estates']) == batch_size
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json()['estates']) == batch_size
 
 
-# @pytest.mark.asyncio
-# async def test_get_index_estates_with_kind_query(
-#     client, token, user, session, other_user
-# ):
-#     batch_size = 3
-#     rural_estates = EstateFactory.create_batch(
-#         batch_size, user_id=user.id, kind=EstateKind.rural
-#     )
-#     urban_estates = EstateFactory.create_batch(
-#         batch_size, user_id=user.id, kind=EstateKind.periurban
-#     )
-#     session.add_all(rural_estates)
-#     session.add_all(urban_estates)
+@pytest.mark.asyncio
+async def test_create_estate_with_slug(
+    client, session, estate, token
+):
+    estate_data = {
+        'slug': estate.slug,
+        'label': estate.label,
+        'opened_at': str(estate.opened_at),
+        'kind': 'rural',
+        'description': estate.description,
+        'user_id': str(estate.user_id),
+    }
 
-#     other_estates = EstateFactory.create_batch(
-#         batch_size, user_id=other_user.id
-#     )
-#     session.add_all(other_estates)
-#     await session.commit()
+    response = client.post(
+        '/estates',
+        json=estate_data,
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
-#     response = client.get(
-#         '/estates/?kind=rural', headers={'Authorization': f'Bearer {token}'}
-#     )
-
-#     assert response.status_code == HTTPStatus.OK
-#     assert len(response.json()['estates']) == batch_size
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_CONTENT
+    assert response.json()['detail'] == 'Estate.slug already exists'
 
 
-# @pytest.mark.asyncio
-# async def test_get_index_estates_with_slug_query(
-#     client, token, user, session, other_user
-# ):
-#     batch_size = 3
-#     slug = token_hex(4)
-#     slug_estate = EstateFactory.create(user_id=user.id, slug=slug)
-#     other_estates = EstateFactory.create_batch(
-#         batch_size, user_id=user.id, kind=EstateKind.periurban
-#     )
-#     session.add(slug_estate)
-#     session.add_all(other_estates)
+@pytest.mark.asyncio
+async def test_index_estates_with_kind(
+    client, token, user, session, other_user
+):
+    batch_size = 3
+    rural_estates = EstateFactory.create_batch(
+        batch_size, user_id=user.id, kind=EstateKind.rural
+    )
+    urban_estates = EstateFactory.create_batch(
+        batch_size, user_id=user.id, kind=EstateKind.periurban
+    )
+    session.add_all(rural_estates)
+    session.add_all(urban_estates)
 
-#     other_estates = EstateFactory.create_batch(
-#         batch_size, user_id=other_user.id
-#     )
-#     session.add_all(other_estates)
-#     await session.commit()
+    other_estates = EstateFactory.create_batch(
+        batch_size, user_id=other_user.id
+    )
+    session.add_all(other_estates)
+    await session.commit()
 
-#     response = client.get(
-#         f'/estates/?slug={slug}',
-#           headers={'Authorization': f'Bearer {token}'}
-#     )
+    response = client.get(
+        '/estates/?kind=rural', headers={'Authorization': f'Bearer {token}'}
+    )
 
-#     assert response.status_code == HTTPStatus.OK
-#     assert len(response.json()['estates']) == 1
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json()['estates']) == batch_size
 
 
-# @pytest.mark.asyncio
-# async def test_get_index_estates_with_label_query(
-#     client, token, user, session, other_user
-# ):
-#     batch_size = 3
-#     label = EstateFactory().label
-#     slug_estate = EstateFactory.create_batch(
-#         batch_size, user_id=user.id, label=label
-#     )
-#     other_estates = EstateFactory.create_batch(batch_size, user_id=user.id)
-#     session.add_all(slug_estate)
-#     session.add_all(other_estates)
+@pytest.mark.asyncio
+async def test_index_estates_with_slug(
+    client, token, user, session, other_user
+):
+    batch_size = 3
+    slug = token_hex(4)
+    slug_estate = EstateFactory.create(user_id=user.id, slug=slug)
+    other_estates = EstateFactory.create_batch(
+        batch_size, user_id=user.id, kind=EstateKind.periurban
+    )
+    session.add(slug_estate)
+    session.add_all(other_estates)
 
-#     other_estates = EstateFactory.create_batch(
-#         batch_size, user_id=other_user.id
-#     )
-#     session.add_all(other_estates)
-#     await session.commit()
+    other_estates = EstateFactory.create_batch(
+        batch_size, user_id=other_user.id
+    )
+    session.add_all(other_estates)
+    await session.commit()
 
-#     response = client.get(
-#         f'/estates/?label={label}',
-#         headers={'Authorization': f'Bearer {token}'},
-#     )
+    response = client.get(
+        f'/estates/?slug={slug}',
+          headers={'Authorization': f'Bearer {token}'}
+    )
 
-#     assert response.status_code == HTTPStatus.OK
-#     assert len(response.json()['estates']) == batch_size
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json()['estates']) == 1
+
+
+@pytest.mark.asyncio
+async def test_index_estates_with_label(
+    client, token, user, session, other_user
+):
+    batch_size = 3
+    label = EstateFactory().label
+    slug_estate = EstateFactory.create_batch(
+        batch_size, user_id=user.id, label=label
+    )
+    other_estates = EstateFactory.create_batch(batch_size, user_id=user.id)
+    session.add_all(slug_estate)
+    session.add_all(other_estates)
+
+    other_estates = EstateFactory.create_batch(
+        batch_size, user_id=other_user.id
+    )
+    session.add_all(other_estates)
+    await session.commit()
+
+    response = client.get(
+        f'/estates/?label={label}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json()['estates']) == batch_size
 
 
 # @pytest.mark.asyncio
