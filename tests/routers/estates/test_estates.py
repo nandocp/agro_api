@@ -198,31 +198,29 @@ async def test_get_estate_with_wrong_client_token(
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-# @pytest.mark.asyncio
-# async def test_update_mismatching_user_and_estate(
-#     client, session, other_user, token
-# ):
-#     estate = EstateFactory(user_id=other_user.id, kind=EstateKind.intraurban)
-#     session.add(estate)
-#     await session.commit()
+@pytest.mark.asyncio
+async def test_update_mismatching_user_and_estate(
+    client, session, other_user, token
+):
+    estate = EstateFactory(user_id=other_user.id, kind=EstateKind.intraurban)
+    session.add(estate)
+    await session.commit()
 
-#     estate_params = {
-#         'kind': EstateKind.periurban.value,
-#         'label': estate.label,
-#         'opened_at': str(estate.opened_at),
-#         'closed_at': None,
-#         'slug': estate.slug,
-#         'coordinates': None,
-#         'limits': None,
-#     }
+    estate_params = {
+        'kind': EstateKind.periurban.value,
+        'label': estate.label,
+        'opened_at': str(estate.opened_at),
+        'slug': estate.slug,
+        'description': estate.description
+    }
 
-#     response = client.put(
-#         f'/estates/{estate.id}',
-#         json=estate_params,
-#         headers={'Authorization': f'Bearer {token}'},
-#     )
+    response = client.put(
+        f'/estates/{estate.id}',
+        json=estate_params,
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
-#     assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.status_code == HTTPStatus.NOT_FOUND
 
 
 # @pytest.mark.asyncio
@@ -312,93 +310,3 @@ async def test_get_estate_with_wrong_client_token(
 
 #     assert response.status_code == HTTPStatus.OK
 #     assert estate.label == new_label
-
-
-# @pytest.mark.asyncio
-# async def test_update_estate_closed_at(client, session, user, token):
-#     estate = EstateFactory(user_id=user.id, kind=EstateKind.intraurban)
-#     session.add(estate)
-#     await session.commit()
-
-#     closed_at = datetime.now() + timedelta(hours=2)
-#     estate_params = {
-#         'kind': estate.kind.value,
-#         'label': estate.label,
-#         'opened_at': str(estate.opened_at),
-#         'closed_at': str(closed_at),
-#         'slug': estate.slug,
-#         'coordinates': None,
-#         'limits': None,
-#     }
-
-#     response = client.put(
-#         f'/estates/{estate.id}',
-#         json=estate_params,
-#         headers={'Authorization': f'Bearer {token}'},
-#     )
-
-#     assert response.status_code == HTTPStatus.OK
-#     assert estate.closed_at == closed_at
-
-
-# @pytest.mark.asyncio
-# async def test_update_estate_coordinates(client, session, user, token):
-#     estate = EstateFactory(user_id=user.id, kind=EstateKind.intraurban)
-#     session.add(estate)
-#     await session.commit()
-
-#     closed_at = datetime.now() + timedelta(hours=2)
-#     estate_params = {
-#         'kind': estate.kind.value,
-#         'label': estate.label,
-#         'opened_at': str(estate.opened_at),
-#         'closed_at': str(closed_at),
-#         'slug': estate.slug,
-#         'coordinates': (-23.5489, -46.6388),
-#         'limits': None,
-#     }
-
-#     response = client.put(
-#         f'/estates/{estate.id}',
-#         json=estate_params,
-#         headers={'Authorization': f'Bearer {token}'},
-#     )
-
-#     assert response.status_code == HTTPStatus.OK
-#     assert estate.closed_at == closed_at
-
-
-# @pytest.mark.asyncio
-# async def test_update_estate_limits(client, session, user, token):
-#     estate = EstateFactory(user_id=user.id, kind=EstateKind.intraurban)
-#     session.add(estate)
-#     await session.commit()
-
-#     closed_at = datetime.now() + timedelta(hours=2)
-#     estate_params = {
-#         'kind': estate.kind.value,
-#         'label': estate.label,
-#         'opened_at': str(estate.opened_at),
-#         'closed_at': str(closed_at),
-#         'slug': estate.slug,
-#         'coordinates': None,
-#         'limits': [
-#             (-23.551, -46.641),
-#             (-23.551, -46.636),
-#             (-23.546, -46.636),
-#             (-23.546, -46.641),
-#             (-23.551, -46.641),
-#         ],
-#     }
-
-#     response = client.put(
-#         f'/estates/{estate.id}',
-#         json=estate_params,
-#         headers={'Authorization': f'Bearer {token}'},
-#     )
-
-#     limits = response.json()['limits']
-#     assert response.status_code == HTTPStatus.OK
-#     assert isinstance(limits, dict)
-#     for key in ['type', 'coordinates']:
-#         assert key in limits

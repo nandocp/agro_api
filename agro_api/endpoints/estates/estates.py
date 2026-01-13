@@ -1,5 +1,5 @@
 from agro_api.entities.estate import Estate
-from agro_api.schemas.estate import EstateCreate, EstateFilter
+from agro_api.schemas.estate import EstateBase, EstateCreate, EstateFilter
 from agro_api.services.estate import EstateService
 from config.authentication import current_user
 from config.database import session
@@ -25,3 +25,10 @@ async def get_estate(
 ):
     args = {'model': Estate, 'session': session, 'current_user': user}
     return await EstateService(**args).show(id)
+
+
+async def update_estate(
+    session: session, user: current_user, id: str, params: EstateBase
+):
+    args = {'model': Estate, 'session': session, 'current_user': user}
+    return await EstateService(**args).update(id, params)

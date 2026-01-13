@@ -40,6 +40,15 @@ router.add_api_route(
     summary='Get a single Estate data',
 )
 
+router.add_api_route(
+    '/{id}',
+    estates_endpoints.update_estate,
+    methods=['PUT', 'POST'],
+    response_model=EstateItem,
+    status_code=HTTPStatus.OK,
+    summary='Update Estate',
+)
+
 # @router.post('/', response_model=EstateItem, status_code=HTTPStatus.CREATED)
 # async def create(session: session, user: current_user, estate: EstateBase):
 #     try:

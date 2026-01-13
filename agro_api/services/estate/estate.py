@@ -1,7 +1,5 @@
-from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from agro_api.entities.estate import Estate
 from agro_api.schemas.estate import EstateCreate, EstateFilter
 from agro_api.services.base import BaseService
 from config.authentication import validate_current_user
@@ -20,6 +18,7 @@ class EstateService(BaseService):
     async def show(self, estate_id: str):
         filters = {'id': estate_id, 'user_id': self.user.id}
         estate = await self.repository.get_by(filters)
+
         if not estate:
             not_found()
 
@@ -36,26 +35,14 @@ class EstateService(BaseService):
         return {'estates': estates}
 
     async def update(self, estate_id, params):
-        estate = await self.session.scalar(
-            select(Estate)
-            .where(Estate.id == estate_id)
-            .where(Estate.user_id == self.user.id)
-        )
+        estate = await self.repository.get_by({
+            'id': estate_id, 'user_id': self.user.id
+        })
 
         if not estate:
-            return False
+            not_found()
 
-        estate.slug = params.slug
-        estate.label = params.label
-        estate.kind = params.kind
-        estate.opened_at = params.opened_at
-        estate.closed_at = params.closed_at
-
-        self.session.add(estate)
-        await self.session.commit()
-        await self.session.refresh(estate)
-
-        return estate
-
-    async def remove(self, *, id: int):
-        pass
+        try:
+            return await self.repository.update(db_obj=estate, obj_in=params)
+        except IntegrityError:
+            unprocessable('Estate.slug already exists')
