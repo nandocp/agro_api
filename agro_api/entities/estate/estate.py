@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -59,19 +59,15 @@ class Estate:
         init=False, server_default=func.now(), onupdate=func.now()
     )
 
-    kind: Mapped[EstateKind] = mapped_column(default=EstateKind.rural)
-
     account: Mapped['Account'] = relationship(
-        back_populates='estates', init=False, lazy='selectin'
+        back_populates='estates', lazy='selectin'
     )
 
-    plots: Mapped[Set['Plot']] = relationship(
+    plots: Mapped[List['Plot']] = relationship(
         back_populates='estate', init=False, lazy='selectin'
     )
 
-    # geo_data = relationship(
-    #     back_populates='estate', init=False, lazy='selectin'
-    # )
+    kind: Mapped[EstateKind] = mapped_column(default=EstateKind.rural)
 
     def is_urban(self):
         return 'urban' in self.kind.value

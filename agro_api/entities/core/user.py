@@ -67,4 +67,9 @@ class User:
     )
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
-    account: Mapped['Account'] = relationship(back_populates='users')
+    account: Mapped['Account'] = relationship(
+        back_populates='users', foreign_keys=[account_id]
+    )
+
+    def __repr__(self):
+        return f'User(id={self.id}, name={self.name})'

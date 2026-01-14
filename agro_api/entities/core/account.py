@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -43,16 +43,19 @@ class Account:
     )
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
-    users: Mapped[Set['User']] = relationship(
+    users: Mapped[List['User']] = relationship(
         back_populates='account',
         init=False,
         cascade='all, delete-orphan',
         lazy='selectin'
     )
 
-    estates: Mapped[Set['Estate']] = relationship(
+    estates: Mapped[List['Estate']] = relationship(
         back_populates='account',
         init=False,
         cascade='all, delete-orphan',
         lazy='selectin'
     )
+
+    def __repr__(self):
+        return f'Account(id={self.id}, name={self.name})'

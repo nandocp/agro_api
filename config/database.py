@@ -1,5 +1,4 @@
 from typing import Annotated
-from warnings import warn
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import (
@@ -9,6 +8,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import registry
 
+from config.logging import logger
 from config.settings import settings
 
 engine: AsyncEngine = create_async_engine(
@@ -25,8 +25,9 @@ async def get_session():
         try:
             yield session
         except Exception as error:
-            print(error)
-            warn('DB operation failed. Auto-rollbacking...')
+            logger.warn(
+                f'DB operation failed with {error}. Auto-rollbacking...'
+            )
             await session.rollback()
         finally:
             await session.close()

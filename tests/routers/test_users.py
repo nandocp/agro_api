@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy import select
 
 from agro_api.entities.core import User
-from tests.factories.users import UserFactory
+from tests.factories.core import UserFactory
 
 
 # @pytest.mark.skip

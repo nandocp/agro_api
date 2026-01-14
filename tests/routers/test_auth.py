@@ -4,7 +4,7 @@ from secrets import token_hex
 import pytest
 
 from config.password import hash_password
-from tests.factories.users import UserFactory
+from tests.factories.core import UserFactory
 
 
 # @pytest.mark.skip

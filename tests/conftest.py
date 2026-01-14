@@ -6,9 +6,6 @@ from uuid import uuid4
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
-
-# from geoalchemy2.shape import from_shape
-# from shapely.geometry import Point, Polygon
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -21,8 +18,8 @@ from agro_api.app import app
 from config.database import get_session, table_registry
 from config.password import hash_password
 from config.settings import settings
+from tests.factories.core import AccountFactory, UserFactory
 from tests.factories.estates import EstateFactory, PlotFactory
-from tests.factories.users import UserFactory
 
 
 @contextmanager
@@ -91,6 +88,18 @@ async def session():
     async with engine.begin() as conn:
         await conn.run_sync(table_registry.metadata.drop_all)
 
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def token(client, user) -> str:
+    response = client.post(
+        '/auth/login',
+        data={'username': user.email, 'password': user.clean_password},
+    )
+
+    return response.headers['Authorization']
+
 
 @pytest_asyncio.fixture
 async def user(session):
@@ -104,6 +113,15 @@ async def user(session):
     user.clean_password = password
 
     return user
+
+
+@pytest_asyncio.fixture
+async def account(session):
+    account = AccountFactory()
+    session.add(account)
+    await session.commit()
+    await session.refresh(account)
+    return account
 
 
 @pytest_asyncio.fixture
@@ -121,18 +139,8 @@ async def other_user(session):
 
 
 @pytest_asyncio.fixture
-async def token(client, user) -> str:
-    response = client.post(
-        '/auth/login',
-        data={'username': user.email, 'password': user.clean_password},
-    )
-
-    return response.headers['Authorization']
-
-
-@pytest_asyncio.fixture
-async def estate(session, user) -> str:
-    estate = EstateFactory(user_id=user.id)
+async def estate(session) -> str:
+    estate = EstateFactory()
     session.add(estate)
     await session.commit()
     await session.refresh(estate)
@@ -140,8 +148,8 @@ async def estate(session, user) -> str:
 
 
 @pytest_asyncio.fixture
-async def plot(session, estate, user) -> str:
-    plot = PlotFactory(estate_id=estate.id, created_by=user.id)
+async def plot(session) -> str:
+    plot = PlotFactory()
     session.add(plot)
     await session.commit()
     await session.refresh(plot)

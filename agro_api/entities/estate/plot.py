@@ -51,7 +51,7 @@ class Plot:
     )
 
     estate_id: Mapped[Uuid] = mapped_column(ForeignKey('estates.id'))
-    created_by: Mapped[Uuid] = mapped_column(ForeignKey('users.id'))
+    creator_id: Mapped[Uuid] = mapped_column(ForeignKey('users.id'))
 
     land_use: Mapped[LandUses] = mapped_column(nullable=False)
 
@@ -77,3 +77,11 @@ class Plot:
     note: Mapped[str] = mapped_column(init=False, default='')
 
     status: Mapped[PlotStatus] = mapped_column(default=PlotStatus('active'))
+
+    def __repr__(self):
+        attrs = [
+            f'id={self.id}',
+            f'slug={self.slug}',
+            f'estate={self.estate.slug}'
+        ]
+        return f'Plot({', '.join(attrs)})'
