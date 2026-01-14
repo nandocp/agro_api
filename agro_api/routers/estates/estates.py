@@ -3,12 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter
 
 from agro_api.endpoints.estates import estates as estates_endpoints
-from agro_api.schemas.estate import (
-    # EstateBase,
-    # EstateFilter,
-    EstateItem,
-    EstatesList,
-)
+from agro_api.schemas.estate import EstateItem, EstatesList
 
 router = APIRouter(prefix='/estates', tags=['estates'])
 
