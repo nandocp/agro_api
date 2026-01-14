@@ -71,7 +71,7 @@ class Plot:
 
     creator: Mapped['User'] = relationship()
     estate: Mapped['Estate'] = relationship(
-        'Estate', back_populates='plots', lazy='selectin'
+        back_populates='plots', lazy='selectin'
     )
 
     note: Mapped[str] = mapped_column(init=False, default='')

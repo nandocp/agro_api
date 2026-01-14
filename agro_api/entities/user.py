@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING, Set
 
 from sqlalchemy import Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -13,6 +14,9 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import table_registry
+
+if TYPE_CHECKING:
+    from agro_api.entities.estate import Estate
 
 
 class UserRole(str, Enum):
@@ -61,6 +65,9 @@ class User:
     )
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
-    estates = relationship(
-        'Estate', init=False, cascade='all, delete-orphan', lazy='selectin'
+    estates: Mapped[Set['Estate']] = relationship(
+        back_populate='user',
+        init=False,
+        cascade='all, delete-orphan',
+        lazy='selectin'
     )

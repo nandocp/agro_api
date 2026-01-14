@@ -62,15 +62,15 @@ class Estate:
     kind: Mapped[EstateKind] = mapped_column(default=EstateKind.rural)
 
     user: Mapped['User'] = relationship(
-        'User', init=False, back_populates='estates', lazy='selectin'
+        back_populates='estates', init=False, lazy='selectin'
     )
 
     plots: Mapped[Set['Plot']] = relationship(
-        'Plot', init=False, back_populates='estate', lazy='selectin'
+        back_populates='estate', init=False, lazy='selectin'
     )
 
     geo_data = relationship(
-        'Geo', init=False, back_populates='estate', lazy='selectin'
+        back_populates='estate', init=False, lazy='selectin'
     )
 
     def is_urban(self):
