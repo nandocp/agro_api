@@ -1,6 +1,6 @@
 from agro_api.entities.core import User
 from agro_api.schemas.user import UserCreate, UserUpdate
-from agro_api.services.user import UserService
+from agro_api.services.core import UserService
 from config.authentication import current_user
 from config.database import session
 

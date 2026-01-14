@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from agro_api.entities.core import User
-from agro_api.repositories.auth import AuthRepository
+from agro_api.repositories.core import AuthRepository
 from config.http_misc import unauthorized
 from config.jwt import create_access_token
 from config.password import verify_password

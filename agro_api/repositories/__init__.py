@@ -1,6 +1,5 @@
-from .auth import AuthRepository
+from .core import AuthRepository, UserRepository
 from .estate import EstateRepository, PlotRepository
-from .user import UserRepository
 
 __all__ = [
     'AuthRepository',

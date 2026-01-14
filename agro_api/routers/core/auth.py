@@ -3,7 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
-from agro_api.services.auth import AuthService
+from agro_api.services.core import AuthService
 from config.authentication import current_user
 from config.database import session
 
