@@ -64,6 +64,3 @@ class User:
     estates = relationship(
         'Estate', init=False, cascade='all, delete-orphan', lazy='selectin'
     )
-
-    def __repr__(self):
-        return f'<User(id={self.id}, email={self.email})>'
