@@ -66,7 +66,7 @@ class User:
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     estates: Mapped[Set['Estate']] = relationship(
-        back_populate='user',
+        back_populates='user',
         init=False,
         cascade='all, delete-orphan',
         lazy='selectin'

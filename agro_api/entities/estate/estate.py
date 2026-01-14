@@ -69,9 +69,9 @@ class Estate:
         back_populates='estate', init=False, lazy='selectin'
     )
 
-    geo_data = relationship(
-        back_populates='estate', init=False, lazy='selectin'
-    )
+    # geo_data = relationship(
+    #     back_populates='estate', init=False, lazy='selectin'
+    # )
 
     def is_urban(self):
         return 'urban' in self.kind.value

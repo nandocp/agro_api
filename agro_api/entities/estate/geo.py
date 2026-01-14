@@ -9,7 +9,7 @@ from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
     mapped_column,
-    relationship,
+    # relationship,
 )
 
 from agro_api.entities.base import table_registry
@@ -71,4 +71,5 @@ class Geo:
     #     nullable=True
     # )
 
-    estate = relationship('Estate', back_populates='geo_data', lazy='selectin')
+    # estate = relationship(
+    # 'Estate', back_populates='geo_data', lazy='selectin')
