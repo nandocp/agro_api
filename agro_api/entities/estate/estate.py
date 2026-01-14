@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING, Set
 
 from sqlalchemy import ForeignKey, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -13,6 +14,10 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import table_registry
+
+if TYPE_CHECKING:
+    from agro_api.entities.estate import Plot
+    from agro_api.entities.user import User
 
 
 class EstateKind(str, Enum):
@@ -56,9 +61,11 @@ class Estate:
 
     kind: Mapped[EstateKind] = mapped_column(default=EstateKind.rural)
 
-    user = relationship('User', init=False, back_populates='estates')
+    user: Mapped['User'] = relationship(
+        'User', init=False, back_populates='estates', lazy='selectin'
+    )
 
-    plots = relationship(
+    plots: Mapped[Set['Plot']] = relationship(
         'Plot', init=False, back_populates='estate', lazy='selectin'
     )
 

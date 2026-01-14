@@ -25,7 +25,7 @@ class EstateService(BaseService):
         return estate
 
     async def index(self, filters: EstateFilter):
-        new_filters = BaseService.extract_filters(filters)
+        new_filters = BaseService.sanitize_filters(filters)
         new_filters['user_id'] = self.user.id
 
         estates = await self.repository.get_many(

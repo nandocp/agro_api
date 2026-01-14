@@ -5,7 +5,7 @@ from .estate import (
     EstateItem,
     EstatesList,
 )
-from .plot import PlotItem
+from .plot import PlotCreate, PlotFilter, PlotItem, PlotsList, PlotUpdate
 
 __all__ = [
     'EstateBase',
@@ -13,5 +13,9 @@ __all__ = [
     'EstateFilter',
     'EstateItem',
     'EstatesList',
-    'PlotItem'
+    'PlotCreate',
+    'PlotFilter',
+    'PlotItem',
+    'PlotsList',
+    'PlotUpdate',
 ]

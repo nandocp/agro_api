@@ -1,49 +1,39 @@
-# from http import HTTPStatus
+from http import HTTPStatus
 
-# from typing import Annotated
-from fastapi import APIRouter  # , HTTPException, Query
+from fastapi import APIRouter
 
-# from agro_api.schemas.estate_plot import (
-#     EstatePlotCreate,
-#     EstatePlotItem,
-# )
-# from agro_api.services.estate_plot import EstatePlotService
-# from config.database import session
-# from config.user import current_user
+from agro_api.endpoints.estates import plots as plots_endpoints
+from agro_api.schemas.common import BaseSchema
+from agro_api.schemas.estate import PlotItem, PlotsList
 
 router = APIRouter(prefix='/estates/{estate_id}/plots', tags=['estate_plots'])
-# filters = Annotated[EstateFilter, Query()]
 
 
-# @router.post(
-#     '/', response_model=EstatePlotItem, status_code=HTTPStatus.CREATED
-# )
-# async def create(
-#     session: session,
-#     user: current_user,
-#     plot: EstatePlotCreate,
-#     estate_id: str,
-# ):
-#     return await EstatePlotService(session, user).create(plot, estate_id)
+router.add_api_route(
+    '/',
+    plots_endpoints.create_plot,
+    methods=['POST'],
+    response_model=BaseSchema,
+    status_code=HTTPStatus.CREATED,
+    summary='Create new Plot',
+)
 
-#     # try:
-#     #     return service
-#     # except IntegrityError:
-#     #     raise HTTPException(
-#     #         status_code=HTTPStatus.UNPROCESSABLE_CONTENT,
-#     #         detail='Plot slug already exists',
-#     #     )
 
-#     # if not service:
-#     #     raise HTTPException(
-#     #         status_code=HTTPStatus.UNAUTHORIZED,
-#     #         detail='You shall not do it'
-#     #     )estate_
+router.add_api_route(
+    '/{id}',
+    plots_endpoints.show_plot,
+    methods=['GET'],
+    response_model=PlotItem,
+    status_code=HTTPStatus.OK,
+    summary='Get Plot by id'
+)
 
-#     # if isinstance(service, str):
-#     #     raise HTTPException(
-#     #         status_code=HTTPStatus.UNPROCESSABLE_CONTENT,
-#     #         detail=service
-#     #     )
 
-#     # return service
+router.add_api_route(
+    '/',
+    plots_endpoints.index_plot,
+    methods=['GET'],
+    response_model=PlotsList,
+    status_code=HTTPStatus.OK,
+    summary='Get Plots list with pagination and filters'
+)

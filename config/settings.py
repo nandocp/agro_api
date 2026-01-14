@@ -29,5 +29,7 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: List[str]
 
+    LOG_LEVEL: str = 'INFO'
+
 
 settings = Settings()

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -13,7 +14,10 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import table_registry
-from config.geometry import area_from_wkb
+
+if TYPE_CHECKING:
+    from agro_api.entities.estate import Estate
+    from agro_api.entities.user import User
 
 
 class LandUses(str, Enum):
@@ -47,9 +51,7 @@ class Plot:
     )
 
     estate_id: Mapped[Uuid] = mapped_column(ForeignKey('estates.id'))
-    origin_plot_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('estate_plots.id'), nullable=True, init=False
-    )
+    created_by: Mapped[Uuid] = mapped_column(ForeignKey('users.id'))
 
     land_use: Mapped[LandUses] = mapped_column(nullable=False)
 
@@ -57,7 +59,7 @@ class Plot:
 
     label: Mapped[str] = mapped_column(unique=False)
 
-    status: Mapped[PlotStatus] = mapped_column(default=PlotStatus('active'))
+    merged_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
@@ -67,7 +69,11 @@ class Plot:
         init=False, server_default=func.now(), onupdate=func.now()
     )
 
-    estate = relationship('Estate', back_populates='plots', lazy='selectin')
+    creator: Mapped['User'] = relationship()
+    estate: Mapped['Estate'] = relationship(
+        'Estate', back_populates='plots', lazy='selectin'
+    )
 
-    def area(self):
-        return area_from_wkb(self.limits, formatter=2)
+    note: Mapped[str] = mapped_column(init=False, default='')
+
+    status: Mapped[PlotStatus] = mapped_column(default=PlotStatus('active'))

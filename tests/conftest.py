@@ -141,8 +141,8 @@ async def estate(session, user) -> str:
 
 
 @pytest_asyncio.fixture
-async def plot(session, estate) -> str:
-    plot = PlotFactory(estate_id=estate.id)
+async def plot(session, estate, user) -> str:
+    plot = PlotFactory(estate_id=estate.id, created_by=user.id)
     session.add(plot)
     await session.commit()
     await session.refresh(plot)
@@ -150,26 +150,14 @@ async def plot(session, estate) -> str:
     return plot
 
 
-# # def plot_params(estate):
-# #     new_plot = EstatePlotFactory.build(estate_id=estate.id)
-# #     return {
-# #         'estate_id': str(estate.id),
-# #         'slug': new_plot.slug,
-# #         'label': new_plot.label,
-# #         'land_use': new_plot.land_use.value,
-# #         'status': new_plot.status.value,
-# #         'limits': [
-# #             (2, 2),
-# #             (2 ,3),
-# #             (3, 5),
-# #             (3, 6),
-# #             (6, 6),
-# #             (7, 5),
-# #             (7, 2),
-# #             (6, 1),
-# #             (4, 0),
-# #             (4, 1),
-# #             (5, 2),
-# #             (2, 2),
-# #         ],
-# #     }
+@pytest_asyncio.fixture
+def plot_params(estate, user):
+    plot = PlotFactory(created_by=user.id, estate_id=estate.id)
+    return {
+        'estate_id': str(estate.id),
+        'slug': plot.slug,
+        'label': plot.label,
+        'land_use': plot.land_use.value,
+        'status': plot.status.value,
+        'created_by': str(user.id),
+    }

@@ -30,12 +30,13 @@ class BaseService(ABC):
         current_user: User | None = None,
     ) -> None:
         self.user = current_user
+        self.session = session
         self.repository = import_repository(model, session)
 
     async def get_many(self, filters):
         return await self.repository.get_many(filters)
 
-    def extract_filters(filters):
+    def sanitize_filters(filters):
         filters_dict = filters.dict()
         for key in ['offset', 'limit']:
             filters_dict.pop(key, None)
