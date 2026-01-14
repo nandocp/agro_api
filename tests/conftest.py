@@ -18,8 +18,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.pool import StaticPool
 
 from agro_api.app import app
-from agro_api.entities.base import table_registry
-from config.database import get_session
+from config.database import get_session, table_registry
 from config.password import hash_password
 from config.settings import settings
 from tests.factories.estates import EstateFactory, PlotFactory

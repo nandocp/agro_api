@@ -4,7 +4,7 @@ from secrets import token_hex
 import pytest
 from sqlalchemy import select
 
-from agro_api.entities.user import User
+from agro_api.entities.core import User
 from tests.factories.users import UserFactory
 
 

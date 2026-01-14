@@ -12,7 +12,7 @@ from sqlalchemy.orm import (
     # relationship,
 )
 
-from agro_api.entities.base import table_registry
+from config.database import table_registry
 
 
 @mapped_as_dataclass(table_registry)

@@ -2,7 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from agro_api.entities.user import User
+from agro_api.entities.core import User
 from agro_api.repositories.base import BaseRepository
 from agro_api.schemas.auth import AuthLogin
 

@@ -6,7 +6,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from agro_api.entities.base import table_registry
+from config.database import table_registry
 from config.settings import settings
 
 # this is the Alembic Config object, which provides

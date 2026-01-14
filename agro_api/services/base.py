@@ -4,7 +4,7 @@ from typing import TypeVar
 
 from sqlalchemy.orm import Session
 
-from agro_api.entities.user import User
+from agro_api.entities.core import User
 
 ModelType = TypeVar('ModelType')
 

@@ -2,14 +2,12 @@ from typing import Annotated
 from warnings import warn
 
 from fastapi import Depends
-
-# from sqlalchemy import Engine, create_engine
-# from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     create_async_engine,
 )
+from sqlalchemy.orm import registry
 
 from config.settings import settings
 
@@ -35,3 +33,4 @@ async def get_session():
 
 
 session = Annotated[AsyncSession, Depends(get_session)]
+table_registry = registry()

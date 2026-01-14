@@ -1,4 +1,4 @@
-from agro_api.entities.user import User
+from agro_api.entities.core import User
 from agro_api.schemas.user import UserCreate, UserUpdate
 from agro_api.services.user import UserService
 from config.authentication import current_user

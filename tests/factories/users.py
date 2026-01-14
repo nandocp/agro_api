@@ -3,7 +3,7 @@ from secrets import token_hex
 
 import factory
 
-from agro_api.entities.user import User
+from agro_api.entities.core import User
 from config.password import hash_password
 
 Faker = factory.Faker

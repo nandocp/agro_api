@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt import DecodeError
 from sqlalchemy.orm import Session
 
-from agro_api.entities.user import User
+from agro_api.entities.core import User
 from agro_api.repositories.auth import AuthRepository
 from config.database import get_session
 from config.jwt import decode_access_token

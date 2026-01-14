@@ -13,11 +13,11 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from agro_api.entities.base import table_registry
+from config.database import table_registry
 
 if TYPE_CHECKING:
+    from agro_api.entities.core import Account
     from agro_api.entities.estate import Plot
-    from agro_api.entities.user import User
 
 
 class EstateKind(str, Enum):
@@ -29,7 +29,7 @@ class EstateKind(str, Enum):
 @mapped_as_dataclass(table_registry)
 class Estate:
     __tablename__ = 'estates'
-    __table_args__ = (UniqueConstraint('user_id', 'slug'),)
+    __table_args__ = (UniqueConstraint('account_id', 'slug'),)
 
     id: Mapped[Uuid] = mapped_column(
         UUID,
@@ -39,7 +39,7 @@ class Estate:
         nullable=False,
     )
 
-    user_id: Mapped[Uuid] = mapped_column(ForeignKey('users.id'))
+    account_id: Mapped[Uuid] = mapped_column(ForeignKey('accounts.id'))
 
     label: Mapped[str] = mapped_column(unique=False)
 
@@ -61,7 +61,7 @@ class Estate:
 
     kind: Mapped[EstateKind] = mapped_column(default=EstateKind.rural)
 
-    user: Mapped['User'] = relationship(
+    account: Mapped['Account'] = relationship(
         back_populates='estates', init=False, lazy='selectin'
     )
 
@@ -75,3 +75,11 @@ class Estate:
 
     def is_urban(self):
         return 'urban' in self.kind.value
+
+    def __repr__(self):
+        repr_attrs = [
+            f'id={self.id}',
+            f'slug={self.slug}',
+            f'created_at={self.created_at}'
+        ]
+        return f'Estate({(', '.join(repr_attrs))})'

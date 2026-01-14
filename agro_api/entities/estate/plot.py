@@ -13,11 +13,11 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from agro_api.entities.base import table_registry
+from config.database import table_registry
 
 if TYPE_CHECKING:
+    from agro_api.entities.core import User
     from agro_api.entities.estate import Estate
-    from agro_api.entities.user import User
 
 
 class LandUses(str, Enum):
