@@ -3,8 +3,8 @@ import logging
 
 # import sys
 from datetime import datetime
-from logging.config import dictConfig
 
+# from logging.config import dictConfig
 from config.settings import settings
 
 
@@ -86,6 +86,6 @@ log_config = {
     },
 }
 
-dictConfig(log_config)
+# dictConfig(log_config)
 
 logger = logging.getLogger('app')
