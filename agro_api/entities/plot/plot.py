@@ -171,7 +171,9 @@ class Plot:
         """Currently under any active protection."""
         now = datetime.now()
         return any(
-            p.started_at <= now and (p.expires_at is None or p.expires_at >= now)
+            p.started_at <= now and (
+                p.expires_at is None or p.expires_at >= now
+            )
             for p in self.protections
         )
 

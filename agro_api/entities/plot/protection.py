@@ -29,7 +29,9 @@ class ProtectionType(str, Enum):
 class PlotProtection:
     __tablename__ = 'plot_protections'
     __table_args__ = (
-        UniqueConstraint('plot_id', 'protection_type', name='idx_plot_protection')
+        UniqueConstraint(
+            'plot_id', 'protection_type', name='idx_plot_protection'
+        )
     )
 
     id: Mapped[Uuid] = mapped_column(

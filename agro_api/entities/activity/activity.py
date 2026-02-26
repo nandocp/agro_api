@@ -81,7 +81,9 @@ class Activity(BaseEntity):
     )
 
     # Relationships
-    creator: Mapped[User] = relationship(back_populates='created_activities', init=False)
+    creator: Mapped[User] = relationship(
+        back_populates='created_activities', init=False
+    )
     plot: Mapped[Plot] = relationship(
         back_populates='activities', init=False
     )
@@ -91,6 +93,3 @@ class Activity(BaseEntity):
         foreign_keys=[parent_id],
         init=False
     )
-
-    def __repr__(self):
-        return f"Activity(id={self.id}, type={self.activity_type}, plot={self.plot_id})"

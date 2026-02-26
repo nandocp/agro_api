@@ -11,7 +11,9 @@
 # @pytest.mark.asyncio
 # async def test_login_with_nonexistent_user(client):
 #     response = client.post(
-#         '/auth/login', data={'username': 'euzinho@eu.br', 'password': '123456'}
+#         '/auth/login', data={
+# 'username': 'euzinho@eu.br',
+# 'password': '123456'}
 #     )
 
 #     assert response.status_code == HTTPStatus.UNAUTHORIZED

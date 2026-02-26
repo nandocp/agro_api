@@ -66,12 +66,24 @@ class Planting(Activity):
     primary_purpose: Mapped[PlantingPurpose]
     is_commodity: Mapped[bool] = mapped_column(
         default=False,
-        comment="True for commodity crops (soy, corn), False for specialty crops"
+        comment="True for commodities (soy, corn), False for specialties"
     )
 
     # Expected products
-    expected_yield_kg_ha: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
+    expected_yield_kg_ha: Mapped[Decimal | None] = mapped_column(
+        Numeric(10, 2)
+    )
     actual_yield_kg_ha: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
 
     # Relationships
     plant_species: Mapped[PlantSpecies] = relationship(init=False)
+
+    def __repr__(self):
+        return (
+            f"Activity[Planting]("
+            f"id={self.id}, "
+            f"plot={self.plot_id}, "
+            f"plant_species={self.plant_species.scientific_name}, "
+            f"started_at={self.created_at}"
+            ")"
+        )

@@ -14,7 +14,9 @@ from config.database import table_registry
 class PlantCommonName():
     __tablename__ = 'plant_common_names'
     __table_args__ = (
-        UniqueConstraint('species_id', 'name', 'language', name='uq_species_name_lang'),
+        UniqueConstraint(
+            'species_id', 'name', 'language', name='uq_species_name_lang'
+        ),
         Index('idx_common_name_search', 'name'),  # For text search
     )
 
