@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
 from typing import TYPE_CHECKING, List
 
 from sqlalchemy import String, UniqueConstraint, Uuid, func
@@ -14,10 +13,10 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.plant import (
-    PlantCycle,
     GrowthHabit,
+    PlantCycle,
     PlantUse,
-    WaterRequirement
+    WaterRequirement,
 )
 from config.database import table_registry
 

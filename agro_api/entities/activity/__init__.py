@@ -1,9 +1,9 @@
 from .activity import Activity
 from .enums import (
+    GeneticSource,
     PlantingArrangement,
     PlantingPurpose,
     PlantingStratum,
-    GeneticSource
 )
 from .planting import Planting
 

@@ -21,10 +21,10 @@ from sqlalchemy.orm import (
 
 from agro_api.entities.activity import (
     Activity,
+    GeneticSource,
     PlantingArrangement,
     PlantingPurpose,
     PlantingStratum,
-    GeneticSource,
 )
 from agro_api.entities.base import BaseEntity
 from config.database import table_registry
@@ -121,7 +121,9 @@ class Planting(Activity):
 class PlantingTrait(BaseEntity):
     __tablename__ = 'planting_traits'
     __table_args__ = (
-        UniqueConstraint('planting_id', 'plant_trait_id', name='uq_planting_trait'),
+        UniqueConstraint(
+            'planting_id', 'plant_trait_id', name='uq_planting_trait'
+        ),
     )
 
     planting_id: Mapped[Uuid] = mapped_column(

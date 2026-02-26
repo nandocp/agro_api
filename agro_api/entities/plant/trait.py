@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-
 from sqlalchemy import String
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
     mapped_column,
-    relationship,
 )
 
 from agro_api.entities.base import BaseEntity
