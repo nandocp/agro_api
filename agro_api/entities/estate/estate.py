@@ -30,7 +30,7 @@ from config.geometry import GeometrySource
 
 if TYPE_CHECKING:
     from agro_api.entities.core import Account
-    from agro_api.entities.estate import Plot
+    from agro_api.entities.plot import Plot
 
 
 class EstateKind(str, Enum):
