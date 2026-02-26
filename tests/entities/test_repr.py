@@ -21,9 +21,10 @@ async def test_estate(estate):
     repr_attrs = [
         f'id={estate.id}',
         f'slug={estate.slug}',
+        f'status={estate.status.value}',
         f'created_at={estate.created_at}'
     ]
-    assert str(estate) == f'Estate({(', '.join(repr_attrs))})'
+    assert str(estate) == f'Estate({', '.join(repr_attrs)})'
 
 
 @pytest.mark.asyncio

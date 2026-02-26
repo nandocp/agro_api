@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID7, BaseModel, Field
 
 
 class Pagination(BaseModel):
@@ -9,6 +9,6 @@ class Pagination(BaseModel):
 
 
 class BaseSchema(BaseModel):
-    id: UUID4
+    id: UUID7
     created_at: datetime
     updated_at: datetime

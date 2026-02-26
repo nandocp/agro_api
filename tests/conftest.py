@@ -19,7 +19,8 @@ from config.database import get_session, table_registry
 from config.password import hash_password
 from config.settings import settings
 from tests.factories.core import AccountFactory, UserFactory
-from tests.factories.estates import EstateFactory, PlotFactory
+from tests.factories.estates import EstateFactory
+from tests.factories.plots import PlotFactory
 
 
 @contextmanager

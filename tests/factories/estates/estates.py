@@ -1,16 +1,15 @@
 from datetime import datetime
 
-# from random import choice
 import factory
 import factory.fuzzy
 
-from agro_api.entities.estate import Estate, EstateKind
+from agro_api.entities.estate import Estate, EstateKind, OwnershipType
 from tests.factories.core import AccountFactory
 
 Faker = factory.Faker
 
 
-class EstateFactory(factory.alchemy.SQLAlchemyModelFactory):
+class EstateFactory(factory.Factory):
     class Meta:
         model = Estate
 
@@ -21,3 +20,5 @@ class EstateFactory(factory.alchemy.SQLAlchemyModelFactory):
     kind = factory.fuzzy.FuzzyChoice(list(EstateKind))
     account = factory.SubFactory(AccountFactory)
     account_id = factory.LazyAttribute(lambda obj: obj.account.id)
+    ownership_type = factory.fuzzy.FuzzyChoice(list(OwnershipType))
+    registry_codes = {}

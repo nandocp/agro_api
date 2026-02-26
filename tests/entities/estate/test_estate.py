@@ -4,22 +4,22 @@ from agro_api.entities.estate import EstateKind
 from tests.factories.estates import EstateFactory
 
 
-def test_is_urban_true_with_periurban(session):
-    estate = EstateFactory(kind=EstateKind.periurban)
+def test_is_urban_true_with_periurban():
+    estate = EstateFactory(kind=EstateKind.PERIURBAN)
 
-    assert estate.is_urban()
-
-
-def test_is_urban_true_with_intraurban(session):
-    estate = EstateFactory(kind=EstateKind.intraurban)
-
-    assert estate.is_urban()
+    assert estate.is_urban
 
 
-def test_is_urban_false(session):
-    estate = EstateFactory(kind=EstateKind.rural)
+def test_is_urban_true_with_intraurban():
+    estate = EstateFactory(kind=EstateKind.INTRAURBAN)
 
-    assert not estate.is_urban()
+    assert estate.is_urban
+
+
+def test_is_urban_false():
+    estate = EstateFactory(kind=EstateKind.RURAL)
+
+    assert not estate.is_urban
 
 # def test_registry_codes_constraint(session):
 #     """Test that registry_codes validation works at DB level"""

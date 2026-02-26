@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     ForeignKey,
@@ -14,13 +13,14 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
     Mapped,
+    mapped_as_dataclass,
     mapped_column,
     relationship,
 )
 
-if TYPE_CHECKING:
-    from agro_api.entities.core import User
-    from agro_api.entities.plot import Plot
+from agro_api.entities.core import User
+from agro_api.entities.plot import Plot
+from config.database import table_registry
 
 
 class PlotTransitionType(str, Enum):
@@ -29,6 +29,7 @@ class PlotTransitionType(str, Enum):
     BOUNDARY_ADJUST = 'boundary_adjust'  # Minor boundary change
 
 
+@mapped_as_dataclass(table_registry)
 class PlotTransition:
     __tablename__ = 'plot_transitions'
     __table_args__ = (
@@ -49,14 +50,14 @@ class PlotTransition:
 
     # The plot that existed before
     predecessor_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('estate_plots.id', ondelete='RESTRICT'),
+        ForeignKey('plots.id', ondelete='RESTRICT'),
         nullable=False,
         index=True
     )
 
     # The plot that came after
     successor_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('estate_plots.id', ondelete='RESTRICT'),
+        ForeignKey('plots.id', ondelete='RESTRICT'),
         nullable=False,
         index=True
     )

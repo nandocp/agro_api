@@ -1,3 +1,3 @@
-from .estate import Estate, EstateKind
+from .estate import Estate, EstateKind, OwnershipType
 
-__all__ = ['Estate', 'EstateKind']
+__all__ = ['Estate', 'EstateKind', 'OwnershipType']

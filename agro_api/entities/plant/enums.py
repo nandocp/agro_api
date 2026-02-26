@@ -41,6 +41,8 @@ class PlantCycle(str, Enum):
 class GrowthHabit(str, Enum):
     TREE = 'tree'
     SHRUB = 'shrub'
+    BRUSH = 'brush'
+    HERB = 'herb'
     CROP = 'crop'
     GRASS = 'grass'
     VINE = 'vine'

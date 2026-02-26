@@ -1,6 +1,5 @@
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     ForeignKey,
@@ -12,11 +11,11 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
     Mapped,
+    mapped_as_dataclass,
     mapped_column,
 )
 
-if TYPE_CHECKING:
-    pass
+from config.database import table_registry
 
 
 class ProtectionType(str, Enum):
@@ -26,12 +25,13 @@ class ProtectionType(str, Enum):
     CONTRACT = 'contract'
 
 
+@mapped_as_dataclass(table_registry)
 class PlotProtection:
     __tablename__ = 'plot_protections'
     __table_args__ = (
         UniqueConstraint(
             'plot_id', 'protection_type', name='idx_plot_protection'
-        )
+        ),
     )
 
     id: Mapped[Uuid] = mapped_column(
@@ -41,15 +41,15 @@ class PlotProtection:
         server_default=func.uuidv7(),
         nullable=False,
     )
-    plot_id: Mapped[Uuid] = mapped_column(ForeignKey('estate_plots.id'))
+    plot_id: Mapped[Uuid] = mapped_column(ForeignKey('plots.id'))
     # Who created the protection
     created_by_id: Mapped[Uuid] = mapped_column(ForeignKey('users.id'))
 
     protection_type: Mapped[ProtectionType]
     reason: Mapped[str | None] = mapped_column(String(256))
 
-    started_at: Mapped[datetime] = mapped_column(default=func.now())
     expires_at: Mapped[datetime | None]
+    started_at: Mapped[datetime] = mapped_column(default=func.now())
 
     # Timestamps metadata
     created_at: Mapped[datetime] = mapped_column(

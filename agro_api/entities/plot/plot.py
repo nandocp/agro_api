@@ -29,7 +29,7 @@ from config.geometry import GeometrySource
 if TYPE_CHECKING:
     from agro_api.entities.core import User
     from agro_api.entities.estate import Estate
-    from agro_api.entities.plot import PlotProtection, PlotTransition
+    from agro_api.entities.plot import PlotProtection  # , PlotTransition
 
 
 class PlotStatus(str, Enum):
@@ -40,9 +40,9 @@ class PlotStatus(str, Enum):
 
 @mapped_as_dataclass(table_registry)
 class Plot:
-    __tablename__ = 'estate_plots'
+    __tablename__ = 'plots'
     __table_args__ = (
-        UniqueConstraint('estate_id', 'slug', name='idx_plot_estate_slug')
+        UniqueConstraint('estate_id', 'slug', name='idx_plot_estate_slug'),
     )
 
     id: Mapped[Uuid] = mapped_column(
@@ -89,9 +89,7 @@ class Plot:
             """
             CASE
                 WHEN boundary IS NOT NULL
-                THEN ST_Area(
-                    ST_Transform(boundary, ST_EstimatedExtent_SRID(boundary))
-                )
+                THEN ST_Area(boundary::geography)
                 ELSE NULL
             END
             """,
@@ -106,9 +104,7 @@ class Plot:
             """
             CASE
                 WHEN boundary IS NOT NULL
-                THEN ST_Perimeter(
-                    ST_Transform(boundary, ST_EstimatedExtent_SRID(boundary))
-                )
+                THEN ST_Perimeter(boundary::geography)
                 ELSE NULL
             END
             """,
@@ -130,23 +126,24 @@ class Plot:
         back_populates='plots', lazy='joined'
     )
 
-    # Transitions where this plot is the predecessor (it was replaced)
-    transitions_as_predecessor: Mapped[List['PlotTransition']] = relationship(
-        foreign_keys='PlotTransition.predecessor_id',
-        back_populates='predecessor',
-        lazy='selectin',
-        cascade='all, delete-orphan',
-        init=False
-    )
+    # # Transitions where this plot is the predecessor (it was replaced)
+    # transitions_as_predecessor:
+    # Mapped[List['PlotTransition']] = relationship(
+    #     foreign_keys='PlotTransition.predecessor_id',
+    #     back_populates='predecessor',
+    #     lazy='selectin',
+    #     cascade='all, delete-orphan',
+    #     init=False
+    # )
 
-    # Transitions where this plot is the successor (it replaced others)
-    transitions_as_successor: Mapped[List['PlotTransition']] = relationship(
-        foreign_keys='PlotTransition.successor_id',
-        back_populates='successor',
-        lazy='selectin',
-        cascade='all, delete-orphan',
-        init=False
-    )
+    # # Transitions where this plot is the successor (it replaced others)
+    # transitions_as_successor: Mapped[List['PlotTransition']] = relationship(
+    #     foreign_keys='PlotTransition.successor_id',
+    #     back_populates='successor',
+    #     lazy='selectin',
+    #     cascade='all, delete-orphan',
+    #     init=False
+    # )
 
     protections: Mapped[List[PlotProtection]] = relationship(
         lazy='dynamic',

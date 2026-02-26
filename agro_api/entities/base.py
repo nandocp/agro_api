@@ -12,7 +12,8 @@ class BaseEntity:
         UUID,
         primary_key=True,
         server_default=func.uuidv7(),
-        init=False
+        init=False,
+        nullable=False,
     )
 
     created_at: Mapped[datetime] = mapped_column(
