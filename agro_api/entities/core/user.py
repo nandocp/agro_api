@@ -20,11 +20,11 @@ if TYPE_CHECKING:
 
 
 class UserRole(str, Enum):
-    agro_user = 'agro_user'
-    agro_admin = 'agro_admin'
-    estate_user = 'estate_user'
-    estate_coord = 'estate_coord'
-    estate_admin = 'estate_admin'
+    AGRO_USER = 'agro_user'
+    AGRO_ADMIN = 'agro_admin'
+    ESTATE_USER = 'estate_user'
+    ESTATE_COORD = 'estate_coord'
+    ESTATE_ADMIN = 'estate_admin'
 
 
 @mapped_as_dataclass(table_registry)

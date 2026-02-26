@@ -21,10 +21,10 @@ if TYPE_CHECKING:
 
 
 class ProtectionType(str, Enum):
-    legal_reserve = 'legal_reserve'
-    conservation = 'conservation'
-    historic = 'historic'
-    contract = 'contract'
+    LEGAL_RESERVE = 'legal_reserve'
+    CONSERVATION = 'conservation'
+    HISTORIC = 'historic'
+    CONTRACT = 'contract'
 
 
 class PlotProtection:

@@ -44,60 +44,60 @@ class LandUses(str, Enum):
 
     # === PRODUCTION LAND ===
     # Land used for economic activities
-    cropland = 'cropland'
+    CROPLAND = 'cropland'
     """Land used for growing crops (annual or perennial)."""
 
-    pasture = 'pasture'
+    PASTURE = 'pasture'
     """Land used for grazing livestock."""
 
-    forestry = 'forestry'
+    FORESTRY = 'forestry'
     """Land used for commercial timber production."""
 
-    aquaculture = 'aquaculture'
+    AQUACULTURE = 'aquaculture'
     """Land used for fish farming, rice paddies, etc."""
 
     # === INFRASTRUCTURE ===
     # Built environment and support areas
-    farmstead = 'farmstead'
+    FARMSTEAD = 'farmstead'
     """Buildings, barns, farm yards, etc."""
 
-    roads = 'roads'
+    ROADS = 'roads'
     """Access roads, laneways, etc."""
 
-    processing = 'processing'
+    PROCESSING = 'processing'
     """Silos, processing facilities, etc."""
 
     # === CONSERVATION & NATURAL ===
     # Non-productive or protected areas
-    native_vegetation = 'native_vegetation'
+    NATIVE_VEGETATION = 'native_vegetation'
     """Native forest, grassland, cerrado, etc."""
 
-    conservation = 'conservation'
+    CONSERVATION = 'conservation'
     """Legally protected areas (APP, legal reserve)."""
 
-    wetland = 'wetland'
+    WETLAND = 'wetland'
     """Marshes, swamps, seasonally flooded areas."""
 
-    water = 'water'
+    WATER = 'water'
     """Ponds, lakes, reservoirs, streams."""
 
     # === TRANSITIONAL ===
     # Land in transition between uses
-    fallow = 'fallow'
+    FALLOW = 'fallow'
     """Agricultural land temporarily not in production."""
 
-    transitional = 'transitional'
+    TRANSITIONAL = 'transitional'
     """Land being converted from one use to another."""
 
     # === OTHER ===
-    other = 'other'
+    OTHER = 'other'
     """Land use not covered by other categories."""
 
 
 class PlotStatus(str, Enum):
-    active = 'active'
-    inactive = 'inactive'
-    superseded = 'superseded'
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+    TRANSITIONED = 'transitioned'
 
 
 @mapped_as_dataclass(table_registry)
@@ -219,7 +219,7 @@ class Plot:
 
     note: Mapped[str] = mapped_column(String(500), default='')
 
-    status: Mapped[PlotStatus] = mapped_column(default=PlotStatus.active)
+    status: Mapped[PlotStatus] = mapped_column(default=PlotStatus.ACTIVE)
 
     def __repr__(self):
         return (

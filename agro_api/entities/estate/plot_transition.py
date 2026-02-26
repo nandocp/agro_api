@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 
 
 class PlotTransitionType(str, Enum):
-    merge = 'merge'      # Multiple plots → One plot
-    divide = 'divide'    # One plot → Multiple plots
-    boundary_adjust = 'boundary_adjust'  # Minor boundary change
+    MERGE = 'merge'      # Multiple plots → One plot
+    DIVIDE = 'divide'    # One plot → Multiple plots
+    BOUNDARY_ADJUST = 'boundary_adjust'  # Minor boundary change
 
 
 class PlotTransition:

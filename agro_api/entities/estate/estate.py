@@ -34,22 +34,22 @@ if TYPE_CHECKING:
 
 
 class EstateKind(str, Enum):
-    rural = 'rural'
-    intraurban = 'intraurban'
-    periurban = 'periurban'
+    RURAL = 'rural'
+    INTRAURBAN = 'intraurban'
+    PERIURBAN = 'periurban'
 
 
 class OwnershipType(str, Enum):
-    owned = 'owned'
-    leased = 'leased'
-    managed = 'managed'
+    OWNED = 'owned'
+    LEASED = 'leased'
+    MANAGED = 'managed'
 
 
 class EstateStatus(str, Enum):
-    active = "active"
-    inactive = "inactive"
-    pending = "pending_validation"
-    archived = "archived"
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    PENDING = "pending_validation"
+    ARCHIVED = "archived"
 
 
 @mapped_as_dataclass(table_registry)
@@ -206,9 +206,9 @@ class Estate:
 
     timezone: Mapped[str] = mapped_column(default='America/Sao_Paulo')
 
-    kind: Mapped[EstateKind] = mapped_column(default=EstateKind.rural)
+    kind: Mapped[EstateKind] = mapped_column(default=EstateKind.RURAL)
 
-    status: Mapped[EstateStatus] = mapped_column(default=EstateStatus.active)
+    status: Mapped[EstateStatus] = mapped_column(default=EstateStatus.ACTIVE)
 
     def __repr__(self):
         return (
