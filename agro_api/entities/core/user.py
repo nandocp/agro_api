@@ -35,7 +35,7 @@ class User:
         UUID,
         init=False,
         primary_key=True,
-        server_default=func.gen_random_uuid(),
+        server_default=func.uuidv7(),
         nullable=False,
     )
 
@@ -70,4 +70,4 @@ class User:
     account: Mapped['Account'] = relationship(back_populates='users')
 
     def __repr__(self):
-        return f'User(id={self.id}, name={self.name})'
+        return f'User(id={self.id}, name={self.name}, email={self.email})'
