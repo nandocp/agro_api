@@ -27,7 +27,7 @@ class Account:
         UUID,
         init=False,
         primary_key=True,
-        server_default=func.gen_random_uuid(),
+        server_default=func.uuidv7(),
         nullable=False,
     )
 
