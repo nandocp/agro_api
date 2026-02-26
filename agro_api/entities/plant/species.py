@@ -13,45 +13,16 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from agro_api.entities.plant import (
+    PlantCycle,
+    GrowthHabit,
+    PlantUse,
+    WaterRequirement
+)
 from config.database import table_registry
 
 if TYPE_CHECKING:
     from agro_api.entities.plant import PlantCommonName, PlantSynonym
-
-
-class PlantUse(str, Enum):
-    GRAIN = 'grain'           # soy, corn, wheat
-    FRUIT = 'fruit'           # orange, mango, coffee (cherry)
-    TIMBER = 'timber'         # eucalyptus, mogno, pine
-    FIBER = 'fiber'           # cotton, jute
-    FORAGE = 'forage'         # pasture grasses, alfalfa
-    OIL = 'oil'               # palm, sunflower
-    NUT = 'nut'               # cashew, walnut
-    ORNAMENTAL = 'ornamental'  # flowers, landscaping
-    MEDICINAL = 'medicinal'   # herbs
-    SHADE = 'shade'           # nurse trees
-    COVER_CROP = 'cover_crop'  # soil improvement
-    GREEN_MANURE = 'green_manure'  # plowed-under crops
-
-
-class WaterRequirement(str, Enum):
-    LOW = 'low'
-    MEDIUM = 'medium'
-    HIGH = 'high'
-
-
-class PlantCycle(str, Enum):
-    ANNUAL = 'annual'
-    BIENNIAL = 'biennial'
-    PERENNIAL = 'perennial'
-
-
-class GrowthHabit(str, Enum):
-    TREE = 'tree'
-    SHRUB = 'shrub'
-    CROP = 'crop'
-    GRASS = 'grass'
-    VINE = 'vine'
 
 
 @mapped_as_dataclass(table_registry)

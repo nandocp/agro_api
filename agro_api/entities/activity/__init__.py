@@ -1,5 +1,10 @@
 from .activity import Activity
-from .enums import PlantingArrangement, PlantingPurpose, PlantingStratum
+from .enums import (
+    PlantingArrangement,
+    PlantingPurpose,
+    PlantingStratum,
+    GeneticSource
+)
 from .planting import Planting
 
 __all__ = [
@@ -7,5 +12,6 @@ __all__ = [
     'PlantingPurpose',
     'PlantingStratum',
     'Planting',
-    'PlantingArrangement'
+    'PlantingArrangement',
+    'GeneticSource'
 ]

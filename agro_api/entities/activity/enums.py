@@ -1,6 +1,16 @@
 from enum import Enum
 
 
+class GeneticSource(str, Enum):
+    """Origin of planting material."""
+    FARM_SAVED = 'farm_saved'          # Saved from previous harvest
+    CERTIFIED = 'certified'            # Certified commercial seed
+    LOCAL_EXCHANGE = 'local_exchange'  # Swapped with other farmers
+    PURCHASED = 'purchased'            # Bought but not certified
+    RESEARCH = 'research'              # From research institution
+    UNKNOWN = 'unknown'
+
+
 class PlantingArrangement(str, Enum):
     ROW = 'row'
     SCATTERED = 'scattered'

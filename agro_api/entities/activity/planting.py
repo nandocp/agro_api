@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import (
     CheckConstraint,
     ForeignKey,
     Numeric,
     String,
+    UniqueConstraint,
     Uuid,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -23,13 +24,18 @@ from agro_api.entities.activity import (
     PlantingArrangement,
     PlantingPurpose,
     PlantingStratum,
+    GeneticSource,
 )
+from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 if TYPE_CHECKING:
-    from agro_api.entities.plant import PlantSpecies
+    from agro_api.entities.plant import PlantSpecies, PlantTrait
 
 
+# ============================================================================
+# PLANTING (main entity)
+# ============================================================================
 @mapped_as_dataclass(table_registry, kw_only=True)
 class Planting(Activity):
     __tablename__ = 'plantings'
@@ -51,7 +57,10 @@ class Planting(Activity):
     plant_species_id: Mapped[Uuid] = mapped_column(
         ForeignKey('plant_species.id'), nullable=False
     )
-    variety: Mapped[str | None] = mapped_column(String(64))
+    # Ex: Cabernet sauvignon, Criolo Roxo, etc.
+    cultivar_name: Mapped[str | None] = mapped_column(
+        String(64), index=True
+    )
 
     # How it was planted
     spatial_arrangement: Mapped[PlantingArrangement]
@@ -66,7 +75,11 @@ class Planting(Activity):
     primary_purpose: Mapped[PlantingPurpose]
     is_commodity: Mapped[bool] = mapped_column(
         default=False,
-        comment="True for commodities (soy, corn), False for specialties"
+        comment="Commodities are traded globally; specialties are niche."
+    )
+    genetic_source: Mapped[GeneticSource] = mapped_column(
+        default=GeneticSource.UNKNOWN,
+    comment="Where the genetic material came from."
     )
 
     # Expected products
@@ -76,14 +89,58 @@ class Planting(Activity):
     actual_yield_kg_ha: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
 
     # Relationships
-    plant_species: Mapped[PlantSpecies] = relationship(init=False)
+    plant_species: Mapped[PlantSpecies] = relationship(
+        lazy='joined',
+        init=False
+    )
+    traits: Mapped[List[PlantingTrait]] = relationship(
+        back_populates='planting',
+        cascade='all, delete-orphan',
+        init=False
+    )
 
     def __repr__(self):
+        species_name = (
+            self.plant_species.scientific_name
+            if self.plant_species is not None
+            else "None"
+        )
         return (
             f"Activity[Planting]("
             f"id={self.id}, "
             f"plot={self.plot_id}, "
-            f"plant_species={self.plant_species.scientific_name}, "
-            f"started_at={self.created_at}"
+            f"plant_species={species_name}, "
+            f"started_at={self.started_at}"
             ")"
         )
+
+
+# ============================================================================
+# PLANTING TRAIT (junction entity)
+# ============================================================================
+class PlantingTrait(BaseEntity):
+    __tablename__ = 'planting_traits'
+    __table_args__ = (
+        UniqueConstraint('planting_id', 'plant_trait_id', name='uq_planting_trait'),
+    )
+
+    planting_id: Mapped[Uuid] = mapped_column(
+        ForeignKey('plantings.id', ondelete='CASCADE'),
+        primary_key=True
+    )
+    plant_trait_id: Mapped[Uuid] = mapped_column(
+        ForeignKey('plant_traits.id', ondelete='RESTRICT'),
+        primary_key=True
+    )
+    value: Mapped[str | None] = mapped_column(
+        String(32),
+        comment="For quantitative traits: '85%', 'RR1', etc."
+    )
+
+    # Relationships
+    planting: Mapped['Planting'] = relationship(
+        back_populates='traits', init=False
+    )
+    trait: Mapped['PlantTrait'] = relationship(
+        foreign_keys=[plant_trait_id], init=False
+    )
