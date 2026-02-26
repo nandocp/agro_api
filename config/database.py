@@ -25,7 +25,7 @@ async def get_session():
         try:
             yield session
         except Exception as error:
-            logger.warn(
+            logger.warning(
                 f'DB operation failed with {error}. Auto-rollbacking...'
             )
             await session.rollback()
