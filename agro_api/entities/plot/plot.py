@@ -28,70 +28,8 @@ from config.geometry import GeometrySource
 
 if TYPE_CHECKING:
     from agro_api.entities.core import User
-    from agro_api.entities.estate import (
-        Estate,
-        PlotProtection,
-        PlotTransition
-    )
-
-
-class LandUses(str, Enum):
-    """Primary classification of land use at the plot level.
-
-    This is a high-level categorization. Detailed crop/activity data
-    is stored in separate tables (crop_cycles, grazing_cycles, etc.).
-    """
-
-    # === PRODUCTION LAND ===
-    # Land used for economic activities
-    CROPLAND = 'cropland'
-    """Land used for growing crops (annual or perennial)."""
-
-    PASTURE = 'pasture'
-    """Land used for grazing livestock."""
-
-    FORESTRY = 'forestry'
-    """Land used for commercial timber production."""
-
-    AQUACULTURE = 'aquaculture'
-    """Land used for fish farming, rice paddies, etc."""
-
-    # === INFRASTRUCTURE ===
-    # Built environment and support areas
-    FARMSTEAD = 'farmstead'
-    """Buildings, barns, farm yards, etc."""
-
-    ROADS = 'roads'
-    """Access roads, laneways, etc."""
-
-    PROCESSING = 'processing'
-    """Silos, processing facilities, etc."""
-
-    # === CONSERVATION & NATURAL ===
-    # Non-productive or protected areas
-    NATIVE_VEGETATION = 'native_vegetation'
-    """Native forest, grassland, cerrado, etc."""
-
-    CONSERVATION = 'conservation'
-    """Legally protected areas (APP, legal reserve)."""
-
-    WETLAND = 'wetland'
-    """Marshes, swamps, seasonally flooded areas."""
-
-    WATER = 'water'
-    """Ponds, lakes, reservoirs, streams."""
-
-    # === TRANSITIONAL ===
-    # Land in transition between uses
-    FALLOW = 'fallow'
-    """Agricultural land temporarily not in production."""
-
-    TRANSITIONAL = 'transitional'
-    """Land being converted from one use to another."""
-
-    # === OTHER ===
-    OTHER = 'other'
-    """Land use not covered by other categories."""
+    from agro_api.entities.estate import Estate
+    from agro_api.entities.plot import PlotProtection, PlotTransition
 
 
 class PlotStatus(str, Enum):
@@ -121,8 +59,6 @@ class Plot:
     creator_id: Mapped[Uuid] = mapped_column(
         ForeignKey('users.id', ondelete='RESTRICT')
     )
-
-    land_use: Mapped[LandUses] = mapped_column(nullable=False)
 
     slug: Mapped[str] = mapped_column(
         String(64),

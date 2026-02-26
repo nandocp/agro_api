@@ -20,7 +20,7 @@ from sqlalchemy.orm import (
 
 if TYPE_CHECKING:
     from agro_api.entities.core import User
-    from agro_api.entities.estate import Plot
+    from agro_api.entities.plot import Plot
 
 
 class PlotTransitionType(str, Enum):
