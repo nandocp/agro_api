@@ -15,7 +15,7 @@ class EstateBase(BaseModel):
     opened_at: datetime | None
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
-        from_attrbutes=True,
+        from_attributes=True,
     )
 
 
