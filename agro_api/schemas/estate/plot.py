@@ -13,7 +13,7 @@ class PlotBase(BaseModel):
     status: Optional[PlotStatus]
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
-        from_attrbutes=True,
+        from_attributes=True,
     )
 
 
