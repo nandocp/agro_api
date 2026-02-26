@@ -1,43 +1,51 @@
-FROM python:3-alpine AS base
+FROM python:3.14-slim-trixie AS base
 
-WORKDIR /home/agrouser/api
+WORKDIR /usr/lib/agro_api
 
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
-  PIP_NO_CACHE_DIR=off \
-  PYTHONUNBUFFERED=1 \
-  PYTHONDONTWRITEBYTECODE=1 \
-  PYTHONPATH=/app \
-  PYTHONUNBUFFERED=1 \
+ENV POETRY_VERSION=2.3.2 \
   POETRY_NO_INTERACTION=1 \
-  POETRY_VIRTUALENVS_CREATE=false \
-  POETRY_CACHE_DIR=/opt/.cache/poetry \
-  PIP_CACHE_DIR=/opt/.cache/pip \
-  POETRY_VERSION=2.2.1
+  POETRY_VIRTUALENVS_IN_PROJECT=true \
+  POETRY_VIRTUALENVS_CREATE=false
 
-RUN apk update \
-  && apk add build-base libpq-dev linux-headers
+RUN apt-get update -y -qq \
+  && apt-get upgrade -y -qq \
+  && apt-get install postgresql-client -y -qq
+  # && pip install poetry==${POETRY_VERSION}
 
-# Instala Poetry
-ENV POETRY_HOME="/opt/poetry"
-ENV POETRY_VIRTUALENVS_CREATE=false
-ENV POETRY_NO_INTERACTION=1
+# ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+#   PIP_NO_CACHE_DIR=off \
+#   PYTHONUNBUFFERED=1 \
+#   PYTHONDONTWRITEBYTECODE=1 \
+#   PYTHONPATH=/app \
+#   PYTHONUNBUFFERED=1 \
+#   POETRY_NO_INTERACTION=1 \
+#   POETRY_VIRTUALENVS_CREATE=false \
+#   POETRY_CACHE_DIR=/opt/.cache/poetry \
+#   PIP_CACHE_DIR=/opt/.cache/pip \
+#
 
-RUN pip install poetry==${POETRY_VERSION}
+# RUN apk update \
+#   && apk add build-base libpq-dev linux-headers
 
-# Configura caminho personalizado para pacotes (será sobrescrito pelo compose)
-ENV PYTHONPATH="/app/.venv/lib/python3.11/site-packages:/app"
-ENV PIP_CACHE_DIR="/app/.cache/pip"
-ENV POETRY_CACHE_DIR="/app/.cache/poetry"
+# # Instala Poetry
+# ENV POETRY_HOME="/opt/poetry"
+# ENV POETRY_VIRTUALENVS_CREATE=false
+# ENV
 
-# Permite instalação de pacotes em volume externo
-RUN mkdir -p /app/.venv && chmod 777 /app/.venv
+# # Configura caminho personalizado para pacotes (será sobrescrito pelo compose)
+# ENV PYTHONPATH="/app/.venv/lib/python3.11/site-packages:/app"
+# ENV PIP_CACHE_DIR="/app/.cache/pip"
+# ENV POETRY_CACHE_DIR="/app/.cache/poetry"
 
-# Entrypoint flexível para desenvolvimento
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# # Permite instalação de pacotes em volume externo
+# RUN mkdir -p /app/.venv && chmod 777 /app/.venv
 
-ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# # Entrypoint flexível para desenvolvimento
+# COPY docker-entrypoint.sh /usr/local/bin/
+# RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# ENTRYPOINT ["docker-entrypoint.sh"]
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 
 # FROM base
