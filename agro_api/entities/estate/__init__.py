@@ -1,5 +1,14 @@
 from .estate import Estate, EstateKind
-from .geo import Geo
 from .plot import Plot
+from .plot_transition import PlotTransition, PlotTransitionType
+from .plot_protection import PlotProtection, ProtectionType
 
-__all__ = ['Estate', 'EstateKind', 'Geo', 'Plot']
+__all__ = [
+    'Estate',
+    'EstateKind',
+    'Plot',
+    'PlotTransition',
+    'PlotTransitionType',
+    'PlotProtection',
+    'ProtectionType'
+]
