@@ -1,11 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
-from enum import Enum
-from typing import TYPE_CHECKING, List
-
-from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, Uuid, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, Uuid
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,

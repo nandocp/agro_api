@@ -27,11 +27,12 @@ class PlantUse(str, Enum):
     FORAGE = 'forage'         # pasture grasses, alfalfa
     OIL = 'oil'               # palm, sunflower
     NUT = 'nut'               # cashew, walnut
-    ORNAMENTAL = 'ornamental' # flowers, landscaping
+    ORNAMENTAL = 'ornamental'  # flowers, landscaping
     MEDICINAL = 'medicinal'   # herbs
     SHADE = 'shade'           # nurse trees
-    COVER_CROP = 'cover_crop' # soil improvement
-    GREEN_MANURE = 'green_manure' # plowed-under crops
+    COVER_CROP = 'cover_crop'  # soil improvement
+    GREEN_MANURE = 'green_manure'  # plowed-under crops
+
 
 class WaterRequirement(str, Enum):
     LOW = 'low'

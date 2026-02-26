@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import String, ForeignKey, Index, Uuid, func
+from sqlalchemy import ForeignKey, Index, String, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
     Mapped,
