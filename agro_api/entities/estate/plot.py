@@ -24,6 +24,7 @@ from sqlalchemy.orm import (
 )
 
 from config.database import table_registry
+from config.geometry import GeometrySource
 
 if TYPE_CHECKING:
     from agro_api.entities.core import User
@@ -96,6 +97,7 @@ class Plot:
         nullable=False,  # Plot must have a boundary
         comment="Plot boundary polygon"
     )
+    boundary_source: Mapped[GeometrySource | None]
 
     # Computed measurements (same pattern as Estate)
     calculated_area_m2: Mapped[Decimal] = mapped_column(

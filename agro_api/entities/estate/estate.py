@@ -126,20 +126,20 @@ class Estate:
         nullable=True
     )
 
-    # Optional: Store number of polygons (if MULTIPOLYGON)
-    polygon_count: Mapped[int] = mapped_column(
-        Computed(
-            """
-            CASE
-                WHEN boundary IS NOT NULL
-                THEN ST_NumGeometries(boundary)
-                ELSE NULL
-            END
-            """,
-            persisted=True
-        ),
-        nullable=True
-    )
+    # # Store number of polygons (if MULTIPOLYGON)
+    # polygon_count: Mapped[int] = mapped_column(
+    #     Computed(
+    #         """
+    #         CASE
+    #             WHEN boundary IS NOT NULL
+    #             THEN ST_NumGeometries(boundary)
+    #             ELSE NULL
+    #         END
+    #         """,
+    #         persisted=True
+    #     ),
+    #     nullable=True
+    # )
 
     calculated_area_m2: Mapped[Decimal] = mapped_column(
         Numeric(16, 2),
