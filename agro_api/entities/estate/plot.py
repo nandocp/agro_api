@@ -36,15 +36,62 @@ if TYPE_CHECKING:
 
 
 class LandUses(str, Enum):
-    agriculture = 'agriculture'
+    """Primary classification of land use at the plot level.
+
+    This is a high-level categorization. Detailed crop/activity data
+    is stored in separate tables (crop_cycles, grazing_cycles, etc.).
+    """
+
+    # === PRODUCTION LAND ===
+    # Land used for economic activities
+    cropland = 'cropland'
+    """Land used for growing crops (annual or perennial)."""
+
     pasture = 'pasture'
-    industry = 'industry'
-    leisure = 'leisure'
+    """Land used for grazing livestock."""
+
+    forestry = 'forestry'
+    """Land used for commercial timber production."""
+
+    aquaculture = 'aquaculture'
+    """Land used for fish farming, rice paddies, etc."""
+
+    # === INFRASTRUCTURE ===
+    # Built environment and support areas
+    farmstead = 'farmstead'
+    """Buildings, barns, farm yards, etc."""
+
+    roads = 'roads'
+    """Access roads, laneways, etc."""
+
+    processing = 'processing'
+    """Silos, processing facilities, etc."""
+
+    # === CONSERVATION & NATURAL ===
+    # Non-productive or protected areas
+    native_vegetation = 'native_vegetation'
+    """Native forest, grassland, cerrado, etc."""
+
+    conservation = 'conservation'
+    """Legally protected areas (APP, legal reserve)."""
+
+    wetland = 'wetland'
+    """Marshes, swamps, seasonally flooded areas."""
+
     water = 'water'
-    infrastructure = 'infrastructure'
-    preservation = 'preservation'
-    forest = 'forest'
-    fallow = 'fallow'  # Land temporarily uncultivated
+    """Ponds, lakes, reservoirs, streams."""
+
+    # === TRANSITIONAL ===
+    # Land in transition between uses
+    fallow = 'fallow'
+    """Agricultural land temporarily not in production."""
+
+    transitional = 'transitional'
+    """Land being converted from one use to another."""
+
+    # === OTHER ===
+    other = 'other'
+    """Land use not covered by other categories."""
 
 
 class PlotStatus(str, Enum):
