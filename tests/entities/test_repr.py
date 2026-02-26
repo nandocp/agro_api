@@ -8,7 +8,12 @@ async def test_account(account):
 
 @pytest.mark.asyncio
 async def test_user(user):
-    assert str(user) == f'User(id={user.id}, name={user.name})'
+    repr_attrs = [
+        f'id={user.id}',
+        f'name={user.name}',
+        f'email={user.email}'
+    ]
+    assert str(user) == f'User({(', '.join(repr_attrs))})'
 
 
 @pytest.mark.asyncio

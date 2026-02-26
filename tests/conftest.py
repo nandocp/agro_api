@@ -155,16 +155,3 @@ async def plot(session) -> str:
     await session.refresh(plot)
 
     return plot
-
-
-@pytest_asyncio.fixture
-def plot_params(estate, user):
-    plot = PlotFactory(created_by=user.id, estate_id=estate.id)
-    return {
-        'estate_id': str(estate.id),
-        'slug': plot.slug,
-        'label': plot.label,
-        'land_use': plot.land_use.value,
-        'status': plot.status.value,
-        'created_by': str(user.id),
-    }
