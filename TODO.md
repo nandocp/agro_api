@@ -28,3 +28,4 @@ class Address:
     estate: Mapped['Estate'] = relationship(back_populates='address')
 
 -------------------------------------------------------------------------------------------------
+PLOT: add soil_type

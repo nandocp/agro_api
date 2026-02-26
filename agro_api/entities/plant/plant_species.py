@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import UniqueConstraint, Uuid, func
+from sqlalchemy import String, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
     Mapped,
@@ -14,6 +14,9 @@ from sqlalchemy.orm import (
 )
 
 from config.database import table_registry
+
+if TYPE_CHECKING:
+    from agro_api.entities.plant import PlantCommonName, PlantSynonym
 
 
 class PlantUse(str, Enum):
@@ -36,18 +39,18 @@ class WaterRequirement(str, Enum):
     HIGH = 'high'
 
 
-class PlantType(str, Enum):
+class PlantCycle(str, Enum):
+    ANNUAL = 'annual'
+    BIENNIAL = 'biennial'
+    PERENNIAL = 'perennial'
+
+
+class GrowthHabit(str, Enum):
     TREE = 'tree'
     SHRUB = 'shrub'
     CROP = 'crop'
     GRASS = 'grass'
     VINE = 'vine'
-
-
-class GrowthHabit(str, Enum):
-    ANNUAL = 'annual'
-    PERENNIAL = 'perennial'
-    BIENNIAL = 'biennial'
 
 
 @mapped_as_dataclass(table_registry)
@@ -66,11 +69,15 @@ class PlantSpecies():
     )
 
     # Identification
-    scientific_name: Mapped[str] = mapped_column(unique=True)
-    common_name: Mapped[str]
+    scientific_name: Mapped[str] = mapped_column(
+        String(200),
+        unique=True,
+        nullable=False,
+        index=True
+    )
 
     # Classification
-    plant_type: Mapped[PlantType]
+    plant_cycle: Mapped[PlantCycle]
     growth_habit: Mapped[GrowthHabit]
 
     # Use categories (can be multiple)
@@ -80,11 +87,20 @@ class PlantSpecies():
     # Characteristics
     max_height_m: Mapped[float | None]
     min_temperature_c: Mapped[float | None]
+    max_temperature_c: Mapped[float | None]
     water_requirement: Mapped[WaterRequirement | None]  # low, medium, high
 
-    # Commercial info
-    typical_yield_kg_ha: Mapped[float | None]
-    is_commodity: Mapped[bool] = mapped_column(default=False)  # soy, corn vs specialty
+    # Common names
+    common_names: Mapped[List['PlantCommonName']] = relationship(
+        cascade='all, delete-orphan',
+        lazy='selectin'
+    )
+
+    # Scientific synonyms (names that are no longer accepted)
+    synonyms: Mapped[List['PlantSynonym']] = relationship(
+        cascade='all, delete-orphan',
+        lazy='selectin'
+    )
 
     # Metadata
     created_at: Mapped[datetime] = mapped_column(
