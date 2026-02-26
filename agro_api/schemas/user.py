@@ -8,7 +8,7 @@ from agro_api.schemas.common import BaseSchema
 class UserBase(BaseModel):
     name: str
     email: EmailStr
-    model_config = ConfigDict(from_attrbutes=True)
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreate(UserBase):
