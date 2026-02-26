@@ -1,11 +1,14 @@
 from datetime import datetime
-from sqlalchemy import func
-from sqlalchemy.orm import Mapped, mapped_column
+
+from sqlalchemy import Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column
 
 """Base class for all entities with common fields."""
+
+
 class BaseEntity:
-    id: Mapped[UUID] = mapped_column(
+    id: Mapped[Uuid] = mapped_column(
         UUID,
         primary_key=True,
         server_default=func.uuidv7(),
