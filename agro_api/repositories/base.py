@@ -12,8 +12,8 @@ UpdateType = Union[UpdateSchemaType, Dict[str, Any]]
 
 
 class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(self, model: Type[ModelType], session: Session = None):
-        self.session: Session | None = session
+    def __init__(self, model: Type[ModelType], session: Session):
+        self.session: Session = session
         self.model = model
 
     async def get_by(self, params: dict) -> Optional[ModelType]:
