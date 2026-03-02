@@ -18,6 +18,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from agro_api.entities.base import BaseEntity
 from agro_api.entities.core import User
 from agro_api.entities.plot import Plot
 from config.database import table_registry
@@ -30,7 +31,7 @@ class PlotTransitionType(str, Enum):
 
 
 @mapped_as_dataclass(table_registry)
-class PlotTransition:
+class PlotTransition(BaseEntity):
     __tablename__ = 'plot_transitions'
     __table_args__ = (
         # Ensure transition is not duplicated
@@ -38,14 +39,6 @@ class PlotTransition:
             'predecessor_id', 'successor_id', 'transition_type',
             name='uq_plot_transition_unique'
         ),
-    )
-
-    id: Mapped[Uuid] = mapped_column(
-        UUID,
-        init=False,
-        primary_key=True,
-        server_default=func.uuidv7(),
-        nullable=False,
     )
 
     # The plot that existed before
@@ -81,15 +74,15 @@ class PlotTransition:
 
     # Relationships
     # Plot → transitions where it was predecessor
-    predecessor: Mapped[Plot] = relationship(
+    predecessor: Mapped['Plot'] = relationship(
         Plot,
         foreign_keys=[predecessor_id],
         backref='transitions_as_predecessor'
     )
     # Plot → transitions where it was successor
-    successor: Mapped[Plot] = relationship(
+    successor: Mapped['Plot'] = relationship(
         Plot,
         foreign_keys=[successor_id],
         backref='transitions_as_successor'
     )
-    transitioned_by: Mapped[User] = relationship(User, lazy='joined')
+    transitioned_by: Mapped['User'] = relationship(User, lazy='joined')

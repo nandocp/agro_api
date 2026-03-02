@@ -18,6 +18,7 @@ from agro_api.entities.plant import (
     PlantUse,
     WaterRequirement,
 )
+from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 if TYPE_CHECKING:
@@ -25,18 +26,10 @@ if TYPE_CHECKING:
 
 
 @mapped_as_dataclass(table_registry)
-class PlantSpecies():
+class PlantSpecies(BaseEntity):
     __tablename__ = 'plant_species'
     __table_args__ = (
         UniqueConstraint('scientific_name', name='idx_scientific_name')
-    )
-
-    id: Mapped[Uuid] = mapped_column(
-        UUID,
-        init=False,
-        primary_key=True,
-        server_default=func.uuidv7(),
-        nullable=False,
     )
 
     # Identification
@@ -71,9 +64,4 @@ class PlantSpecies():
     synonyms: Mapped[List['PlantSynonym']] = relationship(
         cascade='all, delete-orphan',
         lazy='selectin'
-    )
-
-    # Metadata
-    created_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now()
     )

@@ -8,7 +8,6 @@ from sqlalchemy import (
     ForeignKey,
     Numeric,
     String,
-    UniqueConstraint,
     Uuid,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -26,11 +25,11 @@ from agro_api.entities.activity import (
     PlantingPurpose,
     PlantingStratum,
 )
-from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 if TYPE_CHECKING:
-    from agro_api.entities.plant import PlantSpecies, PlantTrait
+    from agro_api.entities.associations import PlantingTrait
+    from agro_api.entities.plant import PlantSpecies
 
 
 # ============================================================================
@@ -89,11 +88,11 @@ class Planting(Activity):
     actual_yield_kg_ha: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
 
     # Relationships
-    plant_species: Mapped[PlantSpecies] = relationship(
+    plant_species: Mapped['PlantSpecies'] = relationship(
         lazy='joined',
         init=False
     )
-    traits: Mapped[List[PlantingTrait]] = relationship(
+    traits: Mapped[List['PlantingTrait']] = relationship(
         back_populates='planting',
         cascade='all, delete-orphan',
         init=False
@@ -113,36 +112,3 @@ class Planting(Activity):
             f"started_at={self.started_at}"
             ")"
         )
-
-
-# ============================================================================
-# PLANTING TRAIT (junction entity)
-# ============================================================================
-class PlantingTrait(BaseEntity):
-    __tablename__ = 'planting_traits'
-    __table_args__ = (
-        UniqueConstraint(
-            'planting_id', 'plant_trait_id', name='uq_planting_trait'
-        ),
-    )
-
-    planting_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('plantings.id', ondelete='CASCADE'),
-        primary_key=True
-    )
-    plant_trait_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('plant_traits.id', ondelete='RESTRICT'),
-        primary_key=True
-    )
-    value: Mapped[str | None] = mapped_column(
-        String(32),
-        comment="For quantitative traits: '85%', 'RR1', etc."
-    )
-
-    # Relationships
-    planting: Mapped['Planting'] = relationship(
-        back_populates='traits', init=False
-    )
-    trait: Mapped['PlantTrait'] = relationship(
-        foreign_keys=[plant_trait_id], init=False
-    )

@@ -23,6 +23,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 from config.geometry import GeometrySource
 
@@ -39,18 +40,10 @@ class PlotStatus(str, Enum):
 
 
 @mapped_as_dataclass(table_registry)
-class Plot:
+class Plot(BaseEntity):
     __tablename__ = 'plots'
     __table_args__ = (
         UniqueConstraint('estate_id', 'slug', name='idx_plot_estate_slug'),
-    )
-
-    id: Mapped[Uuid] = mapped_column(
-        UUID,
-        init=False,
-        primary_key=True,
-        server_default=func.uuidv7(),
-        nullable=False,
     )
 
     estate_id: Mapped[Uuid] = mapped_column(
@@ -113,14 +106,6 @@ class Plot:
         nullable=True
     )
 
-    created_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now()
-    )
-
-    updated_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now(), onupdate=func.now()
-    )
-
     creator: Mapped['User'] = relationship()
     estate: Mapped['Estate'] = relationship(
         back_populates='plots', lazy='joined'
@@ -145,7 +130,7 @@ class Plot:
     #     init=False
     # )
 
-    protections: Mapped[List[PlotProtection]] = relationship(
+    protections: Mapped[List['PlotProtection']] = relationship(
         lazy='dynamic',
         cascade='all, delete-orphan'
     )

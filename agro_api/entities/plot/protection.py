@@ -15,6 +15,7 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
+from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 
@@ -26,7 +27,7 @@ class ProtectionType(str, Enum):
 
 
 @mapped_as_dataclass(table_registry)
-class PlotProtection:
+class PlotProtection(BaseEntity):
     __tablename__ = 'plot_protections'
     __table_args__ = (
         UniqueConstraint(
@@ -34,13 +35,6 @@ class PlotProtection:
         ),
     )
 
-    id: Mapped[Uuid] = mapped_column(
-        UUID,
-        init=False,
-        primary_key=True,
-        server_default=func.uuidv7(),
-        nullable=False,
-    )
     plot_id: Mapped[Uuid] = mapped_column(ForeignKey('plots.id'))
     # Who created the protection
     created_by_id: Mapped[Uuid] = mapped_column(ForeignKey('users.id'))
@@ -50,15 +44,6 @@ class PlotProtection:
 
     expires_at: Mapped[datetime | None]
     started_at: Mapped[datetime] = mapped_column(default=func.now())
-
-    # Timestamps metadata
-    created_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now()
-    )
-
-    updated_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now(), onupdate=func.now()
-    )
 
     # What operations are restricted
     blocks_deletion: Mapped[bool] = mapped_column(default=True)

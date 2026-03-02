@@ -81,14 +81,14 @@ class Activity(BaseEntity):
     )
 
     # Relationships
-    creator: Mapped[User] = relationship(
+    creator: Mapped['User'] = relationship(
         back_populates='created_activities', init=False
     )
-    plot: Mapped[Plot] = relationship(
+    plot: Mapped['Plot'] = relationship(
         back_populates='activities', init=False
     )
     # For hierarchies
-    parent: Mapped[Activity] = relationship(
+    parent: Mapped['Activity'] = relationship(
         remote_side='Activity.id',
         foreign_keys=[parent_id],
         init=False

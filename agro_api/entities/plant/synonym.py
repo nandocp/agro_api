@@ -8,24 +8,18 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
+from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 
 @mapped_as_dataclass(table_registry)
-class PlantSynonym():
+class PlantSynonym(BaseEntity):
     """Scientific names that are no longer accepted."""
     __tablename__ = 'plant_synonyms'
     __table_args__ = (
         Index('idx_synonym_search', 'synonym_name'),
     )
 
-    id: Mapped[Uuid] = mapped_column(
-        UUID,
-        init=False,
-        primary_key=True,
-        server_default=func.uuidv7(),
-        nullable=False,
-    )
     accepted_id: Mapped[Uuid] = mapped_column(ForeignKey('plant_species.id'))
 
     synonym_name: Mapped[str] = mapped_column(

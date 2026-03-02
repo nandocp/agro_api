@@ -7,11 +7,12 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
+from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 
 @mapped_as_dataclass(table_registry)
-class PlantCommonName():
+class PlantCommonName(BaseEntity):
     __tablename__ = 'plant_common_names'
     __table_args__ = (
         UniqueConstraint(
@@ -20,7 +21,6 @@ class PlantCommonName():
         Index('idx_common_name_search', 'name'),  # For text search
     )
 
-    id: Mapped[Uuid] = mapped_column(primary_key=True)
     species_id: Mapped[Uuid] = mapped_column(ForeignKey('plant_species.id'))
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     region: Mapped[str | None]
