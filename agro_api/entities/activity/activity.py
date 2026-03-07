@@ -53,21 +53,14 @@ class Activity(BaseEntity):
         nullable=False,
         comment="Polymorphic discriminator: planting, grazing, processing..."
     )
+
     plot_id: Mapped[Uuid] = mapped_column(
         ForeignKey('plots.id'), index=True, nullable=False
     )
     creator_id: Mapped[Uuid] = mapped_column(
         ForeignKey('users.id'), nullable=False
     )
-    parent_id: Mapped[Uuid | None] = mapped_column(
-        ForeignKey('activities.id'),
-        index=True
-    )
 
-    # Batch/group identifier
-    batch_id: Mapped[Uuid | None] = mapped_column(index=True)
-
-    # Common fields
     started_at: Mapped[datetime] = mapped_column(index=True)
     finished_at: Mapped[datetime | None]
     total_area_m2: Mapped[Decimal | None] = mapped_column(
@@ -86,10 +79,4 @@ class Activity(BaseEntity):
     )
     plot: Mapped['Plot'] = relationship(
         back_populates='activities', init=False
-    )
-    # For hierarchies
-    parent: Mapped['Activity'] = relationship(
-        remote_side='Activity.id',
-        foreign_keys=[parent_id],
-        init=False
     )
