@@ -18,8 +18,8 @@ from config.database import table_registry
 
 if TYPE_CHECKING:
     from agro_api.entities.core import User
-    from agro_api.entities.task import Task
     from agro_api.entities.journal import JournalEntry
+    from agro_api.entities.task import Task
 
 
 @mapped_as_dataclass(table_registry, kw_only=True)
@@ -45,7 +45,9 @@ class TaskJournalEntry(BaseEntity):
     )
 
     # Relationships
-    task: Mapped['Task'] = relationship(back_populates='journal_entries', init=False)
+    task: Mapped['Task'] = relationship(
+        back_populates='journal_entries', init=False
+    )
     author: Mapped['User'] = relationship(lazy='joined', init=False)
     source_journal_entry: Mapped['JournalEntry'] = relationship(
         foreign_keys=[journal_entry_id],
@@ -53,4 +55,10 @@ class TaskJournalEntry(BaseEntity):
     )
 
     def __repr__(self):
-        return f"TaskJournalEntry(task={self.task_id}, journal_entry={self.journal_entry_id}"
+        return (
+            f"TaskJournalEntry("
+            f"id={self.id}, "
+            f"task={self.task_id}, "
+            f"journal_entry={self.journal_entry_id}"
+            ")"
+        )

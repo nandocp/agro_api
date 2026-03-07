@@ -52,7 +52,7 @@ class EstateStatus(str, Enum):
     ARCHIVED = "archived"
 
 
-@mapped_as_dataclass(table_registry)
+@mapped_as_dataclass(table_registry, kw_only=True)
 class Estate(BaseEntity):
     __tablename__ = 'estates'
     __table_args__ = (
@@ -69,7 +69,7 @@ class Estate(BaseEntity):
         ),
         CheckConstraint(
             'declared_area_m2 IS NULL OR declared_area_m2 > 0',
-            name='ck_estate_declared_area_positive'
+            name='ck_estate_positive_declared_area'
         ),
     )
 
@@ -77,11 +77,12 @@ class Estate(BaseEntity):
         ForeignKey('accounts.id', ondelete='CASCADE')
     )
 
-    # boundary_quality: Mapped[GeometryQuality | None] = mapped_column(
-    #     comment="high/medium/low - confidence in boundary accuracy"
-    # )
+    opened_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(default=None)
 
-    perimeter_m: Mapped[Decimal] = mapped_column(
+    ownership_type: Mapped[OwnershipType | None] = mapped_column(nullable=True)
+
+    perimeter_m: Mapped[Decimal | None] = mapped_column(
         Numeric(16, 2),
         Computed(
             """
@@ -93,11 +94,12 @@ class Estate(BaseEntity):
             """,
             persisted=True
         ),
-        nullable=True,
-        init=False
+        init=False,
+        default=None,
+        comment="Automatically updated when boundary changes"
     )
 
-    calculated_area_m2: Mapped[Decimal] = mapped_column(
+    calculated_area_m2: Mapped[Decimal | None] = mapped_column(
         Numeric(16, 2),
         Computed(
             """
@@ -109,13 +111,14 @@ class Estate(BaseEntity):
             """,
             persisted=True
         ),
-        nullable=True,
         init=False,
+        default=None,
         comment="Automatically updated when boundary changes"
     )
 
     label: Mapped[str] = mapped_column(
         String(96),
+        init=True,
         comment='Human-readable name'
     )
 
@@ -126,9 +129,10 @@ class Estate(BaseEntity):
         comment='URL-safe identifier'
     )
 
-    description: Mapped[str | None]
-
-    started_at: Mapped[datetime] = mapped_column(nullable=True)
+    description: Mapped[str | None] = mapped_column(
+        String(200),
+        default=None
+    )
 
     account: Mapped['Account'] = relationship(
         back_populates='estates', lazy='joined', passive_deletes=True
@@ -137,8 +141,6 @@ class Estate(BaseEntity):
     fields: Mapped[List['Field']] = relationship(
         back_populates='estate', init=False, lazy='dynamic'
     )
-
-    ownership_type: Mapped[OwnershipType] = mapped_column(nullable=True)
 
     registry_codes: Mapped[dict | None] = mapped_column(
         MutableDict.as_mutable(JSONB),  # Tracks in-place changes
@@ -149,9 +151,6 @@ class Estate(BaseEntity):
         Numeric(16, 2), nullable=True, default=None
     )
 
-    deleted_at: Mapped[datetime | None] = mapped_column(default=None)
-
-    # GEOGRAPHIC DATA
     entrance_point: Mapped[Geometry | None] = mapped_column(
         Geometry(
             geometry_type='POINT',
@@ -159,16 +158,16 @@ class Estate(BaseEntity):
             srid=4326,
         ),
         default=None,
-        comment='Estate access location'
+        comment='Estate access location (geographic data)'
     )
-    # STORAGE: Always 4326 (universal exchange format)
     boundary: Mapped[Geometry | None] = mapped_column(
         Geometry(
             geometry_type='MULTIPOLYGON',
             spatial_index=True,
             srid=4326,
         ),
-        default=None
+        default=None,
+        comment='Always 4326 (universal exchange format)'
     )
 
     boundary_source: Mapped[GeometrySource | None] = mapped_column(
@@ -180,7 +179,6 @@ class Estate(BaseEntity):
     kind: Mapped[EstateKind] = mapped_column(default=EstateKind.RURAL)
 
     status: Mapped[EstateStatus] = mapped_column(default=EstateStatus.ACTIVE)
-
 
     def __repr__(self):
         return (
@@ -202,19 +200,3 @@ class Estate(BaseEntity):
             return None
 
         return self.calculated_area_m2 / 10000
-
-    # # Store number of polygons (if MULTIPOLYGON)
-    # Set this as property, to be used when needed (don't think will be)
-    # polygon_count: Mapped[int] = mapped_column(
-    #     Computed(
-    #         """
-    #         CASE
-    #             WHEN boundary IS NOT NULL
-    #             THEN ST_NumGeometries(boundary)
-    #             ELSE NULL
-    #         END
-    #         """,
-    #         persisted=True
-    #     ),
-    #     nullable=True
-    # )

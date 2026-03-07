@@ -1,3 +1,29 @@
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import TYPE_CHECKING, List
+
+from sqlalchemy import (
+    ForeignKey,
+    String,
+    Text,
+    Uuid,
+)
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_as_dataclass,
+    mapped_column,
+    relationship,
+)
+
+from agro_api.entities.base import BaseEntity
+from agro_api.entities.task import TaskPriority, TaskStatus
+from config.database import table_registry
+
+if TYPE_CHECKING:
+    from agro_api.entities.activity import Activity
+    from agro_api.entities.core import User
+
 
 @mapped_as_dataclass(table_registry, kw_only=True)
 class Task(BaseEntity):
@@ -32,10 +58,15 @@ class Task(BaseEntity):
         index=True
     )
 
-    # Relationships
-    activity: Mapped['Activity'] = relationship(back_populates='tasks', init=False)
-    creator: Mapped['User'] = relationship(foreign_keys=[creator_id], init=False)
-    assigned_to: Mapped['User'] = relationship(foreign_keys=[assigned_to_id], init=False)
+    activity: Mapped['Activity'] = relationship(
+        back_populates='tasks', init=False
+    )
+    creator: Mapped['User'] = relationship(
+        foreign_keys=[creator_id], init=False
+    )
+    assigned_to: Mapped['User'] = relationship(
+        foreign_keys=[assigned_to_id], init=False
+    )
     parent_task: Mapped['Task'] = relationship(
         remote_side='Task.id',
         back_populates='subtasks',

@@ -3,14 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from geoalchemy2 import Geometry
-from sqlalchemy import (
-    ForeignKey,
-    String,
-    Text,
-    Uuid,
-    func
-)
+from sqlalchemy import ForeignKey, String, Text, Uuid, func
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
@@ -56,4 +49,10 @@ class JournalEntry(BaseEntity):
     )
 
     def __repr__(self):
-        return f"JournalEntry(id={self.id}, title={self.title[:19]}, date={self.logged_at.date()})"
+        return (
+            f"JournalEntry("
+            f"id={self.id}, "
+            f"title={self.title[:19]}, "
+            f"date={self.logged_at.date()}"
+            ")"
+        )

@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-from decimal import Decimal
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
-    CheckConstraint,
     ForeignKey,
-    Numeric,
-    String,
     Uuid,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -15,21 +11,16 @@ from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
     mapped_column,
-    relationship,
 )
 
 from agro_api.entities.activity import (
     Activity,
-    GeneticSource,
-    PlantingArrangement,
     PlantingPurpose,
-    PlantingStratum,
 )
 from config.database import table_registry
 
 if TYPE_CHECKING:
-    from agro_api.entities.associations import PlantingTrait
-    from agro_api.entities.plant import PlantSpecies
+    pass
 
 
 @mapped_as_dataclass(table_registry, kw_only=True)
@@ -51,7 +42,6 @@ class Planting(Activity):
         comment="Commodities are traded globally; specialties are niche."
     )
 
-
     # __table_args__ = (
     #     CheckConstraint('density_per_ha > 0'),
     #     CheckConstraint('row_spacing_cm IS NULL OR row_spacing_cm > 0'),
@@ -62,7 +52,8 @@ class Planting(Activity):
     # # expected_yield_kg_ha: Mapped[Decimal | None] = mapped_column(
     # #     Numeric(10, 2)
     # # )
-    # # actual_yield_kg_ha: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
+    # # actual_yield_kg_ha: Mapped[Decimal | None] = mapped_column(
+    # Numeric(10, 2))
     # #
     # # # Relationships
     # # plant_species: Mapped['PlantSpecies'] = relationship(

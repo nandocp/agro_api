@@ -1,7 +1,6 @@
 # from uuid import uuid4
 
 import factory
-
 from agro_api.entities.plot import Plot
 
 # from tests.factories.core import UserFactory

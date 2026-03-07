@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import String, UniqueConstraint, Uuid, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
@@ -12,13 +10,13 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from agro_api.entities.base import BaseEntity
 from agro_api.entities.plant import (
     GrowthHabit,
     PlantCycle,
     PlantUse,
     WaterRequirement,
 )
-from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 if TYPE_CHECKING:

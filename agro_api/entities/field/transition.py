@@ -10,7 +10,6 @@ from sqlalchemy import (
     Uuid,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
@@ -56,7 +55,9 @@ class FieldTransition(BaseEntity):
     )
 
     # What kind of transition
-    transition_type: Mapped[FieldTransitionType] = mapped_column(nullable=False)
+    transition_type: Mapped[FieldTransitionType] = mapped_column(
+        nullable=False
+    )
 
     # When it happened
     transitioned_at: Mapped[datetime] = mapped_column(

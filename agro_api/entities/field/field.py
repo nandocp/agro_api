@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, List
@@ -15,7 +15,6 @@ from sqlalchemy import (
     Uuid,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
@@ -32,6 +31,7 @@ if TYPE_CHECKING:
     from agro_api.entities.core import User
     from agro_api.entities.estate import Estate
     from agro_api.entities.field import FieldProtection  # , FieldTransition
+    from agro_api.entities.soil import SoilType
 
 
 # Pode ser removido:
@@ -43,25 +43,6 @@ class FieldStatus(str, Enum):
     INACTIVE = 'inactive'
     TRANSITIONED = 'transitioned'
 
-
-class SoilType(str, Enum):
-
-
-[
-    'Argissolos',
-    'Cambissolos',
-    'Chernossolos',
-    'Espodossolos',
-    'Gleissolos',
-    'Latossolos',
-    'Luvissolos',
-    'Neossolos',
-    'Nitossolos',
-    'Organossolos',
-    'Planossolos',
-    'Plintossolos',
-    'Vertissolos'
-]
 
 @mapped_as_dataclass(table_registry)
 class Field(BaseEntity):
@@ -75,6 +56,10 @@ class Field(BaseEntity):
     )
     creator_id: Mapped[Uuid] = mapped_column(
         ForeignKey('users.id', ondelete='RESTRICT')
+    )
+    soil_type_id: Mapped[Uuid | None] = mapped_column(
+        ForeignKey('soil_types.id', ondelete='RESTRICT'),
+        comment="Soil type if different from the plot's predominant soil"
     )
 
     slug: Mapped[str] = mapped_column(
@@ -131,10 +116,6 @@ class Field(BaseEntity):
         nullable=True
     )
 
-    # Physical characteristics (optional overrides of plot defaults)
-    soil_type: Mapped[SoilType | None] = mapped_column(
-        comment="Soil type if different from the plot's predominant soil"
-    )
     drainage_class: Mapped[str | None] = mapped_column(String(50))
     slope_class: Mapped[str | None] = mapped_column(String(50))
 
@@ -156,6 +137,7 @@ class Field(BaseEntity):
         cascade='all, delete-orphan',
         init=False
     )
+    soil_type: Mapped['SoilType'] = relationship(lazy='joined')
 
     # # Transitions where this field is the predecessor (it was replaced)
     # transitions_as_predecessor:
