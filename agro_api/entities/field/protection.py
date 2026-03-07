@@ -27,8 +27,8 @@ class ProtectionType(str, Enum):
 
 
 @mapped_as_dataclass(table_registry)
-class PlotProtection(BaseEntity):
-    __tablename__ = 'plot_protections'
+class FieldProtection(BaseEntity):
+    __tablename__ = 'field_protections'
     __table_args__ = (
         UniqueConstraint(
             'plot_id', 'protection_type', name='idx_plot_protection'
@@ -36,7 +36,6 @@ class PlotProtection(BaseEntity):
     )
 
     plot_id: Mapped[Uuid] = mapped_column(ForeignKey('plots.id'))
-    # Who created the protection
     created_by_id: Mapped[Uuid] = mapped_column(ForeignKey('users.id'))
 
     protection_type: Mapped[ProtectionType]

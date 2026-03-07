@@ -1,4 +1,4 @@
-"""Records all plot changes over time."""
+"""Records all field changes over time."""
 
 from datetime import datetime
 from enum import Enum
@@ -20,43 +20,43 @@ from sqlalchemy.orm import (
 
 from agro_api.entities.base import BaseEntity
 from agro_api.entities.core import User
-from agro_api.entities.plot import Plot
+from agro_api.entities.field import Field
 from config.database import table_registry
 
 
-class PlotTransitionType(str, Enum):
-    MERGE = 'merge'      # Multiple plots → One plot
-    DIVIDE = 'divide'    # One plot → Multiple plots
+class FieldTransitionType(str, Enum):
+    MERGE = 'merge'      # Multiple fields → One field
+    DIVIDE = 'divide'    # One field → Multiple fields
     BOUNDARY_ADJUST = 'boundary_adjust'  # Minor boundary change
 
 
 @mapped_as_dataclass(table_registry)
-class PlotTransition(BaseEntity):
-    __tablename__ = 'plot_transitions'
+class FieldTransition(BaseEntity):
+    __tablename__ = 'field_transitions'
     __table_args__ = (
         # Ensure transition is not duplicated
         UniqueConstraint(
             'predecessor_id', 'successor_id', 'transition_type',
-            name='uq_plot_transition_unique'
+            name='uq_field_transition_unique'
         ),
     )
 
-    # The plot that existed before
+    # The field that existed before
     predecessor_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('plots.id', ondelete='RESTRICT'),
+        ForeignKey('fields.id', ondelete='RESTRICT'),
         nullable=False,
         index=True
     )
 
-    # The plot that came after
+    # The field that came after
     successor_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('plots.id', ondelete='RESTRICT'),
+        ForeignKey('fields.id', ondelete='RESTRICT'),
         nullable=False,
         index=True
     )
 
     # What kind of transition
-    transition_type: Mapped[PlotTransitionType] = mapped_column(nullable=False)
+    transition_type: Mapped[FieldTransitionType] = mapped_column(nullable=False)
 
     # When it happened
     transitioned_at: Mapped[datetime] = mapped_column(
@@ -73,15 +73,15 @@ class PlotTransition(BaseEntity):
     reason: Mapped[str | None] = mapped_column(String(500))
 
     # Relationships
-    # Plot → transitions where it was predecessor
-    predecessor: Mapped['Plot'] = relationship(
-        Plot,
+    # Field → transitions where it was predecessor
+    predecessor: Mapped['Field'] = relationship(
+        Field,
         foreign_keys=[predecessor_id],
         backref='transitions_as_predecessor'
     )
-    # Plot → transitions where it was successor
-    successor: Mapped['Plot'] = relationship(
-        Plot,
+    # Field → transitions where it was successor
+    successor: Mapped['Field'] = relationship(
+        Field,
         foreign_keys=[successor_id],
         backref='transitions_as_successor'
     )

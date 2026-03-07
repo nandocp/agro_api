@@ -28,22 +28,42 @@ from config.database import table_registry
 from config.geometry import GeometrySource
 
 if TYPE_CHECKING:
+    from agro_api.entities.activity import Activity
     from agro_api.entities.core import User
     from agro_api.entities.estate import Estate
-    from agro_api.entities.plot import PlotProtection  # , PlotTransition
+    from agro_api.entities.field import FieldProtection  # , FieldTransition
 
 
-class PlotStatus(str, Enum):
+class FieldStatus(str, Enum):
     ACTIVE = 'active'
     INACTIVE = 'inactive'
     TRANSITIONED = 'transitioned'
 
 
+class SoilType(str, Enum):
+
+
+[
+    'Argissolos',
+    'Cambissolos',
+    'Chernossolos',
+    'Espodossolos',
+    'Gleissolos',
+    'Latossolos',
+    'Luvissolos',
+    'Neossolos',
+    'Nitossolos',
+    'Organossolos',
+    'Planossolos',
+    'Plintossolos',
+    'Vertissolos'
+]
+
 @mapped_as_dataclass(table_registry)
-class Plot(BaseEntity):
-    __tablename__ = 'plots'
+class Field(BaseEntity):
+    __tablename__ = 'fields'
     __table_args__ = (
-        UniqueConstraint('estate_id', 'slug', name='idx_plot_estate_slug'),
+        UniqueConstraint('estate_id', 'slug', name='idx__estate_field_slug'),
     )
 
     estate_id: Mapped[Uuid] = mapped_column(
@@ -63,6 +83,7 @@ class Plot(BaseEntity):
     label: Mapped[str] = mapped_column(
         String(96), comment='Human-readable name'
     )
+    description: Mapped[str | None] = mapped_column(String(200))
 
     boundary: Mapped[Geometry] = mapped_column(
         Geometry(
@@ -70,14 +91,14 @@ class Plot(BaseEntity):
             spatial_index=True,
             srid=4326,
         ),
-        nullable=False,  # Plot must have a boundary
-        comment="Plot boundary polygon"
+        nullable=False,  # Field must have a boundary
+        comment="Field boundary polygon"
     )
     boundary_source: Mapped[GeometrySource | None]
 
     # Computed measurements (same pattern as Estate)
     calculated_area_m2: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2),  # Slightly smaller than estate (plots are smaller)
+        Numeric(12, 2),  # Slightly smaller than estate (fields are smaller)
         Computed(
             """
             CASE
@@ -106,42 +127,69 @@ class Plot(BaseEntity):
         nullable=True
     )
 
-    creator: Mapped['User'] = relationship()
-    estate: Mapped['Estate'] = relationship(
-        back_populates='plots', lazy='joined'
+    # Fallback location description (for zones without geometry)
+    reference_location: Mapped[str | None] = mapped_column(
+        String(200),
+        comment="e.g., 'Behind the barn', 'Along the creek'"
     )
 
-    # # Transitions where this plot is the predecessor (it was replaced)
+    # Physical characteristics (optional overrides of plot defaults)
+    soil_type: Mapped[SoilType | None] = mapped_column(
+        comment="Soil type if different from the plot's predominant soil"
+    )
+    drainage_class: Mapped[str | None] = mapped_column(String(50))
+    slope_class: Mapped[str | None] = mapped_column(String(50))
+
+    # Temporal validity (zones can be split, merged, or retired)
+    active_from: Mapped[date] = mapped_column(
+        server_default=func.current_date(),
+        nullable=False
+    )
+    active_to: Mapped[date | None] = mapped_column(
+        comment="NULL means currently active"
+    )
+
+    creator: Mapped['User'] = relationship()
+    estate: Mapped['Estate'] = relationship(
+        back_populates='fields', lazy='joined'
+    )
+    activities: Mapped[List['Activity']] = relationship(
+        back_populates='field',
+        cascade='all, delete-orphan',
+        init=False
+    )
+
+    # # Transitions where this field is the predecessor (it was replaced)
     # transitions_as_predecessor:
-    # Mapped[List['PlotTransition']] = relationship(
-    #     foreign_keys='PlotTransition.predecessor_id',
+    # Mapped[List['FieldTransition']] = relationship(
+    #     foreign_keys='FieldTransition.predecessor_id',
     #     back_populates='predecessor',
     #     lazy='selectin',
     #     cascade='all, delete-orphan',
     #     init=False
     # )
 
-    # # Transitions where this plot is the successor (it replaced others)
-    # transitions_as_successor: Mapped[List['PlotTransition']] = relationship(
-    #     foreign_keys='PlotTransition.successor_id',
+    # # Transitions where this field is the successor (it replaced others)
+    # transitions_as_successor: Mapped[List['FieldTransition']] = relationship(
+    #     foreign_keys='FieldTransition.successor_id',
     #     back_populates='successor',
     #     lazy='selectin',
     #     cascade='all, delete-orphan',
     #     init=False
     # )
 
-    protections: Mapped[List['PlotProtection']] = relationship(
+    protections: Mapped[List['FieldProtection']] = relationship(
         lazy='dynamic',
         cascade='all, delete-orphan'
     )
 
     note: Mapped[str] = mapped_column(String(500), default='')
 
-    status: Mapped[PlotStatus] = mapped_column(default=PlotStatus.ACTIVE)
+    status: Mapped[FieldStatus] = mapped_column(default=FieldStatus.ACTIVE)
 
     def __repr__(self):
         return (
-            f"Plot("
+            f"Field("
             f"slug={self.slug}, "
             f"estate={self.estate.slug}, "
             f"created_at={self.created_at}"
@@ -161,7 +209,7 @@ class Plot(BaseEntity):
 
     @property
     def can_delete(self) -> bool:
-        """Check if plot can be deleted."""
+        """Check if field can be deleted."""
         return not any(
             p.blocks_deletion for p in self.protections
             if p.started_at <= datetime.now() <= (p.expires_at or datetime.max)
