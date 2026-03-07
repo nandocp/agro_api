@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from agro_api.entities.activity import Activity
     from agro_api.entities.core import User
     from agro_api.entities.estate import Estate
-    from agro_api.entities.field import FieldProtection  # , FieldTransition
+    from agro_api.entities.field import FieldProtection, FieldTransition
     from agro_api.entities.soil import SoilType
 
 
@@ -139,24 +139,27 @@ class Field(BaseEntity):
     )
     soil_type: Mapped['SoilType'] = relationship(lazy='joined')
 
-    # # Transitions where this field is the predecessor (it was replaced)
-    # transitions_as_predecessor:
-    # Mapped[List['FieldTransition']] = relationship(
-    #     foreign_keys='FieldTransition.predecessor_id',
-    #     back_populates='predecessor',
-    #     lazy='selectin',
-    #     cascade='all, delete-orphan',
-    #     init=False
-    # )
+    transitions_as_predecessor: Mapped[List['FieldTransition']] = relationship(
+        foreign_keys='FieldTransition.predecessor_id',
+        back_populates='predecessor',
+        lazy='selectin',
+        cascade='all, delete-orphan',
+        init=False,
+        comment="""
+        Transitions where this field is the predecessor (it was replaced)
+        """
+    )
 
-    # # Transitions where this field is the successor (it replaced others)
-    # transitions_as_successor: Mapped[List['FieldTransition']] = relationship(
-    #     foreign_keys='FieldTransition.successor_id',
-    #     back_populates='successor',
-    #     lazy='selectin',
-    #     cascade='all, delete-orphan',
-    #     init=False
-    # )
+    transitions_as_successor: Mapped[List['FieldTransition']] = relationship(
+        foreign_keys='FieldTransition.successor_id',
+        back_populates='successor',
+        lazy='selectin',
+        cascade='all, delete-orphan',
+        init=False,
+        comment="""
+        Transitions where this field is the successor (it replaced others)
+        """
+    )
 
     protections: Mapped[List['FieldProtection']] = relationship(
         lazy='dynamic',
@@ -194,3 +197,19 @@ class Field(BaseEntity):
             p.blocks_deletion for p in self.protections
             if p.started_at <= datetime.now() <= (p.expires_at or datetime.max)
         )
+
+    @property
+    def is_active(self) -> bool:
+        return self.active_to is None
+
+    @property
+    def is_inactive(self) -> bool:
+        return self.active_to is not None and not self.is_transitioned
+
+    @property
+    def is_transitioned(self) -> bool:
+        return len(self.transitions_as_predecessor) > 0
+
+    @property
+    def is_successor(self) -> bool:
+        return len(self.transitions_as_predecessor) > 0
