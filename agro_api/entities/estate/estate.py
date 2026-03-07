@@ -30,7 +30,7 @@ from config.geometry import GeometrySource
 
 if TYPE_CHECKING:
     from agro_api.entities.core import Account
-    from agro_api.entities.plot import Plot
+    from agro_api.entities.field import Field
 
 
 class EstateKind(str, Enum):
@@ -134,7 +134,7 @@ class Estate(BaseEntity):
         back_populates='estates', lazy='joined', passive_deletes=True
     )
 
-    plots: Mapped[List['Plot']] = relationship(
+    fields: Mapped[List['Field']] = relationship(
         back_populates='estate', init=False, lazy='dynamic'
     )
 
@@ -180,6 +180,7 @@ class Estate(BaseEntity):
     kind: Mapped[EstateKind] = mapped_column(default=EstateKind.RURAL)
 
     status: Mapped[EstateStatus] = mapped_column(default=EstateStatus.ACTIVE)
+
 
     def __repr__(self):
         return (
