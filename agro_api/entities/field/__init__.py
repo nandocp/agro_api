@@ -1,11 +1,11 @@
-from .plot import Plot
-from .protection import PlotProtection, ProtectionType
-from .transition import PlotTransition, PlotTransitionType
+from .field import Field
+from .protection import FieldProtection, ProtectionType
+from .transition import FieldTransition, FieldTransitionType
 
 __all__ = [
-    'Plot',
-    'PlotTransition',
-    'PlotTransitionType',
-    'PlotProtection',
+    'Field',
+    'FieldTransition',
+    'FieldTransitionType',
+    'FieldProtection',
     'ProtectionType'
 ]

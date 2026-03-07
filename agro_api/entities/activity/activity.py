@@ -22,7 +22,7 @@ from config.database import table_registry
 
 if TYPE_CHECKING:
     from agro_api.entities.core import User
-    from agro_api.entities.plot import Plot
+    from agro_api.entities.field import Field
 
 
 class ActivityStatus(str, Enum):
@@ -54,8 +54,8 @@ class Activity(BaseEntity):
         comment="Polymorphic discriminator: planting, grazing, processing..."
     )
 
-    plot_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('plots.id'), index=True, nullable=False
+    field_id: Mapped[Uuid] = mapped_column(
+        ForeignKey('fields.id'), index=True, nullable=False
     )
     creator_id: Mapped[Uuid] = mapped_column(
         ForeignKey('users.id'), nullable=False
@@ -65,7 +65,7 @@ class Activity(BaseEntity):
     finished_at: Mapped[datetime | None]
     total_area_m2: Mapped[Decimal | None] = mapped_column(
         Numeric(12, 2),
-        comment="Area this activity covers (validate against plot area)"
+        comment="Area this activity covers (validate against field area)"
     )
 
     notes: Mapped[str | None]
@@ -77,6 +77,6 @@ class Activity(BaseEntity):
     creator: Mapped['User'] = relationship(
         back_populates='created_activities', init=False
     )
-    plot: Mapped['Plot'] = relationship(
+    field: Mapped['Field'] = relationship(
         back_populates='activities', init=False
     )

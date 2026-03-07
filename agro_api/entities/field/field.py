@@ -34,6 +34,10 @@ if TYPE_CHECKING:
     from agro_api.entities.field import FieldProtection  # , FieldTransition
 
 
+# Pode ser removido:
+# ACTIVE ocorre quando active_to for NULL
+# INACTIVE quando active_to estiver no passado e não tiver transitions
+# TRANSITIONED quando tiver transitions
 class FieldStatus(str, Enum):
     ACTIVE = 'active'
     INACTIVE = 'inactive'
@@ -63,7 +67,7 @@ class SoilType(str, Enum):
 class Field(BaseEntity):
     __tablename__ = 'fields'
     __table_args__ = (
-        UniqueConstraint('estate_id', 'slug', name='idx__estate_field_slug'),
+        UniqueConstraint('estate_id', 'slug', name='idx_estate_field_slug'),
     )
 
     estate_id: Mapped[Uuid] = mapped_column(
@@ -99,14 +103,14 @@ class Field(BaseEntity):
     # Computed measurements (same pattern as Estate)
     calculated_area_m2: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),  # Slightly smaller than estate (fields are smaller)
-        Computed(
-            """
-            CASE
-                WHEN boundary IS NOT NULL
-                THEN ST_Area(boundary::geography)
-                ELSE NULL
-            END
-            """,
+        Computed("ST_Area(boundary::geography)",
+            # """
+            # CASE
+            #     WHEN boundary IS NOT NULL
+            #     THEN ST_Area(boundary::geography)
+            #     ELSE NULL
+            # END
+            # """,
             persisted=True
         ),
         nullable=True
@@ -125,12 +129,6 @@ class Field(BaseEntity):
             persisted=True
         ),
         nullable=True
-    )
-
-    # Fallback location description (for zones without geometry)
-    reference_location: Mapped[str | None] = mapped_column(
-        String(200),
-        comment="e.g., 'Behind the barn', 'Along the creek'"
     )
 
     # Physical characteristics (optional overrides of plot defaults)
