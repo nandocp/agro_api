@@ -74,46 +74,29 @@ class Field(BaseEntity):
     )
     description: Mapped[str | None] = mapped_column(String(200))
 
+    note: Mapped[str] = mapped_column(String(500))
+
     boundary: Mapped[Geometry] = mapped_column(
         Geometry(
             geometry_type='POLYGON',
             spatial_index=True,
             srid=4326,
         ),
-        nullable=False,  # Field must have a boundary
-        comment="Field boundary polygon"
+        nullable=False,
+        comment='Field boundary polygon'
     )
     boundary_source: Mapped[GeometrySource | None]
 
-    # Computed measurements (same pattern as Estate)
     calculated_area_m2: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2),  # Slightly smaller than estate (fields are smaller)
-        Computed("ST_Area(boundary::geography)",
-            # """
-            # CASE
-            #     WHEN boundary IS NOT NULL
-            #     THEN ST_Area(boundary::geography)
-            #     ELSE NULL
-            # END
-            # """,
-            persisted=True
-        ),
-        nullable=True
+        Numeric(12, 2),
+        Computed("ST_Area(boundary::geography)", persisted=True),
+        comment='Computed measurement'
     )
 
     perimeter_m: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),
-        Computed(
-            """
-            CASE
-                WHEN boundary IS NOT NULL
-                THEN ST_Perimeter(boundary::geography)
-                ELSE NULL
-            END
-            """,
-            persisted=True
-        ),
-        nullable=True
+        Computed('ST_Perimeter(boundary::geography)', persisted=True),
+        comment='Computed measurement'
     )
 
     drainage_class: Mapped[str | None] = mapped_column(String(50))
@@ -165,8 +148,6 @@ class Field(BaseEntity):
         lazy='dynamic',
         cascade='all, delete-orphan'
     )
-
-    note: Mapped[str] = mapped_column(String(500), default='')
 
     status: Mapped[FieldStatus] = mapped_column(default=FieldStatus.ACTIVE)
 

@@ -24,7 +24,7 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import BaseEntity
-from agro_api.entities.estate import EstateKind, EstateStatus, OwnershipType
+from agro_api.entities.estate import EstateKind, EstateStatus
 from config.database import table_registry
 from config.geometry import GeometrySource
 
@@ -37,8 +37,7 @@ if TYPE_CHECKING:
 class Estate(BaseEntity):
     __tablename__ = 'estates'
     __table_args__ = (
-        UniqueConstraint('account_id', 'slug', name='idx_estate_account_slug'),
-        # Ensures that what is stored is either NULL or a JSON object
+        UniqueConstraint('account_id', 'slug', name='idx_account_estate_slug'),
         CheckConstraint(
             """
             registry_codes IS NULL OR(
@@ -60,8 +59,6 @@ class Estate(BaseEntity):
 
     opened_at: Mapped[datetime | None] = mapped_column(nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(default=None)
-
-    ownership_type: Mapped[OwnershipType | None] = mapped_column(nullable=True)
 
     perimeter_m: Mapped[Decimal | None] = mapped_column(
         Numeric(16, 2),
