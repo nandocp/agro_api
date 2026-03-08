@@ -3,8 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Uuid, func
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
@@ -12,6 +10,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 if TYPE_CHECKING:
@@ -20,28 +19,16 @@ if TYPE_CHECKING:
 
 
 @mapped_as_dataclass(table_registry)
-class Account:
+class Account(BaseEntity):
     __tablename__ = 'accounts'
-
-    id: Mapped[Uuid] = mapped_column(
-        UUID,
-        init=False,
-        primary_key=True,
-        server_default=func.uuidv7(),
-        nullable=False,
-    )
 
     name: Mapped[str] = mapped_column(unique=False)
 
     document: Mapped[str] = mapped_column(unique=True, nullable=False)
 
-    created_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now()
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        init=False, nullable=True
     )
-    updated_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now(), onupdate=func.now()
-    )
-    deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     users: Mapped[List['User']] = relationship(
         back_populates='account',

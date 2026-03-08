@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
 from typing import TYPE_CHECKING, List
 
 from geoalchemy2 import Geometry
@@ -25,31 +24,13 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import BaseEntity
+from agro_api.entities.estate import EstateKind, EstateStatus, OwnershipType
 from config.database import table_registry
 from config.geometry import GeometrySource
 
 if TYPE_CHECKING:
     from agro_api.entities.core import Account
     from agro_api.entities.field import Field
-
-
-class EstateKind(str, Enum):
-    RURAL = 'rural'
-    INTRAURBAN = 'intraurban'
-    PERIURBAN = 'periurban'
-
-
-class OwnershipType(str, Enum):
-    OWNED = 'owned'
-    LEASED = 'leased'
-    MANAGED = 'managed'
-
-
-class EstateStatus(str, Enum):
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    PENDING = "pending_validation"
-    ARCHIVED = "archived"
 
 
 @mapped_as_dataclass(table_registry, kw_only=True)

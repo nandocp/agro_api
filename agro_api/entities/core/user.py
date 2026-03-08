@@ -13,6 +13,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 if TYPE_CHECKING:
@@ -28,16 +29,8 @@ class UserRole(str, Enum):
 
 
 @mapped_as_dataclass(table_registry)
-class User:
+class User(BaseEntity):
     __tablename__ = 'users'
-
-    id: Mapped[Uuid] = mapped_column(
-        UUID,
-        init=False,
-        primary_key=True,
-        server_default=func.uuidv7(),
-        nullable=False,
-    )
 
     account_id: Mapped[Uuid] = mapped_column(ForeignKey('accounts.id'))
 
@@ -58,12 +51,6 @@ class User:
     )
     last_sign_in_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now()
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now(), onupdate=func.now()
     )
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 

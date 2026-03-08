@@ -1,3 +1,9 @@
-from .estate import Estate, EstateKind, OwnershipType
+from .enums import EstateKind, EstateStatus, OwnershipType
+from .estate import Estate
 
-__all__ = ['Estate', 'EstateKind', 'OwnershipType']
+__all__ = [
+    'Estate',
+    'EstateKind',
+    'EstateStatus',
+    'OwnershipType'
+]
