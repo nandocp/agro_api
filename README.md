@@ -14,3 +14,9 @@ Some thoughts on functions that I want to implement:
   1.1) these plantings will be inserted at a private blockchain that will enable tracking;
   1.2) harvest both perennial and crop plants, inserting them to the system, linked to the geographic data of the property and the blockchain;
 2) allow for animal creation with all the inputs necessary.
+
+Technologies used:
+* Web framework: **FastAPI**
+* Testing framework: **Pytest**
+* Database: **Postgresql (with Postgis extension)**, **Sqlalchemy** and **Geoalchemy2**
+* Dependencies management: **Poetry**
