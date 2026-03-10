@@ -1,10 +1,7 @@
 import json
 import logging
+from datetime import datetime, timezone
 
-# import sys
-from datetime import datetime
-
-# from logging.config import dictConfig
 from config.settings import settings
 
 
@@ -12,15 +9,14 @@ from config.settings import settings
 class JsonFormatter(logging.Formatter):
     def format(self, record):
         log_record = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc),
             'level': record.levelname,
             'logger': record.name,
             'module': record.module,
             'line': record.lineno,
-            'message': record.getMessage()
+            'message': record.getMessage(),
         }
 
-        # Add exception info if available
         if record.exc_info:
             log_record['exception'] = self.formatException(record.exc_info)
 
@@ -35,29 +31,24 @@ defaul_formatter = {
 log_config = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'default': defaul_formatter,
-        'json': {
-            '()': JsonFormatter
-        }
-    },
+    'formatters': {'default': defaul_formatter, 'json': {'()': JsonFormatter}},
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
             'level': settings.LOG_LEVEL,
             'formatter': 'json',
-            'stream': 'ext://sys.stdout'
+            'stream': 'ext://sys.stdout',
         },
         'file': {
             'class': 'logging.FileHandler',
-            'level': 'INFO',
+            'level': settings.LOG_LEVEL,
             'formatter': 'json',
             'filename': 'fastapi.log',
-            'mode': 'a'
+            'mode': 'a',
         },
         'rotating_file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'level': 'INFO',
+            'level': settings.LOG_LEVEL,
             'formatter': 'json',
             'filename': 'fastapi.log',
             'maxBytes': 10485760,  # 10 MB
@@ -65,7 +56,7 @@ log_config = {
         },
         'time_rotating_file': {
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'level': 'INFO',
+            'level': settings.LOG_LEVEL,
             'formatter': 'json',
             'filename': 'fastapi.log',
             'when': 'midnight',
@@ -76,16 +67,11 @@ log_config = {
     'loggers': {
         'app': {
             'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False
+            'level': settings.LOG_LEVEL,
+            'propagate': False,
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG'
-    },
+    'root': {'handlers': ['console'], 'level': settings.LOG_LEVEL},
 }
-
-# dictConfig(log_config)
 
 logger = logging.getLogger('app')

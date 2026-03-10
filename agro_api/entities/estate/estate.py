@@ -45,11 +45,11 @@ class Estate(BaseEntity):
                 AND NOT registry_codes ? ''
             )
             """,
-            name='ck_estate_registry_codes_structure'
+            name='ck_estate_registry_codes_structure',
         ),
         CheckConstraint(
             'declared_area_m2 IS NULL OR declared_area_m2 > 0',
-            name='ck_estate_positive_declared_area'
+            name='ck_estate_positive_declared_area',
         ),
     )
 
@@ -70,11 +70,11 @@ class Estate(BaseEntity):
                 ELSE NULL
             END
             """,
-            persisted=True
+            persisted=True,
         ),
         init=False,
         default=None,
-        comment="Automatically updated when boundary changes"
+        comment='Automatically updated when boundary changes',
     )
 
     calculated_area_m2: Mapped[Decimal | None] = mapped_column(
@@ -87,30 +87,22 @@ class Estate(BaseEntity):
                 ELSE NULL
             END
             """,
-            persisted=True
+            persisted=True,
         ),
         init=False,
         default=None,
-        comment="Automatically updated when boundary changes"
+        comment='Automatically updated when boundary changes',
     )
 
     label: Mapped[str] = mapped_column(
-        String(96),
-        init=True,
-        comment='Human-readable name'
+        String(96), init=True, comment='Human-readable name'
     )
 
     slug: Mapped[str] = mapped_column(
-        String(64),
-        nullable=False,
-        index=True,
-        comment='URL-safe identifier'
+        String(64), nullable=False, index=True, comment='URL-safe identifier'
     )
 
-    description: Mapped[str | None] = mapped_column(
-        String(200),
-        default=None
-    )
+    description: Mapped[str | None] = mapped_column(String(200), default=None)
 
     account: Mapped['Account'] = relationship(
         back_populates='estates', lazy='joined', passive_deletes=True
@@ -122,7 +114,7 @@ class Estate(BaseEntity):
 
     registry_codes: Mapped[dict | None] = mapped_column(
         MutableDict.as_mutable(JSONB),  # Tracks in-place changes
-        nullable=True
+        nullable=True,
     )
 
     declared_area_m2: Mapped[Decimal | None] = mapped_column(
@@ -136,7 +128,7 @@ class Estate(BaseEntity):
             srid=4326,
         ),
         default=None,
-        comment='Estate access location (geographic data)'
+        comment='Estate access location (geographic data)',
     )
     boundary: Mapped[Geometry | None] = mapped_column(
         Geometry(
@@ -145,7 +137,7 @@ class Estate(BaseEntity):
             srid=4326,
         ),
         default=None,
-        comment='Always 4326 (universal exchange format)'
+        comment='Always 4326 (universal exchange format)',
     )
 
     boundary_source: Mapped[GeometrySource | None] = mapped_column(
@@ -160,12 +152,12 @@ class Estate(BaseEntity):
 
     def __repr__(self):
         return (
-            f"Estate("
-            f"id={self.id}, "
-            f"slug={self.slug}, "
-            f"status={self.status.value if self.status else None}, "
-            f"created_at={self.created_at}"
-            ")"
+            f'Estate('
+            f'id={self.id}, '
+            f'slug={self.slug}, '
+            f'status={self.status.value if self.status else None}, '
+            f'created_at={self.created_at}'
+            ')'
         )
 
     @property
