@@ -20,3 +20,5 @@ Technologies used:
 * Testing framework: **Pytest**
 * Database: **Postgresql (with Postgis extension)**, **Sqlalchemy** and **Geoalchemy2**
 * Dependencies management: **Poetry**
+
+For running Postgis, this extensions must be enabled in each database (development and test).
