@@ -14,7 +14,20 @@ class OwnershipType(str, Enum):
 
 
 class EstateStatus(str, Enum):
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    PENDING = "pending_validation"
-    ARCHIVED = "archived"
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+    PENDING = 'pending_validation'
+    ARCHIVED = 'archived'
+
+
+class RegistryStatus(str, Enum):
+    DRAFT = 'draft'
+    SUBMITTED = 'submitted'
+    UNDER_REVIEW = 'under_review'
+    ACTIVE = 'active'
+    PENDING = 'pending'
+    ANALYZING = 'analyzing'
+    SUSPENDED = 'suspended'
+    CANCELED = 'canceled'
+    REJECTED = 'rejected'
+    NEEDS_CORRECTION = 'needs_correction'

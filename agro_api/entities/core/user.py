@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey, Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -17,6 +17,7 @@ from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
 if TYPE_CHECKING:
+    from agro_api.entities.activity import Activity
     from agro_api.entities.core import Account
 
 
@@ -55,6 +56,10 @@ class User(BaseEntity):
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     account: Mapped['Account'] = relationship(back_populates='users')
+
+    created_activities: Mapped[List['Activity']] = relationship(
+        init=False, back_populates='creator'
+    )
 
     def __repr__(self):
         return f'User(id={self.id}, name={self.name}, email={self.email})'

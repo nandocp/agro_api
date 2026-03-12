@@ -1,9 +1,8 @@
 from .core import AuthRepository, UserRepository
-from .estate import EstateRepository, PlotRepository
+from .estate import EstateRepository
 
 __all__ = [
     'AuthRepository',
     'EstateRepository',
-    'PlotRepository',
     'UserRepository',
 ]

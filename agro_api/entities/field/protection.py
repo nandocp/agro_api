@@ -30,11 +30,11 @@ class FieldProtection(BaseEntity):
     __tablename__ = 'field_protections'
     __table_args__ = (
         UniqueConstraint(
-            'plot_id', 'protection_type', name='idx_plot_protection'
+            'field_id', 'protection_type', name='idx_field_protection'
         ),
     )
 
-    plot_id: Mapped[Uuid] = mapped_column(ForeignKey('plots.id'))
+    field_id: Mapped[Uuid] = mapped_column(ForeignKey('fields.id'))
     created_by_id: Mapped[Uuid] = mapped_column(ForeignKey('users.id'))
 
     protection_type: Mapped[ProtectionType]

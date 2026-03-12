@@ -18,10 +18,10 @@ from sqlalchemy.orm import (
 )
 
 from agro_api.entities.base import BaseEntity
+from agro_api.entities.core import User
 from config.database import table_registry
 
 if TYPE_CHECKING:
-    from agro_api.entities.core import User
     from agro_api.entities.field import Field
 
 
@@ -39,19 +39,19 @@ class Activity(BaseEntity):
         CheckConstraint('finished_at IS NULL OR finished_at >= started_at'),
         CheckConstraint(
             'total_area_m2 IS NULL OR total_area_m2 > 0',
-            name='ck_activity_area_positive'
-        )
+            name='ck_activity_area_positive',
+        ),
     )
     __mapper_args__ = {
-        "polymorphic_identity": "activity",
+        'polymorphic_identity': 'activity',
         # discriminator: value indicate object type
-        "polymorphic_on": 'activity_type',
+        'polymorphic_on': 'activity_type',
     }
 
     activity_type: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
-        comment="Polymorphic discriminator: planting, grazing, processing..."
+        comment='Polymorphic discriminator: planting, grazing, processing...',
     )
 
     field_id: Mapped[Uuid] = mapped_column(
@@ -65,7 +65,7 @@ class Activity(BaseEntity):
     finished_at: Mapped[datetime | None]
     total_area_m2: Mapped[Decimal | None] = mapped_column(
         Numeric(12, 2),
-        comment="Area this activity covers (validate against field area)"
+        comment='Area this activity covers (validate against field area)',
     )
 
     notes: Mapped[str | None]

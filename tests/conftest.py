@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from datetime import datetime
 from secrets import token_hex
-from uuid import uuid4
+from uuid import uuid7
 
 import pytest
 import pytest_asyncio
@@ -20,7 +20,7 @@ from config.password import hash_password
 from config.settings import settings
 from tests.factories.core import AccountFactory, UserFactory
 from tests.factories.estates import EstateFactory
-from tests.factories.plots import PlotFactory
+from tests.factories.fields import FieldFactory
 
 
 @contextmanager
@@ -38,7 +38,7 @@ def _mock_db_time(model, columns=[], time=datetime.now()):
 
 
 @contextmanager
-def _mock_id(model, id=uuid4()):
+def _mock_id(model, id=uuid7()):
     def fake_id_hook(mapper, connection, target):
         target.id = id
 
@@ -149,8 +149,8 @@ async def estate(session) -> str:
 
 
 @pytest_asyncio.fixture
-async def plot(session) -> str:
-    plot = PlotFactory()
+async def field(session) -> str:
+    plot = FieldFactory()
     session.add(plot)
     await session.commit()
     await session.refresh(plot)

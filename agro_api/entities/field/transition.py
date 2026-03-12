@@ -24,8 +24,8 @@ from config.database import table_registry
 
 
 class FieldTransitionType(str, Enum):
-    MERGE = 'merge'      # Multiple fields → One field
-    DIVIDE = 'divide'    # One field → Multiple fields
+    MERGE = 'merge'  # Multiple fields → One field
+    DIVIDE = 'divide'  # One field → Multiple fields
     BOUNDARY_ADJUST = 'boundary_adjust'  # Minor boundary change
 
 
@@ -35,8 +35,10 @@ class FieldTransition(BaseEntity):
     __table_args__ = (
         # Ensure transition is not duplicated
         UniqueConstraint(
-            'predecessor_id', 'successor_id', 'transition_type',
-            name='uq_field_transition_unique'
+            'predecessor_id',
+            'successor_id',
+            'transition_type',
+            name='uq_field_transition_unique',
         ),
     )
 
@@ -44,14 +46,14 @@ class FieldTransition(BaseEntity):
     predecessor_id: Mapped[Uuid] = mapped_column(
         ForeignKey('fields.id', ondelete='RESTRICT'),
         nullable=False,
-        index=True
+        index=True,
     )
 
     # The field that came after
     successor_id: Mapped[Uuid] = mapped_column(
         ForeignKey('fields.id', ondelete='RESTRICT'),
         nullable=False,
-        index=True
+        index=True,
     )
 
     # What kind of transition
@@ -61,8 +63,7 @@ class FieldTransition(BaseEntity):
 
     # When it happened
     transitioned_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(),
-        nullable=False
+        server_default=func.now(), nullable=False
     )
 
     # Optional: user who performed the transition
@@ -78,12 +79,12 @@ class FieldTransition(BaseEntity):
     predecessor: Mapped['Field'] = relationship(
         Field,
         foreign_keys=[predecessor_id],
-        backref='transitions_as_predecessor'
+        back_populates='transitions_as_predecessor',
     )
     # Field → transitions where it was successor
     successor: Mapped['Field'] = relationship(
         Field,
         foreign_keys=[successor_id],
-        backref='transitions_as_successor'
+        back_populates='transitions_as_successor',
     )
-    transitioned_by: Mapped['User'] = relationship(User, lazy='joined')
+    transitioned_by: Mapped['User'] = relationship(lazy='joined')

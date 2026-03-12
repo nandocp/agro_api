@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = (
-        'postgresql+psycopg://postgres:postgres@db:5432/agro_db'
+        'postgresql+psycopg://postgres:postgres@127.0.0.1:5432/agro_db'
     )
 
     # Security
