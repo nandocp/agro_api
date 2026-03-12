@@ -18,27 +18,28 @@ from sqlalchemy.orm import (
 from agro_api.entities.base import BaseEntity
 from config.database import table_registry
 
-[
-    'Argissolos',
-    'Cambissolos',
-    'Chernossolos',
-    'Espodossolos',
-    'Gleissolos',
-    'Latossolos',
-    'Luvissolos',
-    'Neossolos',
-    'Nitossolos',
-    'Organossolos',
-    'Planossolos',
-    'Plintossolos',
-    'Vertissolos'
-]
+# [
+#     'Argissolos',
+#     'Cambissolos',
+#     'Chernossolos',
+#     'Espodossolos',
+#     'Gleissolos',
+#     'Latossolos',
+#     'Luvissolos',
+#     'Neossolos',
+#     'Nitossolos',
+#     'Organossolos',
+#     'Planossolos',
+#     'Plintossolos',
+#     'Vertissolos'
+# ]
 
 
 @mapped_as_dataclass(table_registry, kw_only=True)
-class SoilType(BaseEntity):
+class SoilClassification(BaseEntity):
     """Lookup table for soil types from various classification systems."""
-    __tablename__ = 'soil_types'
+
+    __tablename__ = 'soil_classifications'
     __table_args__ = (
         UniqueConstraint('name', 'source', name='uq_soil_name_source'),
     )
@@ -46,12 +47,12 @@ class SoilType(BaseEntity):
     name: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
-        comment="Soil type name, e.g., 'Latossolos', 'Chernozem'"
+        comment="Soil type name, e.g., 'Latossolos', 'Chernozem'",
     )
     source: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
-        comment="Classification system, e.g., 'SiBCS', 'WRB'"
+        comment="Classification system, e.g., 'SiBCS', 'WRB'",
     )
 
     # Optional: hierarchical relationship (for systems with multiple levels)
@@ -60,18 +61,15 @@ class SoilType(BaseEntity):
         comment="""
         For hierarchical systems: parent soil type
         (e.g., order → suborder)
-        """
+        """,
+        default=None,
     )
-    parent: Mapped['SoilType'] = relationship(
-        remote_side='SoilType.id',
-        back_populates='children',
-        init=False
+    parent: Mapped['SoilClassification'] = relationship(
+        remote_side='SoilType.id', back_populates='children', init=False
     )
-    children: Mapped[List['SoilType']] = relationship(
-        back_populates='parent',
-        cascade='all, delete-orphan',
-        init=False
+    children: Mapped[List['SoilClassification']] = relationship(
+        back_populates='parent', cascade='all, delete-orphan', init=False
     )
 
     def __repr__(self):
-        return f"SoilType(name={self.name}, source={self.source})"
+        return f'SoilClassification(name={self.name}, source={self.source})'
