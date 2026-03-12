@@ -1,34 +1,5 @@
-class Address:
-    __tablename__ = 'addresses'
+https://medium.com/@notarious2/working-with-spatial-data-using-fastapi-and-geoalchemy-797d414d2fe7
 
-    id: Mapped[Uuid] = mapped_column(primary_key=True, server_default=func.uuidv7())
-
-    # Core address fields
-    street: Mapped[str | None]
-    number: Mapped[str | None]  # String to handle "S/N", "Km 12", etc.
-    complement: Mapped[str | None]
-    neighborhood: Mapped[str | None]
-    city: Mapped[str]
-    state: Mapped[str]  # Could be FK to states table
-    postal_code: Mapped[str | None]
-    country: Mapped[str] = mapped_column(default='BR')
-
-    # Optional geocoding fields
-    latitude: Mapped[float | None]
-    longitude: Mapped[float | None]
-    geocoding_accuracy: Mapped[str | None]  # rooftop, street, approximate, etc.
-
-    # Metadata
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now()
-    )
-
-    # Relationships
-    estate: Mapped['Estate'] = relationship(back_populates='address')
-
--------------------------------------------------------------------------------------------------
-PLOT: add soil_type
 -------------------------------------------------------------------------------------------------
 # ============================================================================
 # TAG (master table)
@@ -162,3 +133,127 @@ class TagCategory(str, Enum):
     EQUIPMENT = 'equipment'      # tractor, irrigator, sprayer
     CUSTOM = 'custom'            # user-defined
 -------------------------------------------------------------------------------------------------
+
+# ============================================================================
+# SLOPE CLASS
+# ============================================================================
+@table_registry.mapped_as_dataclass(kw_only=True)
+class SlopeClass(BaseEntity):
+    """Classificação de declividade do terreno (i18n ready)."""
+    __tablename__ = 'slope_classes'
+
+    code: Mapped[str] = mapped_column(
+        String(30),
+        unique=True,
+        nullable=False,
+        comment="Código interno: 'flat', 'gentle', 'moderate', 'strong', 'steep'"
+    )
+
+    min_slope: Mapped[float | None] = mapped_column(
+        Numeric(5, 2),
+        comment="Declividade mínima em percentual (opcional)"
+    )
+    max_slope: Mapped[float | None] = mapped_column(
+        Numeric(5, 2),
+        comment="Declividade máxima em percentual (opcional)"
+    )
+
+    # Relacionamento com traduções
+    translations: Mapped[List['SlopeClassTranslation']] = relationship(
+        back_populates='slope_class',
+        cascade='all, delete-orphan'
+    )
+
+    __table_args__ = (
+        CheckConstraint('min_slope IS NULL OR min_slope >= 0'),
+        CheckConstraint('max_slope IS NULL OR max_slope <= 100'),
+        CheckConstraint(
+            '(min_slope IS NULL AND max_slope IS NULL) OR min_slope <= max_slope',
+            name='ck_slope_range'
+        ),
+    )
+
+
+@table_registry.mapped_as_dataclass(kw_only=True)
+class SlopeClassTranslation(BaseEntity):
+    """Traduções das classes de declividade."""
+    __tablename__ = 'slope_class_translations'
+    __table_args__ = (
+        UniqueConstraint('slope_class_id', 'locale', name='uq_slope_class_locale'),
+    )
+
+    slope_class_id: Mapped[Uuid] = mapped_column(
+        ForeignKey('slope_classes.id', ondelete='CASCADE'),
+        nullable=False
+    )
+    locale: Mapped[str] = mapped_column(
+        String(10),
+        nullable=False,
+        comment="Código do idioma: 'pt-BR', 'en-US', 'es'"
+    )
+
+    display_name: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        comment="Nome traduzido: 'Plano', 'Ondulado', 'Montanhoso'"
+    )
+    description: Mapped[str | None] = mapped_column(
+        String(200),
+        comment="Descrição traduzida (opcional)"
+    )
+
+    # Relacionamento
+    slope_class: Mapped['SlopeClass'] = relationship(back_populates='translations')
+
+    slope_classes = [
+        {
+            'code': 'flat',
+            'min_slope': 0,
+            'max_slope': 3,
+            'translations': [
+                {'locale': 'pt-BR', 'display_name': 'Plano', 'description': '0-3% declividade'},
+                {'locale': 'en-US', 'display_name': 'Flat', 'description': '0-3% slope'},
+                {'locale': 'es', 'display_name': 'Plano', 'description': '0-3% pendiente'},
+            ]
+        },
+        {
+            'code': 'gentle',
+            'min_slope': 3,
+            'max_slope': 8,
+            'translations': [
+                {'locale': 'pt-BR', 'display_name': 'Suave Ondulado', 'description': '3-8% declividade'},
+                {'locale': 'en-US', 'display_name': 'Gently Sloping', 'description': '3-8% slope'},
+                {'locale': 'es', 'display_name': 'Suavemente Ondulado', 'description': '3-8% pendiente'},
+            ]
+        },
+        {
+            'code': 'moderate',
+            'min_slope': 8,
+            'max_slope': 20,
+            'translations': [
+                {'locale': 'pt-BR', 'display_name': 'Ondulado', 'description': '8-20% declividade'},
+                {'locale': 'en-US', 'display_name': 'Moderately Sloping', 'description': '8-20% slope'},
+                {'locale': 'es', 'display_name': 'Ondulado', 'description': '8-20% pendiente'},
+            ]
+        },
+        {
+            'code': 'strong',
+            'min_slope': 20,
+            'max_slope': 45,
+            'translations': [
+                {'locale': 'pt-BR', 'display_name': 'Forte Ondulado', 'description': '20-45% declividade'},
+                {'locale': 'en-US', 'display_name': 'Strongly Sloping', 'description': '20-45% slope'},
+                {'locale': 'es', 'display_name': 'Fuertemente Ondulado', 'description': '20-45% pendiente'},
+            ]
+        },
+        {
+            'code': 'steep',
+            'min_slope': 45,
+            'max_slope': 100,
+            'translations': [
+                {'locale': 'pt-BR', 'display_name': 'Montanhoso', 'description': '>45% declividade'},
+                {'locale': 'en-US', 'display_name': 'Steep', 'description': '>45% slope'},
+                {'locale': 'es', 'display_name': 'Escarpado', 'description': '>45% pendiente'},
+            ]
+        },
+    ]
