@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey, UniqueConstraint, Uuid
 from sqlalchemy.orm import (
@@ -14,7 +14,7 @@ from sqlalchemy.orm import (
 from app.shared.model import BaseModel
 
 if TYPE_CHECKING:
-    from app.domain.accounts.models import Account
+    from app.domain.accounts.models import Account, Role
     # from app.entities.activity import Activity
 
 
@@ -77,6 +77,12 @@ class User(BaseModel):
 
     account: Mapped['Account'] = relationship(
         back_populates='users', init=False
+    )
+    roles: Mapped[List['Role']] = relationship(
+        back_populates='users',
+        secondary='user_roles',
+        lazy='raise',
+        init=False,
     )
 
     # created_activities: Mapped[List['Activity']] = relationship(
