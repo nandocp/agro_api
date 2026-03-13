@@ -64,20 +64,12 @@ class Estate(BaseModel):
 
     # Geometry data
     entrance_point: Mapped[Geometry | None] = mapped_column(
-        Geometry(
-            geometry_type='POINT',
-            spatial_index=True,
-            srid=4326,
-        ),
+        Geometry(geometry_type='POINT', srid=4326, spatial_index=False),
         default=None,
         comment='Estate access location (geographic data)',
     )
     boundary: Mapped[Geometry | None] = mapped_column(
-        Geometry(
-            geometry_type='MULTIPOLYGON',
-            spatial_index=True,
-            srid=4326,
-        ),
+        Geometry(geometry_type='MULTIPOLYGON', srid=4326, spatial_index=False),
         default=None,
         comment='Always 4326 (universal exchange format)',
     )
