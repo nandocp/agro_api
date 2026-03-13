@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
@@ -21,8 +21,8 @@ from app.shared.geometry import GeometrySource
 from app.shared.model import BaseModel
 
 if TYPE_CHECKING:
-    from app.domain.accounts import Account
-#     from app.entities.estate import EstateRegistry
+    from app.domain.accounts.models import Account
+    from app.domain.estates.models import EstateRegistry
 #     from app.entities.field import Field
 
 
@@ -121,14 +121,14 @@ class Estate(BaseModel):
         passive_deletes=True,
         init=False,
     )
+    registries: Mapped[List['EstateRegistry']] = relationship(
+        back_populates='estate',
+        cascade='all, delete-orphan',
+        lazy='joined',
+        init=False,
+    )
     # fields: Mapped[List['Field']] = relationship(
     #     back_populates='estate', init=False, lazy='dynamic'
-    # )
-    # registries: Mapped[List['EstateRegistry']] = relationship(
-    #     back_populates='estate',
-    #     cascade='all, delete-orphan',
-    #     lazy='joined',
-    #     init=False,
     # )
 
     def __repr__(self):
