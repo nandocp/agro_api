@@ -14,7 +14,7 @@ class UserRepository(CRUDBase[User]):
             select(User).where(
                 User.email == email,
                 User.account_id == account_id,
-                User.deleted_at.is_(None),  # sempre filtrar soft deleted
+                User.deleted_at.is_(None),
             )
         )
         return result.scalar_one_or_none()
