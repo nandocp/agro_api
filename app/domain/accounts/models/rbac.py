@@ -11,8 +11,10 @@ if TYPE_CHECKING:
 
 class Permission(BaseModel):
     __tablename__ = 'permissions'
-    __table_args__ = UniqueConstraint(
-        'resource', 'action', 'idx_permission_resource_action'
+    __table_args__ = (
+        UniqueConstraint(
+            'resource', 'action', name='uq_permission_resource_action'
+        ),
     )
 
     resource: Mapped[str] = mapped_column(String(50), nullable=False)
