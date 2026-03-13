@@ -42,7 +42,7 @@ class Estate(BaseModel):
 
     # Dates important to Estate management
     opened_at: Mapped[date | None] = mapped_column(nullable=True)
-    deleted_at: Mapped[date | None] = mapped_column(default=None)
+    archived_at: Mapped[date | None] = mapped_column(default=None)
 
     # Estate common data
     label: Mapped[str] = mapped_column(

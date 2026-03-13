@@ -73,7 +73,7 @@ class User(BaseModel):
         init=False, default=None
     )
 
-    deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
+    deactivated_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     account: Mapped['Account'] = relationship(
         back_populates='users', init=False

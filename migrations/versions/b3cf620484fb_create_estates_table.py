@@ -25,7 +25,7 @@ def upgrade() -> None:
     op.create_table('estates',
     sa.Column('account_id', sa.UUID(), nullable=False),
     sa.Column('opened_at', sa.Date(), nullable=True),
-    sa.Column('deleted_at', sa.Date(), nullable=True),
+    sa.Column('archived_at', sa.Date(), nullable=True),
     sa.Column('label', sa.String(length=96), nullable=False, comment='Human-readable name'),
     sa.Column('slug', sa.String(length=64), nullable=False, comment='URL-safe identifier'),
     sa.Column('description', sa.String(length=200), nullable=True),

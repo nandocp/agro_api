@@ -34,7 +34,7 @@ def upgrade() -> None:
     sa.Column('last_sign_in_at', sa.DateTime(), nullable=True),
     sa.Column('failed_attempts', sa.Integer(), nullable=False),
     sa.Column('locked_at', sa.DateTime(), nullable=True),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('deactivated_at', sa.DateTime(), nullable=True),
     sa.Column('id', sa.UUID(), server_default=sa.text('uuidv7()'), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),

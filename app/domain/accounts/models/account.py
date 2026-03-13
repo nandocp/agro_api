@@ -26,7 +26,7 @@ class Account(BaseModel):
 
     plan: Mapped[AccountPlan] = mapped_column(default=AccountPlan.FREE)
 
-    deleted_at: Mapped[datetime | None] = mapped_column(
+    archived_at: Mapped[datetime | None] = mapped_column(
         init=False, nullable=True
     )
 

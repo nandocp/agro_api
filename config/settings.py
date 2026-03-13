@@ -37,6 +37,9 @@ class Settings(BaseSettings):
 
     LOG_LEVEL: str = 'DEBUG'
 
+    SUPERADMIN_EMAIL: str = 'user@system.br'
+    SUPERADMIN_PASSWORD: str = 'password'
+
     @property
     def active_database_url(self) -> str:
         if self.ENVIRONMENT == 'test':

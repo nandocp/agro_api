@@ -6,6 +6,9 @@ from app.shared.exceptions import UnauthorizedError
 @staticmethod
 class AuthorizationService:
     def has_permission(user: User, resource: Resource, action: Action) -> bool:
+        if user.deactivated_at:
+            return False
+
         permissions = {
             (p.resource, p.action)
             for role in user.roles

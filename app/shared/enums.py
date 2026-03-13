@@ -10,16 +10,28 @@ class Resource(str, Enum):
 
 
 class Action(str, Enum):
+    # CRUD
     CREATE = 'create'
     READ = 'read'
     UPDATE = 'update'
     DELETE = 'delete'
-    MANAGE = 'manage'
-    ASSIGN = 'assign'
-    CANCEL = 'cancel'
+    # CUSTOM
     EXPORT = 'export'
+    ASSIGN = 'assign'
     EXECUTE = 'execute'
     APPROVE = 'approve'
+    CANCEL = 'cancel'
+    ARCHIVE = 'archive'
+    DEACTIVATE = 'deactivate'
+
+
+class Role(str, Enum):
+    SUPERUSER = 'superuser'
+    ADMIN = 'admin'
+    MANAGER = 'manager'
+    WORKER = 'worker'
+    AGRONOMIST = 'agronomist'
+    VIEWER = 'viewer'
 
 
 class EPSG(int, Enum):
@@ -37,7 +49,7 @@ class GeometrySource(str, Enum):
 # E no seed, a permissão activity:execute é atribuída aos roles que podem
 # transitar uma Activity de PLANNED para ACTIVE — distinto de activity:approve,
 # que seria a aprovação do planejamento antes da execução.
-# Se não implementar isso, MANAGE vira uma action comum sem semântica especial —
+# Se não implementar isso, MANAGE vira uma action comum sem semântica especial
 # o que torna o nome enganoso.
 # EXECUTE pode fazer falta
 # Para o domínio agrícola, APPROVE cobre aprovação de planejamento,
