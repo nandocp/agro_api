@@ -4,10 +4,12 @@ from sqlalchemy import Uuid, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.shared.model import DeclarativeModel
+from .declarative import DeclarativeModel
 
 
 class BaseModel(DeclarativeModel):
+    __abstract__ = True
+
     id: Mapped[Uuid] = mapped_column(
         UUID,
         primary_key=True,
