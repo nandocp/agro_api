@@ -101,6 +101,8 @@ db-drop = 'python scripts/db/drop.py'
 db-migrate = 'alembic upgrade head'
 db-rollback = 'alembic downgrade -1'
 db-reset = 'task db-drop && task db-create && alembic upgrade head'
+db-migrate-test = "ENVIRONMENT=test alembic upgrade head"
+db-reset-test = "ENVIRONMENT=test alembic downgrade base && ENVIRONMENT=test alembic upgrade head"
 
 [tool.coverage.run]
 concurrency = ['thread', 'greenlet']
