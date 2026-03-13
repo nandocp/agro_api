@@ -10,8 +10,8 @@ from app.domain.accounts.enums import AccountPlan
 from app.shared.model import BaseModel
 
 if TYPE_CHECKING:
-    from app.domain.accounts import User
-#     from app.entities.estate import Estate
+    from app.domain.accounts.models import User
+    from app.domain.estates.models import Estate
 
 
 class Account(BaseModel):
@@ -37,12 +37,12 @@ class Account(BaseModel):
         lazy='selectin',
     )
 
-    # estates: Mapped[List['Estate']] = relationship(
-    #     back_populates='account',
-    #     init=False,
-    #     cascade='all, delete-orphan',
-    #     lazy='selectin',
-    # )
+    estates: Mapped[List['Estate']] = relationship(
+        back_populates='account',
+        init=False,
+        cascade='all, delete-orphan',
+        lazy='selectin',
+    )
 
     def __repr__(self):
         return f'Account(id={self.id}, name={self.name})'
