@@ -1,11 +1,8 @@
-FROM registry.fedoraproject.org/fedora-toolbox:43 AS base
-
-FROM base AS packages
+FROM registry.fedoraproject.org/fedora-toolbox:43
+ARG USER_SHELL
 ENV PATH="/root/.local/bin:${PATH}"
-
 COPY packages /
 RUN dnf -y --setopt=install_weak_deps=False install $(<packages) \
     && rm /packages
 
-FROM packages AS runner
 RUN pipx install poetry black alembic
