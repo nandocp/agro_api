@@ -77,3 +77,17 @@ async def test_other_account_estate_same_slug(session, estate):
     )
     session.add(new_estate)
     await session.commit()
+
+
+@pytest.mark.asyncio
+async def test_area_ha(estate):
+    test_area_ha = estate.calculated_area_m2 / 10000
+    assert estate.area_ha == test_area_ha
+
+
+@pytest.mark.asyncio
+async def test_null_area_ha(session, account):
+    estate = await EstateFactory.create(
+        session, boundary=None, account_id=account.id
+    )
+    assert estate.area_ha is None

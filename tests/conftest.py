@@ -54,10 +54,13 @@ async def session():
 
 
 @pytest_asyncio.fixture
-async def estate(session) -> EstateFactory:
-    account = await AccountFactory.create(session)
-    estate = await EstateFactory.create(session, account_id=account.id)
-    return estate
+async def estate(session, account) -> EstateFactory:
+    return await EstateFactory.create(session, account_id=account.id)
+
+
+@pytest_asyncio.fixture
+async def account(session) -> AccountFactory:
+    return await AccountFactory.create(session)
 
 
 # @pytest_asyncio.fixture
