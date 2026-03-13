@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     )
 
     # App stuff
-    FASTAPI_ENV: str = 'DEVELOPMENT'
+    FASTAPI_ENV: str = 'development'
     DEBUG: bool | None = True
 
     # API
