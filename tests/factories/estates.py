@@ -4,7 +4,7 @@ import factory
 from geoalchemy2.shape import from_shape
 from shapely import geometry
 
-from app.domain.estates.models import Estate
+from app.domain.estates.models import Estate, EstateRegistry
 
 from .async_factory import AsyncSQLAlchemyFactory
 
@@ -52,3 +52,11 @@ class EstateFactory(AsyncSQLAlchemyFactory):
     entrance_point = from_shape(point, srid=4326)
     declared_area_m2 = 1800000
     account_id = None
+
+
+class EstateRegistryFactory(AsyncSQLAlchemyFactory):
+    class Meta:
+        model = EstateRegistry
+
+    code = Faker('localized_ean13')
+    source = Faker('word')
