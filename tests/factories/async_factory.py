@@ -1,3 +1,5 @@
+# https://github.com/FactoryBoy/factory_boy/issues/679
+
 import inspect
 
 import factory

@@ -16,6 +16,8 @@ from app.main import app
 from app.shared.model.declarative import DeclarativeModel
 from config.database import get_session
 from config.settings import settings
+from tests.factories.accounts import AccountFactory
+from tests.factories.estates import EstateFactory
 
 
 @pytest.fixture
@@ -49,6 +51,13 @@ async def session():
         await conn.run_sync(DeclarativeModel.metadata.drop_all)
 
     await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def estate(session) -> EstateFactory:
+    account = await AccountFactory.create(session)
+    estate = await EstateFactory.create(session, account_id=account.id)
+    return estate
 
 
 # @pytest_asyncio.fixture

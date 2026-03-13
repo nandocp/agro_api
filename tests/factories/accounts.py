@@ -14,9 +14,14 @@ class AccountFactory(AsyncSQLAlchemyFactory):
         model = Account
 
     name = Faker('company')
-    document = randint(11111111111111, 99999999999999)
+    document = factory.LazyAttribute(
+        lambda _: randint(11111111111111, 99999999999999)
+    )
 
 
 class UserFactory(AsyncSQLAlchemyFactory):
     class Meta:
         model = User
+
+    name = Faker('name_nonbinary')
+    email = Faker('ascii_free_email')
