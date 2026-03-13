@@ -38,14 +38,14 @@ def wkb_to_shape(value: WKBElement | BaseGeometry) -> BaseGeometry | None:
 
 
 def to_geometry(value: Any) -> BaseGeometry | None:
-    lat_lon = 2
+    LAT_LON = 2
     if value is None:
         return None
     if isinstance(value, WKBElement):
         return wkb_to_shape(value)
     if isinstance(value, BaseGeometry):
         return value
-    if isinstance(value, list) and len(value) == lat_lon:
+    if isinstance(value, list) and len(value) == LAT_LON:
         value = Point(*value)
     elif isinstance(value, dict):
         value = shape(value)
