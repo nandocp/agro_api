@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
@@ -13,24 +14,18 @@ from sqlalchemy import (
     UniqueConstraint,
     Uuid,
 )
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_as_dataclass,
-    mapped_column,
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.estates.enums import EstateKind, EstateStatus, OwnershipType
 from app.shared.geometry import GeometrySource
 from app.shared.model import BaseModel
-from config.database import table_registry
 
-# if TYPE_CHECKING:
-#     from app.entities.core import Account, Address
+if TYPE_CHECKING:
+    from app.domain.accounts import Account
 #     from app.entities.estate import EstateRegistry
 #     from app.entities.field import Field
 
 
-@mapped_as_dataclass(table_registry, kw_only=True)
 class Estate(BaseModel):
     __tablename__ = 'estates'
     __table_args__ = (
@@ -128,9 +123,9 @@ class Estate(BaseModel):
     # address: Mapped['Address'] = relationship(
     #     back_populates='estate', lazy='joined', passive_deletes=True
     # )
-    # account: Mapped['Account'] = relationship(
-    #     back_populates='estates', lazy='joined', passive_deletes=True
-    # )
+    account: Mapped['Account'] = relationship(
+        back_populates='estates', lazy='joined', passive_deletes=True
+    )
     # fields: Mapped[List['Field']] = relationship(
     #     back_populates='estate', init=False, lazy='dynamic'
     # )

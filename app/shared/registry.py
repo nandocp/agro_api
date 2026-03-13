@@ -1,1 +1,2 @@
-from app.domain.accounts.models import Account
+import app.domain.accounts.models
+import app.domain.estates.models
