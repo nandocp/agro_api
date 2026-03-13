@@ -1,12 +1,8 @@
-from typing import Annotated
-
-from fastapi import Depends
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     create_async_engine,
 )
-from sqlalchemy.orm import registry
 
 from config.logging import logger
 from config.settings import settings
@@ -31,7 +27,3 @@ async def get_session():
             await session.rollback()
         finally:
             await session.close()
-
-
-session = Annotated[AsyncSession, Depends(get_session)]
-table_registry = registry()

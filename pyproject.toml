@@ -1,66 +1,66 @@
 [project]
-name = "agro-api"
-version = "0.2.2"
-description = "API that allows owners to manage their agro estates"
+name = 'agro-api'
+version = '0.2.2'
+description = 'API that allows owners to manage their agro estates'
 authors = [
-    {name = "Fernando Caçador",email = "fernando.cacador@proton.me"}
+    {name = 'Fernando Caçador',email = 'fernando.cacador@proton.me'}
 ]
-requires-python = ">=3.14,<4.0"
+requires-python = '>=3.14,<4.0'
 dependencies = [
-    "fastapi[standard] (>=0.135.1,<0.136.0)",
-    "sqlalchemy (>=2.0.48,<3.0.0)",
-    "pydantic-settings (>=2.13.1,<3.0.0)",
-    "alembic (>=1.18.4,<2.0.0)",
-    "pyjwt (>=2.11.0,<3.0.0)",
-    "pwdlib[argon2] (>=0.3.0,<0.4.0)",
-    "fastapi-injectable (>=1.4.6,<2.0.0)",
-    "psycopg[binary] (>=3.3.3,<4.0.0)",
-    "geoalchemy2 (>=0.18.4,<0.19.0)",
-    "shapely (>=2.1.2,<3.0.0)",
+    'fastapi[standard] (>=0.135.1,<0.136.0)',
+    'sqlalchemy (>=2.0.48,<3.0.0)',
+    'pydantic-settings (>=2.13.1,<3.0.0)',
+    'alembic (>=1.18.4,<2.0.0)',
+    'pyjwt (>=2.11.0,<3.0.0)',
+    'pwdlib[argon2] (>=0.3.0,<0.4.0)',
+    'fastapi-injectable (>=1.4.6,<2.0.0)',
+    'psycopg[binary] (>=3.3.3,<4.0.0)',
+    'geoalchemy2 (>=0.18.4,<0.19.0)',
+    'shapely (>=2.1.2,<3.0.0)',
 ]
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ['poetry-core>=2.0.0,<3.0.0']
+build-backend = 'poetry.core.masonry.api'
 
 [dependency-groups]
 dev = [
-    "ruff (>=0.14.10,<0.15.0)",
-    "pytest (>=9.0.2,<10.0.0)",
-    "pytest-cov (>=7.0.0,<8.0.0)",
-    "taskipy (>=1.14.1,<2.0.0)",
-    "freezegun (>=1.5.5,<2.0.0)",
-    "pytest-asyncio (>=1.3.0,<2.0.0)",
-    "faker (>=40.5.1,<41.0.0)",
-    "factory-boy (>=3.3.3,<4.0.0)"
+    'ruff (>=0.14.10,<0.15.0)',
+    'pytest (>=9.0.2,<10.0.0)',
+    'pytest-cov (>=7.0.0,<8.0.0)',
+    'taskipy (>=1.14.1,<2.0.0)',
+    'freezegun (>=1.5.5,<2.0.0)',
+    'pytest-asyncio (>=1.3.0,<2.0.0)',
+    'faker (>=40.5.1,<41.0.0)',
+    'factory-boy (>=3.3.3,<4.0.0)'
 ]
 
 [tool.poetry]
-name = "agro-api"
-version = "0.2.2"
-description = "API that allows owners to manage their agro estates"
-authors = ["Fernando Caçador <fernando.cacador@proton.me>"]
-packages = [{include = "agro_api"}]
+name = 'agro-api'
+version = '0.2.2'
+description = 'API that allows owners to manage their agro estates'
+authors = ['Fernando Caçador <fernando.cacador@proton.me>']
+packages = [{include = 'agro_api'}]
 
 [tool.poetry.dependencies]
-python = "^3.14"
-fastapi = {extras = ["standard"], version = "^0.135.1"}
-sqlalchemy = {extras = ["asyncio"], version = "^2.0.48"}
-pydantic-settings = "^2.12.0"
-alembic = "^1.17.2"
-pyjwt = "^2.10.1"
-pwdlib = {extras = ["argon2"], version = "^0.3.0"}
-fastapi-injectable = "^1.4.6"
-psycopg = {extras = ["binary"], version = "^3.3.2"}
+python = '^3.14'
+fastapi = {extras = ['standard'], version = '^0.135.1'}
+sqlalchemy = {extras = ['asyncio'], version = '^2.0.48'}
+pydantic-settings = '^2.12.0'
+alembic = '^1.17.2'
+pyjwt = '^2.10.1'
+pwdlib = {extras = ['argon2'], version = '^0.3.0'}
+fastapi-injectable = '^1.4.6'
+psycopg = {extras = ['binary'], version = '^3.3.2'}
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.14.10"
-pytest = "^9.0.2"
-pytest-cov = "^7.0.0"
-taskipy = "^1.14.1"
-freezegun = "^1.5.5"
-pytest-asyncio = "^1.3.0"
-faker = "^40.5.1"
+ruff = '^0.14.10'
+pytest = '^9.0.2'
+pytest-cov = '^7.0.0'
+taskipy = '^1.14.1'
+freezegun = '^1.5.5'
+pytest-asyncio = '^1.3.0'
+faker = '^40.5.1'
 
 [tool.ruff]
 line-length = 79
@@ -75,14 +75,17 @@ ignore = ['E402', 'F811']
 preview = true
 quote-style = 'single'
 
+[tool.ruff.lint.per-file-ignores]
+'app/shared/registry.py' = ['F401']
+
 [tool.pytest.ini_options]
 pythonpath = '.'
 addopts = '-p no:warnings'
 asyncio_default_fixture_loop_scope = 'function'
 
 [tool.taskipy.tasks]
-run = 'fastapi dev agro_api/app.py --host 0.0.0.0'
-serve = 'uvicorn agro_api.app:app --workers 2'
+run = 'fastapi dev app/main.py --host 0.0.0.0'
+serve = 'uvicorn app.main:app --workers 2'
 
 lint = 'ruff check'
 
@@ -93,5 +96,11 @@ pre_test = 'task lint'
 test = 'pytest -s -x --cov=agro_api -vv'
 post_test = 'coverage html'
 
+db-create = 'python scripts/db/create.py'
+db-drop = 'python scripts/db/drop.py'
+db-migrate = 'alembic upgrade head'
+db-rollback = 'alembic downgrade -1'
+db-reset = 'task db-drop && task db-create && alembic upgrade head'
+
 [tool.coverage.run]
-concurrency = ["thread", "greenlet"]
+concurrency = ['thread', 'greenlet']

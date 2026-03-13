@@ -1,0 +1,11 @@
+async def get_by_email_and_account(
+    self, email: str, account_id: UUID
+) -> User | None:
+    result = await self.session.execute(
+        select(User).where(
+            User.email == email,
+            User.account_id == account_id,
+            User.deleted_at.is_(None),  # sempre filtrar soft deleted
+        )
+    )
+    return result.scalar_one_or_none()

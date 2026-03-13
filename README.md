@@ -21,4 +21,10 @@ Technologies used:
 * Database: **Postgresql (with Postgis extension)**, **Sqlalchemy** and **Geoalchemy2**
 * Dependencies management: **Poetry**
 
-For running Postgis, this extensions must be enabled in each database (development and test).
+# ============================================================================
+# INSTRUCTIONS
+# ============================================================================
+In this app there are included some facilities to handle db management:
+* Create db: [poetry run] task db-create
+* Drop db: [poetry run] task db-drop
+* Reset db: [poetry run] task db-reset

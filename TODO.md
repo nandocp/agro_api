@@ -257,3 +257,127 @@ class SlopeClassTranslation(BaseEntity):
             ]
         },
     ]
+
+===========================================================================================
+ARCH
+===========================================================================================
+bapp/
+├── app/
+│   ├── domain/
+│   │   ├── accounts/
+│   │   │   ├── models/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── user.py
+│   │   │   │   ├── account.py
+│   │   │   │   └── address.py
+│   │   │   ├── schemas.py
+│   │   │   ├── service.py
+│   │   │   ├── repository.py
+│   │   │   └── auth.py
+│   │   ├── estate/
+│   │   │   ├── models/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── estate.py
+│   │   │   │   └── registry.py
+│   │   │   ├── schemas.py
+│   │   │   ├── service.py
+│   │   │   └── repository.py
+│   │   ├── field/
+│   │   │   ├── models/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── field.py
+│   │   │   │   ├── protection.py
+│   │   │   │   ├── transition.py
+│   │   │   │   └── soil/
+│   │   │   │       ├── __init__.py
+│   │   │   │       ├── analysis.py
+│   │   │   │       └── classification.py
+│   │   │   ├── schemas.py
+│   │   │   ├── service.py
+│   │   │   └── repository.py
+│   │   ├── plant/
+│   │   │   ├── models/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── species.py
+│   │   │   │   ├── common_name.py
+│   │   │   │   ├── synonym.py
+│   │   │   │   └── trait.py
+│   │   │   ├── schemas.py
+│   │   │   ├── service.py
+│   │   │   └── repository.py
+│   │   └── activity/
+│   │       ├── models/
+│   │       │   ├── __init__.py
+│   │       │   └── activity.py
+│   │       ├── planting/
+│   │       │   ├── models/
+│   │       │   │   ├── __init__.py
+│   │       │   │   ├── planting.py
+│   │       │   │   ├── composition.py
+│   │       │   │   └── methods/
+│   │       │   │       ├── __init__.py
+│   │       │   │       ├── row.py
+│   │       │   │       ├── bed.py
+│   │       │   │       └── broadcast.py
+│   │       │   ├── schemas.py
+│   │       │   ├── service.py
+│   │       │   └── repository.py
+│   │       ├── task/
+│   │       │   ├── models/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── task.py
+│   │       │   ├── schemas.py
+│   │       │   ├── service.py
+│   │       │   └── repository.py
+│   │       ├── journal/
+│   │       │   ├── models/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── entry.py
+│   │       │   ├── schemas.py
+│   │       │   └── repository.py
+│   │       ├── schemas.py
+│   │       ├── service.py
+│   │       └── repository.py
+│   ├── shared/
+│   │   ├── base.py             # BaseEntity, table_registry
+│   │   ├── repository.py       # BaseRepository genérico
+│   │   └── utils.py            # relationship wrapper
+│   └── main.py
+├── config/
+│   ├── settings.py
+│   ├── database.py
+│   ├── logging.py
+│   └── http_misc.py
+├── migrations/
+│   ├── versions/
+│   ├── env.py
+│   └── script.py.mako
+├── seeds/
+│   ├── production/
+│   │   └── required_data.py
+│   └── development/
+│       └── fixtures.py
+└── toolbox/
+```
+
+---
+
+**Quando chegar nos endpoints, a camada `api/` entra dentro de `app/`:**
+```
+app/
+├── api/
+│   ├── v1/
+│   │   ├── router.py           # agrega todos os routers
+│   │   ├── accounts.py
+│   │   ├── estate.py
+│   │   ├── fields.py
+│   │   ├── plants.py
+│   │   └── activities/
+│   │       ├── router.py
+│   │       ├── planting.py
+│   │       ├── task.py
+│   │       └── journal.py
+│   └── middleware.py
+├── domain/
+├── shared/
+└── main.py
