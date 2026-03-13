@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Any
 
 import geoalchemy2.shape
@@ -6,17 +5,7 @@ from geoalchemy2 import WKBElement
 from shapely.geometry import Point, shape
 from shapely.geometry.base import BaseGeometry
 
-
-class EPSG(int, Enum):
-    WGS84 = 4326
-    WEBM = 3857
-
-
-class GeometrySource(str, Enum):
-    survey = 'survey'
-    satellite = 'satellite'
-    manual = 'manual'
-    imported = 'imported'
+from app.shared.enums import EPSG
 
 
 def shape_to_wkb(
