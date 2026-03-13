@@ -40,7 +40,7 @@ name = 'agro-api'
 version = '0.2.2'
 description = 'API that allows owners to manage their agro estates'
 authors = ['Fernando Caçador <fernando.cacador@proton.me>']
-packages = [{include = 'agro_api'}]
+packages = [{include = 'app'}]
 
 [tool.poetry.dependencies]
 python = '^3.14'
@@ -93,7 +93,7 @@ pre_format = 'ruff check --fix'
 format = 'ruff format'
 
 pre_test = 'task lint'
-test = 'pytest -s -x --cov=agro_api -vv'
+test = 'pytest -s -x --cov=app -vv'
 post_test = 'coverage html'
 
 db-create = 'python scripts/db/create.py'
