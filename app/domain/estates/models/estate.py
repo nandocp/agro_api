@@ -17,7 +17,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.estates.enums import EstateKind, EstateStatus, OwnershipType
-from app.shared.geometry import GeometrySource
+from app.shared.enums import GeometrySource
 from app.shared.model import BaseModel
 
 if TYPE_CHECKING:
