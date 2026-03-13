@@ -116,7 +116,10 @@ class Estate(BaseModel):
     #     back_populates='estate', lazy='joined', passive_deletes=True
     # )
     account: Mapped['Account'] = relationship(
-        back_populates='estates', lazy='joined', passive_deletes=True
+        back_populates='estates',
+        lazy='joined',
+        passive_deletes=True,
+        init=False,
     )
     # fields: Mapped[List['Field']] = relationship(
     #     back_populates='estate', init=False, lazy='dynamic'
