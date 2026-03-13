@@ -75,10 +75,12 @@ class User(BaseModel):
 
     deleted_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
-    account: Mapped['Account'] = relationship(back_populates='users')
+    account: Mapped['Account'] = relationship(
+        back_populates='users', init=False
+    )
 
     # created_activities: Mapped[List['Activity']] = relationship(
-    #     init=False, back_populates='creator'
+    #     back_populates='creator', init=False
     # )
 
     def __repr__(self):
