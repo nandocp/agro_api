@@ -6,11 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.accounts.models import User
 from config.authentication import get_current_user
-from config.database import get_session
+from config.database import get_session, get_session_with_commit
 
 FilterSchemaType = TypeVar('FilterSchemaType', bound=BaseModel)
 
 Session = Annotated[AsyncSession, Depends(get_session)]
+SessionWithCommit = Annotated[AsyncSession, Depends(get_session_with_commit)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
