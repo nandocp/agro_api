@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import app.shared.registry
+from app.api.exceptions_handler import register_exception_handlers
 from app.api.router import router
 from config.settings import settings
 
@@ -12,6 +13,8 @@ app = FastAPI(
     debug=True,
     description='API that helps owners manage their estate(s)',
 )
+
+register_exception_handlers(app)
 
 # CORS
 app.add_middleware(
