@@ -10,6 +10,7 @@ from app.shared.exceptions import (
     QuotaExceededError,
     UnauthorizedError,
 )
+from config.logging import logger
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -43,6 +44,7 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(IntegrityError)
     async def integrity_error_handler(request: Request, exc: IntegrityError):
+        logger.error(exc)
         return JSONResponse(
             status_code=HTTPStatus.CONFLICT,
             content={'detail': 'Operation conflicts with existing data'},
