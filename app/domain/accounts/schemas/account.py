@@ -2,17 +2,18 @@ from pydantic import BaseModel, field_serializer, field_validator
 
 from app.domain.accounts.enums import AccountPlan
 from app.shared.schemas import BaseSchema
+from app.shared.utils import digits_only
 
 
 class AccountCreate(BaseModel):
     name: str
     document: str
-    plan: AccountPlan
+    plan: AccountPlan = AccountPlan.FREE
 
     @field_validator('document')
     @classmethod
     def normalize_document(cls, v: str) -> str:
-        return ''.join(filter(str.isdigit, v))
+        return digits_only(v)
 
 
 class AccountResponse(BaseSchema):
