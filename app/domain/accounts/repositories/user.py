@@ -3,10 +3,11 @@ from uuid import UUID
 from sqlalchemy import select
 
 from app.domain.accounts.models import User
+from app.domain.accounts.schemas import UserCreate, UserUpdate
 from app.shared.crud import CRUDBase
 
 
-class UserRepository(CRUDBase[User]):
+class UserRepository(CRUDBase[User, UserCreate, UserUpdate]):
     async def get_by_email_and_account(
         self, email: str, account_id: UUID
     ) -> User | None:
