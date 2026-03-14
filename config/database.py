@@ -16,14 +16,30 @@ engine: AsyncEngine = create_async_engine(
 )
 
 
+def log_error(error: Exception):
+    logger.error(f'DB operation failed with {error}. Auto-rollbacking...')
+
+
 async def get_session():
     async with AsyncSession(engine, expire_on_commit=False) as session:
         try:
             yield session
         except Exception as error:
-            logger.warning(
-                f'DB operation failed with {error}. Auto-rollbacking...'
-            )
+            log_error(error)
             await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+
+async def get_session_with_commit():
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception as error:
+            log_error(error)
+            await session.rollback()
+            raise
         finally:
             await session.close()
