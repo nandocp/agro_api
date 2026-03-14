@@ -9,21 +9,25 @@ from config.settings import settings
 class JsonFormatter(logging.Formatter):
     def format(self, record):
         log_record = {
-            'timestamp': datetime.now(timezone.utc),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'level': record.levelname,
             'logger': record.name,
             'module': record.module,
+            'function': record.funcName,
             'line': record.lineno,
             'message': record.getMessage(),
+            'environment': settings.ENVIRONMENT,
         }
 
         if record.exc_info:
             log_record['exception'] = self.formatException(record.exc_info)
+        if record.stack_info:
+            log_record['stack_info'] = record.stack_info
 
         return json.dumps(log_record)
 
 
-defaul_formatter = {
+default_formatter = {
     'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     'datefmt': '%Y-%m-%d %H:%M:%S',
 }
@@ -31,7 +35,10 @@ defaul_formatter = {
 log_config = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {'default': defaul_formatter, 'json': {'()': JsonFormatter}},
+    'formatters': {
+        'default': default_formatter,
+        'json': {'()': JsonFormatter},
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
