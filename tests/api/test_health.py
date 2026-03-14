@@ -1,10 +1,13 @@
 from http import HTTPStatus
 
+import pytest
+
 from config.settings import settings
 
 
-def test_root_response(client):
-    response = client.get('/')
+@pytest.mark.asyncio
+async def test_root_response(client):
+    response = await client.get('/')
 
     assert response.json() == {
         'message': 'AgroAPI',
@@ -13,15 +16,17 @@ def test_root_response(client):
     assert response.status_code == HTTPStatus.OK
 
 
-def test_up_response(client):
-    response = client.get('/up')
+@pytest.mark.asyncio
+async def test_up_response(client):
+    response = await client.get('/up')
 
     assert response.json() == {'message': 'ok'}
     assert response.status_code == HTTPStatus.OK
 
 
-def test_html_response(client):
-    response = client.get('/html')
+@pytest.mark.asyncio
+async def test_html_response(client):
+    response = await client.get('/html')
 
     assert (
         response.text
