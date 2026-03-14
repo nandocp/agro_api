@@ -40,6 +40,8 @@ class Settings(BaseSettings):
     SUPERADMIN_EMAIL: str = 'user@system.br'
     SUPERADMIN_PASSWORD: str = 'password'
 
+    MAX_FAILED_ATTEMPTS: int = 5
+
     @property
     def active_database_url(self) -> str:
         if self.ENVIRONMENT == 'test':
