@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.accounts.auth import decode_access_token
 from app.domain.accounts.models import User
-from app.shared.crud_base import CRUDBase
+from app.shared.crud import CRUDBase
 from config.database import get_session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/login')

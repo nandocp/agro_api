@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 
 from app.domain.accounts.models import User
-from app.shared.crud_base import CRUDBase
+from app.shared.crud import CRUDBase
 
 
 class UserRepository(CRUDBase[User]):

@@ -1,6 +1,7 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_serializer, field_validator
 
 from app.domain.accounts.enums import AccountPlan
+from app.shared.schemas import BaseSchema
 
 
 class AccountCreate(BaseModel):
@@ -12,3 +13,28 @@ class AccountCreate(BaseModel):
     @classmethod
     def normalize_document(cls, v: str) -> str:
         return ''.join(filter(str.isdigit, v))
+
+
+class AccountResponse(BaseSchema):
+    name: str
+    document: str
+
+    @field_serializer('document')
+    def mask_document(value: str) -> str:
+        doc = {'cpf': 11, 'cnpj': 14}
+        if len(value) == doc['cpf']:
+            return f'{value[:3]}.{value[3:6]}.{value[6:9]}-{value[9:]}'
+        if len(value) == doc['cnpj']:
+            return (
+                f'{value[:2]}.'
+                f'{value[2:5]}.'
+                f'{value[5:8]}/'
+                f'{value[8:12]}-'
+                f'{value[12:]}'
+            )
+        return value
+
+
+class AccountUpdate(BaseModel):
+    name: str | None
+    plan: AccountPlan

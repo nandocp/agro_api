@@ -10,8 +10,8 @@ from config.database import get_session
 
 FilterSchemaType = TypeVar('FilterSchemaType', bound=BaseModel)
 
-session = Annotated[AsyncSession, Depends(get_session)]
-current_user = Annotated[User, Depends(get_current_user)]
+Session = Annotated[AsyncSession, Depends(get_session)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 def filters(filter_schema: Type[FilterSchemaType]):
