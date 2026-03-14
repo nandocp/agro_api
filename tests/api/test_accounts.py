@@ -41,9 +41,17 @@ async def test_create_account_with_auth_headers(client, token, session):
 
 @pytest.mark.asyncio
 async def test_create_account_with_repeated_doc(client, token, session):
-    account = await AccountFactory.create(session)
+    account = await AccountFactory.build()
 
-    id_object = await CRUDBase[Account](Account, session).get_one(account.id)
+    response_original = await client.post(
+        BASE_PATH,
+        json={'name': account.name, 'document': account.document},
+        headers={'authorization': f'Bearer {token}'},
+    )
+
+    id_object = await CRUDBase[Account](Account, session).get_one(
+        response_original.json()['id']
+    )
     assert id_object is not None
 
     params = {'name': 'Repeated Account', 'document': account.document}
