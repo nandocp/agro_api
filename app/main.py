@@ -1,10 +1,8 @@
-from http import HTTPStatus
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 
 import app.shared.registry
+from app.api.router import router
 from config.settings import settings
 
 app = FastAPI(
@@ -24,25 +22,4 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-# app.include_router(auth.router)
-# app.include_router(estates_router)
-# app.include_router(plots_router)
-# app.include_router(users.router)
-
-
-@app.get('/', status_code=HTTPStatus.OK)
-def root():
-    return {'message': 'AgroAPI', 'version': settings.VERSION}
-
-
-@app.get('/up', status_code=HTTPStatus.OK)
-def up():
-    return {'message': 'ok'}
-
-
-@app.get('/html', status_code=HTTPStatus.OK, response_class=HTMLResponse)
-def html():
-    return """<html>
-        <head>AgroAPI</head>
-        <body>🚜</body>
-    </html>"""
+app.include_router(router)

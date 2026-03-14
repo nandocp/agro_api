@@ -1,3 +1,5 @@
+from functools import wraps
+
 from app.domain.accounts.models import User
 from app.shared.enums import Action, Resource
 from app.shared.exceptions import UnauthorizedError
@@ -23,3 +25,16 @@ class AuthorizationService:
     def check(self, user: User, resource: Resource, action: Action) -> None:
         if not self.has_permission(user, resource, action):
             raise UnauthorizedError
+
+
+def require_permission(resource: Resource, action: Action):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(self, *args, **kwargs):
+            current_user = kwargs.get('current_user')
+            AuthorizationService.check(current_user, resource, action)
+            return await func(self, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
