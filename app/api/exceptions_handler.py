@@ -1,67 +1,63 @@
+import re
 from http import HTTPStatus
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import IntegrityError
 
-from app.shared.exceptions import (
-    ConflictError,
-    NotFoundError,
-    QuotaExceededError,
-    UnauthorizedError,
-)
+from app.shared.exceptions import AgroAPIError
 from config.logging import logger
+from config.settings import settings
 
 
 def register_exception_handlers(app: FastAPI) -> None:
-    @app.exception_handler(NotFoundError)
-    async def not_found_handler(request: Request, exc: NotFoundError):
-        return JSONResponse(
-            status_code=HTTPStatus.NOT_FOUND,
-            content={'detail': f'{exc.resource} not found'},
-        )
+    def _status_for_code(exc_code: str) -> int:
+        if exc_code.startswith('not_found'):
+            return HTTPStatus.NOT_FOUND
+        if exc_code.startswith('auth'):
+            return HTTPStatus.UNAUTHORIZED
+        if exc_code.startswith('quota'):
+            return HTTPStatus.PAYMENT_REQUIRED
+        if exc_code.startswith(('integrity_error', 'conflict')):
+            return HTTPStatus.CONFLICT
+        if exc_code.startswith('unprocessable'):
+            return HTTPStatus.UNPROCESSABLE_ENTITY
+        return HTTPStatus.INTERNAL_SERVER_ERROR
 
-    @app.exception_handler(UnauthorizedError)
-    async def unauthorized_handler(request: Request, exc: UnauthorizedError):
+    @app.exception_handler(AgroAPIError)
+    async def agro_api_error_handler(request: Request, exc: AgroAPIError):
+        status = _status_for_code(exc.code)
         return JSONResponse(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            content={'detail': exc.message},
-        )
-
-    @app.exception_handler(ConflictError)
-    async def conflict_handler(request: Request, exc: ConflictError):
-        return JSONResponse(
-            status_code=HTTPStatus.CONFLICT,
-            content={'detail': exc.message},
-        )
-
-    @app.exception_handler(QuotaExceededError)
-    async def quota_handler(request: Request, exc: QuotaExceededError):
-        return JSONResponse(
-            status_code=HTTPStatus.PAYMENT_REQUIRED,
-            content={'detail': exc.message},
+            status_code=status,
+            content={'code': exc.code, 'message': exc.message},
         )
 
     @app.exception_handler(IntegrityError)
     async def integrity_error_handler(request: Request, exc: IntegrityError):
-        logger.error(exc)
-        return JSONResponse(
-            status_code=HTTPStatus.CONFLICT,
-            content={'detail': 'Operation conflicts with existing data'},
+        error_message = str(exc.orig)
+
+        if settings.ENVIRONMENT != 'test':
+            logger.error(exc)
+        match = re.search(r'constraint "([^"]+)"', error_message)
+        code = (
+            f'integrity_error.{match.group(1)}'
+            if match
+            else 'integrity_error.generic'
         )
 
-    @app.exception_handler(OperationalError)
-    async def operational_error_handler(
-        request: Request, exc: OperationalError
-    ):
         return JSONResponse(
-            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
-            content={'detail': 'Service temporarily unavailable'},
+            status_code=HTTPStatus.CONFLICT,
+            content={'code': code},
         )
 
     @app.exception_handler(Exception)
     async def generic_handler(request: Request, exc: Exception):
+        logger.error(f'Unhandled exception: {exc}', exc_info=True)
+
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            content={'detail': 'An unexpected error occurred'},
+            content={
+                'code': 'error.internal',
+                'message': 'Unexpected error',
+            },
         )
