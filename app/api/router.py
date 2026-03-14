@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 # from app.api.public.router import router as public_router
 from app.api.auth.router import router as auth_router
 from app.api.private.router import router as private_router
-from config.authentication import get_current_user
+from app.shared.dependencies import get_current_user
 from config.settings import settings
 
 router = APIRouter()
