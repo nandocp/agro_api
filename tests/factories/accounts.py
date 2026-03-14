@@ -1,7 +1,8 @@
-from random import randint
+from random import choice
 from secrets import token_hex
 
 import factory
+from br_cpf_cnpj import generate_random_cnpj, generate_random_cpf
 
 from app.domain.accounts.models import Account, User
 from app.shared.security import hash_password
@@ -17,7 +18,10 @@ class AccountFactory(AsyncSQLAlchemyFactory):
 
     name = Faker('company')
     document = factory.LazyAttribute(
-        lambda _: randint(11111111111111, 99999999999999)
+        lambda _: choice([
+            generate_random_cpf(masked=True),
+            generate_random_cnpj(alphanumeric=False, masked=True),
+        ])
     )
 
 
