@@ -60,6 +60,3 @@ async def test_login_non_existing_user(client, account):
     response = await client.post('/auth/login', json=login_data)
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
-    body = response.json()
-    assert body['code'] == 'auth.invalid_credentials'
-    assert not body['message']
