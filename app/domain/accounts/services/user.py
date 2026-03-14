@@ -1,10 +1,16 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from app.domain.accounts.auth import create_access_token
+from jwt import DecodeError, ExpiredSignatureError
+
+from app.domain.accounts.auth import create_access_token, decode_access_token
 from app.domain.accounts.models import User
 from app.domain.accounts.repositories import UserRepository
-from app.domain.accounts.schemas import LoginRequest, UserCreate, UserUpdate
+from app.domain.accounts.schemas import (
+    LoginRequest,
+    UserCreate,
+    UserUpdate,
+)
 from app.shared.exceptions import InvalidCredentialsError
 from app.shared.security import verify_password
 from app.shared.service import BaseService
@@ -16,7 +22,7 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
         self.user_repo = UserRepository(User, session)
         super().__init__(User, session)
 
-    async def login(self, login_data: LoginRequest) -> tuple[User, str]:
+    async def login(self, login_data: LoginRequest) -> str:
         user = await self.user_repo.get_by_email_and_account(
             login_data.username, login_data.account_id
         )
@@ -41,8 +47,30 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
 
         await self.repo.save(user)
         token = create_access_token(sub=user.id, jti=user.jti)
-        return user, token
+        return token
 
     async def logout(self, user: User) -> None:
         user.jti = None
         await self.repo.save(user)
+
+    async def refresh_token(self, token: str) -> str:
+        try:
+            payload = decode_access_token(token)
+            jti = payload.get('jti')
+            sub = payload.get('sub')
+            if not sub or not jti:
+                raise InvalidCredentialsError
+        except DecodeError:
+            raise InvalidCredentialsError
+        except ExpiredSignatureError:
+            raise InvalidCredentialsError
+
+        user = await self.repo.get_by({'jti': jti})
+        if not user or str(user.id) != sub:
+            raise InvalidCredentialsError
+
+        user.jti = uuid4()
+        await self.repo.save(user)
+
+        token_data = create_access_token(sub=str(user.id), jti=str(user.jti))
+        return token_data.jwt
