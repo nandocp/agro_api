@@ -46,8 +46,7 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
         user.jti = uuid4()
 
         await self.repo.save(user)
-        token = create_access_token(sub=user.id, jti=user.jti)
-        return token
+        return create_access_token(sub=user.id, jti=user.jti)
 
     async def logout(self, user: User) -> None:
         user.jti = None
@@ -72,5 +71,4 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
         user.jti = uuid4()
         await self.repo.save(user)
 
-        token_data = create_access_token(sub=str(user.id), jti=str(user.jti))
-        return token_data.jwt
+        return create_access_token(sub=user.id, jti=user.jti)
