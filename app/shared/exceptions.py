@@ -1,28 +1,40 @@
-class NotFoundError(Exception):
+class AgroAPIError(Exception):
+    def __init__(self, code: str, message: str = ''):
+        self.code = code
+        self.message = message
+
+
+class NotFoundError(AgroAPIError):
+    def __init__(self, resource: str):
+        super().__init__(code=f'not_found.{resource}')
+
+
+class UnauthorizedError(AgroAPIError):
+    def __init__(self):
+        super().__init__(code='auth.unauthorized')
+
+
+class InvalidCredentialsError(AgroAPIError):
+    def __init__(self):
+        super().__init__(code='auth.invalid_credentials')
+
+
+class ConflictError(AgroAPIError):
     def __init__(self, resource: str = ''):
-        self.resource = resource
+        super().__init__(
+            code=f'conflict.{resource}' if resource else 'conflict.generic'
+        )
 
 
-class UnauthorizedError(Exception):
-    def __init__(self, message: str = 'Unauthorized'):
-        self.message = message
+class UnprocessableError(AgroAPIError):
+    def __init__(self, resource: str = ''):
+        super().__init__(
+            code=f'unprocessable.{resource}'
+            if resource
+            else 'unprocessable.generic'
+        )
 
 
-class ConflictError(Exception):
-    def __init__(self, message: str = 'Action cannot be completed'):
-        self.message = message
-
-
-class UnprocessableError(Exception):
-    def __init__(self, message: str = ''):
-        self.message = message
-
-
-class InvalidCredentialsError(Exception):
-    def __init__(self, message: str = 'Invalid credentials'):
-        self.message = message
-
-
-class QuotaExceededError(Exception):
-    def __init__(self, message: str = 'Invalid credentials'):
-        self.message = message
+class QuotaExceededError(AgroAPIError):
+    def __init__(self, resource: str):
+        super().__init__(code=f'quota.{resource}_limit_reached')
