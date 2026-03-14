@@ -11,7 +11,7 @@ router = APIRouter(tags=['accounts'])
 
 
 @router.post(
-    '/', response_model=AccountResponse, status_code=HTTPStatus.CREATED
+    '', response_model=AccountResponse, status_code=HTTPStatus.CREATED
 )
 async def create_account(data: AccountCreate, session: SessionWithCommit):
     return await AccountService(Account, session).create_account(data)
