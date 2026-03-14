@@ -11,7 +11,7 @@ from app.domain.accounts.schemas import (
     UserCreate,
     UserUpdate,
 )
-from app.shared.exceptions import InvalidCredentialsError
+from app.shared.exceptions import AgroAPIError, InvalidCredentialsError
 from app.shared.security import verify_password
 from app.shared.service import BaseService
 from config.settings import settings
@@ -62,7 +62,7 @@ class UserService(BaseService[User, UserCreate, UserUpdate]):
         except DecodeError:
             raise InvalidCredentialsError
         except ExpiredSignatureError:
-            raise InvalidCredentialsError
+            raise AgroAPIError(code='auth.token_expired')
 
         user = await self.repo.get_by({'jti': jti})
         if not user or str(user.id) != sub:
