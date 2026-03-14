@@ -84,7 +84,7 @@ async def token(user, session) -> str:
     user.jti = uuid4()
     session.add(user)
     await session.commit()
-    return create_access_token({'sub': user.id, 'jti': user.jti}).jwt
+    return create_access_token(sub=user.id, jti=user.jti)
 
 
 @pytest.fixture
