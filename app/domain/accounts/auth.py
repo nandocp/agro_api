@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from uuid import uuid4
-from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta, timezone
 
 from jwt import decode, encode
 
@@ -15,11 +13,11 @@ class TokenData:
 
 
 def create_access_token(data: dict) -> TokenData:
-    jti = str(uuid4())
-    payload = data.copy()
-    payload.update({'exp': _expiration(), 'jti': jti})
+    now = datetime.now(timezone.utc)
+    payload = _sanitize_data(data)
+    payload.update({'exp': _expiration(now), 'iat': now})
     return TokenData(
-        jti=jti,
+        jti=payload['jti'],
         jwt=encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM),
     )
 
@@ -28,7 +26,11 @@ def decode_access_token(token: str) -> dict:
     return decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
 
 
-def _expiration() -> datetime:
-    return datetime.now(tz=ZoneInfo('UTC')) + timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+def _expiration(now) -> datetime:
+    return now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+
+def _sanitize_data(data: dict) -> dict:
+    data['sub'] = str(data['sub'])
+    data['jti'] = str(data['jti'])
+    return data
