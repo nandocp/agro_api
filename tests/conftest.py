@@ -15,8 +15,8 @@ from sqlalchemy.pool import StaticPool
 
 from app.domain.accounts.auth import create_access_token
 from app.main import app
+from app.shared.dependencies import get_session, get_session_with_commit
 from app.shared.model.declarative import DeclarativeModel
-from config.database import get_session, get_session_with_commit
 from config.settings import settings
 from tests.factories.accounts import AccountFactory, UserFactory
 from tests.factories.estates import EstateFactory
