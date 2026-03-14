@@ -13,7 +13,7 @@ def create_access_token(sub: str, jti: str) -> str:
         'jti': str(jti),
         'sub': str(sub),
     }
-    return encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encode_payload(payload)
 
 
 def decode_access_token(token: str) -> dict:
@@ -22,3 +22,7 @@ def decode_access_token(token: str) -> dict:
 
 def _expiration(now) -> datetime:
     return now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+
+def encode_payload(payload: dict) -> str:
+    return encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
