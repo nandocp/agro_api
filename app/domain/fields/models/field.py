@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
@@ -16,14 +16,14 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-# from app.entities.activity import Activity
 from app.shared.enums import GeometrySource
 from app.shared.model import BaseModel
 
 if TYPE_CHECKING:
     from app.domain.accounts.models import User
     from app.domain.estates.models import Estate
-    # from app.entities.field import FieldProtection, FieldTransition
+    from app.domain.fields.models import FieldProtection, FieldTransition
+    # from app.entities.activity import Activity
     # from app.entities.soil import SoilAnalysis
 
 
@@ -98,30 +98,29 @@ class Field(BaseModel):
     #     init=False,
     #     lazy='joined',
     # )
-    # protections: Mapped[List['FieldProtection']] = relationship(
-    #     lazy='dynamic', cascade='all, delete-orphan', init=False
-    # )
+    protections: Mapped[List['FieldProtection']] = relationship(
+        lazy='dynamic', cascade='all, delete-orphan', init=False
+    )
     # soil_analyses: Mapped[List['SoilAnalysis']] = relationship(
     #     back_populates='field'
     # )
-    # # Transitions where this field is the predecessor (it was replaced)
-    # transitions_as_predecessor:
-    # Mapped[List['FieldTransition']] = relationship(
-    #     foreign_keys='FieldTransition.predecessor_id',
-    #     back_populates='predecessor',
-    #     lazy='selectin',
-    #     cascade='all, delete-orphan',
-    #     init=False,
-    # )
+    # Transitions where this field is the predecessor (it was replaced)
+    transitions_as_predecessor: Mapped[List['FieldTransition']] = relationship(
+        foreign_keys='FieldTransition.predecessor_id',
+        back_populates='predecessor',
+        lazy='selectin',
+        cascade='all, delete-orphan',
+        init=False,
+    )
 
-    # # Transitions where this field is the successor (it replaced others)
-    # transitions_as_successor: Mapped[List['FieldTransition']] = relationship(
-    #     foreign_keys='FieldTransition.successor_id',
-    #     back_populates='successor',
-    #     lazy='selectin',
-    #     cascade='all, delete-orphan',
-    #     init=False,
-    # )
+    # Transitions where this field is the successor (it replaced others)
+    transitions_as_successor: Mapped[List['FieldTransition']] = relationship(
+        foreign_keys='FieldTransition.successor_id',
+        back_populates='successor',
+        lazy='selectin',
+        cascade='all, delete-orphan',
+        init=False,
+    )
 
     def __repr__(self):
         return (
