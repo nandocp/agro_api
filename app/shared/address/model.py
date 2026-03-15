@@ -14,8 +14,8 @@ class Address(BaseModel):
     complement: Mapped[str | None] = mapped_column(String(100), default=None)
     neighborhood: Mapped[str | None] = mapped_column(String(100), default=None)
     city: Mapped[str] = mapped_column(String(100), nullable=False)
-    state: Mapped[str] = mapped_column(String(2), nullable=False)  # UF
-    country: Mapped[str] = mapped_column(String(2), default='BR')  # ISO 3166-1
+    state: Mapped[str] = mapped_column(String(8), nullable=False)
+    country: Mapped[str] = mapped_column(String(2), default='BR')
     postal_code: Mapped[str | None] = mapped_column(String(10), default=None)
     reference: Mapped[str | None] = mapped_column(
         String(300),
