@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 class Estate(BaseModel):
     __tablename__ = 'estates'
     __table_args__ = (
-        UniqueConstraint('account_id', 'slug', name='idx_account_estate_slug'),
+        UniqueConstraint('account_id', 'slug', name='uq_account_estate_slug'),
         CheckConstraint(
             'declared_area_m2 IS NULL OR declared_area_m2 > 0',
             name='ck_estate_positive_declared_area',
@@ -38,6 +38,11 @@ class Estate(BaseModel):
 
     account_id: Mapped[Uuid] = mapped_column(
         ForeignKey('accounts.id', ondelete='CASCADE')
+    )
+
+    address_id: Mapped[Uuid | None] = mapped_column(
+        ForeignKey('addresses.id', ondelete='SET NULL'),
+        nullable=True,
     )
 
     # Dates important to Estate management
