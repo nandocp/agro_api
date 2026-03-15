@@ -18,7 +18,7 @@ class OrganismSynonym(BaseModel):
         index=True,
     )
 
-    value: Mapped[str] = mapped_column(String(200), index=True, nullable=False)
+    value: Mapped[str] = mapped_column(String(200), nullable=False)
     authorship: Mapped[str | None] = mapped_column(
         String(200), nullable=True, default=None
     )
