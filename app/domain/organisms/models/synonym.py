@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint, Uuid
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.model import BaseModel
@@ -18,7 +19,13 @@ class OrganismSynonym(BaseModel):
         index=True,
     )
 
-    value: Mapped[str] = mapped_column(String(200), nullable=False)
+    scientific_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    taxonomy: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
+        default=None,
+        comment='Full taxonomic classification',
+    )
     authorship: Mapped[str | None] = mapped_column(
         String(200), nullable=True, default=None
     )
