@@ -18,7 +18,10 @@ class OrganismCommonName(BaseModel):
     organism_id: Mapped[Uuid] = mapped_column(ForeignKey('plant_species.id'))
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     region: Mapped[str | None] = mapped_column(
-        String(64), nullable=True, default=None
+        String(64),
+        nullable=True,
+        default=None,
+        comment='Region where the name is commonly used',
     )
     language: Mapped[str] = mapped_column(
         String(10), default='pt-BR', nullable=False
