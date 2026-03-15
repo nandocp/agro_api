@@ -3,28 +3,28 @@ from decimal import Decimal
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from app.domain.estates.enums import EstateKind
+from app.domain.estates.enums import EstateZone
 from tests.factories.accounts import AccountFactory
 from tests.factories.estates import EstateFactory
 
 
 @pytest.mark.asyncio
 async def test_is_urban_true_with_periurban():
-    estate = await EstateFactory.build(kind=EstateKind.PERIURBAN)
+    estate = await EstateFactory.build(kind=EstateZone.PERIURBAN)
 
     assert estate.is_urban
 
 
 @pytest.mark.asyncio
 async def test_is_urban_true_with_intraurban():
-    estate = await EstateFactory.build(kind=EstateKind.INTRAURBAN)
+    estate = await EstateFactory.build(kind=EstateZone.INTRAURBAN)
 
     assert estate.is_urban
 
 
 @pytest.mark.asyncio
 async def test_is_urban_false():
-    estate = await EstateFactory.build(kind=EstateKind.RURAL)
+    estate = await EstateFactory.build(kind=EstateZone.RURAL)
 
     assert not estate.is_urban
 
