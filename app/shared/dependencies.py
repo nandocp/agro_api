@@ -1,7 +1,6 @@
-from http import HTTPStatus
 from typing import Annotated, Type, TypeVar
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, Query
 from fastapi.security import OAuth2PasswordBearer
 from jwt import DecodeError
 from pydantic import BaseModel
@@ -10,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.accounts.auth import decode_access_token
 from app.domain.accounts.models import User
 from app.shared.crud import CRUDBase
+from app.shared.exceptions import InvalidCredentialsError
 from config.database import engine
 from config.logging import logger
 
@@ -52,25 +52,19 @@ async def get_current_user(
     session: AsyncSession = Depends(get_session),
     token: str = Depends(OAuth2Scheme),
 ) -> User:
-    credentials_exception = HTTPException(
-        status_code=HTTPStatus.UNAUTHORIZED,
-        detail='Could not validate credentials',
-        headers={'WWW-Authenticate': 'Bearer'},
-    )
-
     try:
         payload = decode_access_token(token)
         jti = payload.get('jti')
         sub = payload.get('sub')
 
         if not sub or not jti:
-            raise credentials_exception
+            raise InvalidCredentialsError
     except DecodeError:
-        raise credentials_exception
+        raise InvalidCredentialsError
 
     user = await CRUDBase[User](User, session).get_by({'jti': jti})
     if not user or str(user.id) != sub:
-        raise credentials_exception
+        raise InvalidCredentialsError
 
     return user
 
