@@ -1,7 +1,7 @@
 from datetime import datetime
+from uuid import UUID
 
-from sqlalchemy import Uuid, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import DateTime, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .declarative import DeclarativeModel
@@ -10,8 +10,8 @@ from .declarative import DeclarativeModel
 class BaseModel(DeclarativeModel):
     __abstract__ = True
 
-    id: Mapped[Uuid] = mapped_column(
-        UUID,
+    id: Mapped[UUID] = mapped_column(
+        Uuid,
         primary_key=True,
         server_default=func.uuidv7(),
         init=False,
@@ -19,9 +19,12 @@ class BaseModel(DeclarativeModel):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), init=False
+        DateTime(timezone=True), server_default=func.now(), init=False
     )
 
     updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(), init=False
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        init=False,
     )
