@@ -10,7 +10,9 @@ from app.shared.model import BaseModel
 class OrganismSynonym(BaseModel):
     __tablename__ = 'organism_synonyms'
     __table_args__ = (
-        UniqueConstraint('organism_id', 'value', name='uq_organism_synonym'),
+        UniqueConstraint(
+            'organism_id', 'scientific_name', name='uq_organism_synonym'
+        ),
     )
 
     organism_id: Mapped[Uuid] = mapped_column(
