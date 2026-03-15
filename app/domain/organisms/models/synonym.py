@@ -24,7 +24,7 @@ class OrganismSynonym(BaseModel):
         JSONB,
         nullable=True,
         default=None,
-        comment='Full taxonomic classification',
+        comment='Full taxonomic classification previous to current one',
     )
     authorship: Mapped[str | None] = mapped_column(
         String(200), nullable=True, default=None
