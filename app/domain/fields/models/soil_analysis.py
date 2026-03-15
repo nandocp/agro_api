@@ -30,7 +30,7 @@ class FieldSoilAnalysis(BaseModel):
             'sampling_depth_cm > 0', name='ck_dsampling_epth_positive'
         ),
         CheckConstraint(
-            'ph_h2o IS NULL OR (ph_h2o >= 0 AND ph <= 14)',
+            'ph_h2o IS NULL OR (ph_h2o >= 0 AND ph_h2o <= 14)',
             name='ck_ph_h2o_range',
         ),
         CheckConstraint(
