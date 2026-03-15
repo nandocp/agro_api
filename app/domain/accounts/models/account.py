@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import ForeignKey, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.accounts.enums import AccountPlan
@@ -17,7 +17,12 @@ if TYPE_CHECKING:
 class Account(BaseModel):
     __tablename__ = 'accounts'
     __table_args__ = (
-        UniqueConstraint('document', name='idx_account_document'),
+        UniqueConstraint('document', name='uq_account_document'),
+    )
+
+    address_id: Mapped[Uuid | None] = mapped_column(
+        ForeignKey('addresses.id', ondelete='SET NULL'),
+        nullable=True,
     )
 
     name: Mapped[str] = mapped_column(unique=False)
