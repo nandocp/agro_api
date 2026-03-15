@@ -8,4 +8,5 @@ engine: AsyncEngine = create_async_engine(
     pool_pre_ping=True,
     max_overflow=64,
     echo=settings.DEBUG,
+    connect_args={'options': '-c timezone=UTC'},
 )
