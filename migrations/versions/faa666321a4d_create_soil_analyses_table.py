@@ -41,7 +41,7 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.CheckConstraint('analyzed_at IS NULL OR analyzed_at >= collected_at', name='ck_analysis_date_after_collection'),
-    sa.CheckConstraint('ph_h2o IS NULL OR (ph_h2o >= 0 AND ph <= 14)', name='ck_ph_h2o_range'),
+    sa.CheckConstraint('ph_h2o IS NULL OR (ph_h2o >= 0 AND ph_h2o <= 14)', name='ck_ph_h2o_range'),
     sa.CheckConstraint('sampling_depth_cm > 0', name='ck_dsampling_epth_positive'),
     sa.ForeignKeyConstraint(['field_id'], ['fields.id'], ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('id')
