@@ -24,7 +24,8 @@ from app.shared.model import BaseModel
 if TYPE_CHECKING:
     from app.domain.accounts.models import Account
     from app.domain.estates.models import EstateRegistry
-#     from app.entities.field import Field
+    from app.domain.fields.models import Field
+    from app.shared.address.model import Address
 
 
 class Estate(BaseModel):
@@ -146,14 +147,13 @@ class Estate(BaseModel):
     )
 
     # Relationships
-    # address: Mapped['Address'] = relationship(
-    #     'Address', back_populates='estate', lazy='joined',
-    # passive_deletes=True
-    # )
+    address: Mapped['Address'] = relationship(
+        'Address', lazy='raise', foreign_keys=[address_id], init=False
+    )
     account: Mapped['Account'] = relationship(
         'Account',
         back_populates='estates',
-        lazy='joined',
+        lazy='raise',
         passive_deletes=True,
         init=False,
     )
@@ -161,12 +161,12 @@ class Estate(BaseModel):
         'EstateRegistry',
         back_populates='estate',
         cascade='all, delete-orphan',
-        lazy='joined',
+        lazy='raise',
         init=False,
     )
-    # fields: Mapped[List['Field']] = relationship(
-    #     'Field', back_populates='estate', init=False, lazy='dynamic'
-    # )
+    fields: Mapped[List['Field']] = relationship(
+        'Field', back_populates='estate', init=False, lazy='raise'
+    )
 
     def __repr__(self):
         return (
