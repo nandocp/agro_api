@@ -7,7 +7,7 @@ from app.shared.model import BaseModel
 
 
 class OrganismCommonName(BaseModel):
-    __tablename__ = 'plant_common_names'
+    __tablename__ = 'organism_common_names'
     __table_args__ = (
         UniqueConstraint(
             'organism_id', 'name', 'language', name='uq_organism_name_lang'
@@ -15,7 +15,7 @@ class OrganismCommonName(BaseModel):
         Index('idx_common_name_search', 'name'),
     )
 
-    organism_id: Mapped[Uuid] = mapped_column(ForeignKey('plant_species.id'))
+    organism_id: Mapped[Uuid] = mapped_column(ForeignKey('organisms.id'))
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     region: Mapped[str | None] = mapped_column(
         String(64),
