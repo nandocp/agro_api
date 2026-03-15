@@ -1,15 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
 from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey, UniqueConstraint, Uuid
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.model import BaseModel
 
@@ -18,21 +13,15 @@ if TYPE_CHECKING:
     # from app.entities.activity import Activity
 
 
-class UserRole(str, Enum):
-    AGRO_USER = 'agro_user'
-    AGRO_ADMIN = 'agro_admin'
-    ESTATE_USER = 'estate_user'
-    ESTATE_COORD = 'estate_coord'
-    ESTATE_ADMIN = 'estate_admin'
-
-
 class User(BaseModel):
     __tablename__ = 'users'
     __table_args__ = (
-        UniqueConstraint('account_id', 'email', name='idx_account_email'),
+        UniqueConstraint('account_id', 'email', name='uq_account_email'),
     )
 
-    account_id: Mapped[Uuid] = mapped_column(ForeignKey('accounts.id'))
+    account_id: Mapped[Uuid] = mapped_column(
+        ForeignKey('accounts.id', ondelete='CASCADE')
+    )
 
     name: Mapped[str] = mapped_column(unique=False)
 
@@ -43,6 +32,7 @@ class User(BaseModel):
     is_active: Mapped[bool] = mapped_column(
         init=False, default=True, nullable=False
     )
+    deactivated_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
 
     # Password reset
     reset_password_token: Mapped[str | None] = mapped_column(
@@ -72,8 +62,9 @@ class User(BaseModel):
     locked_at: Mapped[datetime | None] = mapped_column(
         init=False, default=None
     )
-
-    deactivated_at: Mapped[datetime] = mapped_column(init=False, nullable=True)
+    unlock_token: Mapped[Uuid | None] = mapped_column(
+        Uuid, init=False, nullable=True, unique=True, default=None
+    )
 
     account: Mapped['Account'] = relationship(
         back_populates='users', init=False
@@ -86,7 +77,7 @@ class User(BaseModel):
     )
 
     # created_activities: Mapped[List['Activity']] = relationship(
-    #     back_populates='creator', init=False
+    #     back_populates='creator', init=False, lazy='raise
     # )
 
     def __repr__(self):
