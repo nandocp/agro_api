@@ -21,6 +21,7 @@ class Permission(BaseModel):
     action: Mapped[str] = mapped_column(String(50), nullable=False)
 
     roles: Mapped[List['Role']] = relationship(
+        'Role',
         back_populates='permissions',
         secondary='role_permissions',
         lazy='raise',
@@ -35,12 +36,14 @@ class Role(BaseModel):
     description: Mapped[str | None] = mapped_column(String(200))
 
     permissions: Mapped[list['Permission']] = relationship(
+        'Permission',
         back_populates='roles',
         secondary='role_permissions',
         lazy='raise',
         init=False,
     )
     users: Mapped[list['User']] = relationship(
+        'User',
         back_populates='roles',
         secondary='user_roles',
         lazy='raise',
@@ -51,13 +54,24 @@ class Role(BaseModel):
 role_permissions = Table(
     'role_permissions',
     DeclarativeModel.metadata,
-    Column('role_id', ForeignKey('roles.id'), primary_key=True),
-    Column('permission_id', ForeignKey('permissions.id'), primary_key=True),
+    Column(
+        'role_id', ForeignKey('roles.id'), primary_key=True, nullable=False
+    ),
+    Column(
+        'permission_id',
+        ForeignKey('permissions.id'),
+        primary_key=True,
+        nullable=False,
+    ),
 )
 
 user_roles = Table(
     'user_roles',
     DeclarativeModel.metadata,
-    Column('user_id', ForeignKey('users.id'), primary_key=True),
-    Column('role_id', ForeignKey('roles.id'), primary_key=True),
+    Column(
+        'user_id', ForeignKey('users.id'), primary_key=True, nullable=False
+    ),
+    Column(
+        'role_id', ForeignKey('roles.id'), primary_key=True, nullable=False
+    ),
 )

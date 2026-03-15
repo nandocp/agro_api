@@ -3,11 +3,13 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING, List
+from uuid import UUID
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
     CheckConstraint,
     Computed,
+    Date,
     ForeignKey,
     Numeric,
     String,
@@ -16,8 +18,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.domain.estates.enums import EstateKind, EstateStatus, OwnershipType
-from app.shared.enums import GeometrySource
+from app.domain.estates.enums import EstateStatus, EstateZone, OwnershipType
 from app.shared.model import BaseModel
 
 if TYPE_CHECKING:
@@ -36,18 +37,25 @@ class Estate(BaseModel):
         ),
     )
 
-    account_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('accounts.id', ondelete='CASCADE')
+    account_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey('accounts.id', ondelete='CASCADE'), nullable=False
     )
 
-    address_id: Mapped[Uuid | None] = mapped_column(
+    address_id: Mapped[UUID | None] = mapped_column(
+        Uuid,
         ForeignKey('addresses.id', ondelete='SET NULL'),
         nullable=True,
+        init=False,
+        default=None,
     )
 
     # Dates important to Estate management
-    opened_at: Mapped[date | None] = mapped_column(nullable=True)
-    archived_at: Mapped[date | None] = mapped_column(default=None)
+    opened_at: Mapped[date | None] = mapped_column(
+        Date, default=None, nullable=True
+    )
+    archived_at: Mapped[date | None] = mapped_column(
+        Date, default=None, nullable=True, init=False
+    )
 
     # Estate common data
     label: Mapped[str] = mapped_column(
@@ -56,35 +64,54 @@ class Estate(BaseModel):
     slug: Mapped[str] = mapped_column(
         String(64), nullable=False, index=True, comment='URL-safe identifier'
     )
-    description: Mapped[str | None] = mapped_column(String(200), default=None)
-    timezone: Mapped[str] = mapped_column(default='America/Sao_Paulo')
-    kind: Mapped[EstateKind] = mapped_column(default=EstateKind.RURAL)
-    status: Mapped[EstateStatus] = mapped_column(default=EstateStatus.ACTIVE)
-    ownership_type: Mapped[OwnershipType] = mapped_column(
-        default=OwnershipType.MANAGED
+    description: Mapped[str | None] = mapped_column(
+        String(200), default=None, nullable=True, init=False
+    )
+    timezone: Mapped[str] = mapped_column(
+        String(64), default='America/Sao_Paulo', nullable=False
+    )
+    zone: Mapped[str] = mapped_column(
+        String(16),
+        default=EstateZone.RURAL.value,
+        nullable=False,
+        comment='Geographic location',
+    )
+    usage: Mapped[str | None] = mapped_column(
+        String(50),
+        default=None,
+        nullable=True,
+        comment='Predominant usage — family_farm, extractive, etc',
+    )
+    status: Mapped[str] = mapped_column(
+        String(50), default=EstateStatus.ACTIVE, nullable=False
+    )
+    ownership_type: Mapped[str] = mapped_column(
+        String(50), default=OwnershipType.OWNED.value, nullable=False
     )
     declared_area_m2: Mapped[Decimal | None] = mapped_column(
-        Numeric(16, 2), nullable=True, default=None
+        Numeric(14, 2), nullable=True, default=None
     )
 
     # Geometry data
     entrance_point: Mapped[Geometry | None] = mapped_column(
         Geometry(geometry_type='POINT', srid=4326, spatial_index=False),
         default=None,
+        nullable=True,
         comment='Estate access location (geographic data)',
     )
     boundary: Mapped[Geometry | None] = mapped_column(
         Geometry(geometry_type='MULTIPOLYGON', srid=4326, spatial_index=False),
         default=None,
+        nullable=True,
         comment='Always 4326 (universal exchange format)',
     )
-    boundary_source: Mapped[GeometrySource | None] = mapped_column(
-        default=None
+    boundary_source: Mapped[str | None] = mapped_column(
+        String(32), default=None, nullable=True
     )
 
     # Calculated data from Geometries
     perimeter_m: Mapped[Decimal | None] = mapped_column(
-        Numeric(16, 2),
+        Numeric(14, 2),
         Computed(
             """
             CASE
@@ -97,10 +124,11 @@ class Estate(BaseModel):
         ),
         init=False,
         default=None,
+        nullable=True,
         comment='Automatically updated when boundary changes',
     )
     calculated_area_m2: Mapped[Decimal | None] = mapped_column(
-        Numeric(16, 2),
+        Numeric(14, 2),
         Computed(
             """
             CASE
@@ -113,27 +141,31 @@ class Estate(BaseModel):
         ),
         init=False,
         default=None,
+        nullable=True,
         comment='Automatically updated when boundary changes',
     )
 
     # Relationships
     # address: Mapped['Address'] = relationship(
-    #     back_populates='estate', lazy='joined', passive_deletes=True
+    #     'Address', back_populates='estate', lazy='joined',
+    # passive_deletes=True
     # )
     account: Mapped['Account'] = relationship(
+        'Account',
         back_populates='estates',
         lazy='joined',
         passive_deletes=True,
         init=False,
     )
     registries: Mapped[List['EstateRegistry']] = relationship(
+        'EstateRegistry',
         back_populates='estate',
         cascade='all, delete-orphan',
         lazy='joined',
         init=False,
     )
     # fields: Mapped[List['Field']] = relationship(
-    #     back_populates='estate', init=False, lazy='dynamic'
+    #     'Field', back_populates='estate', init=False, lazy='dynamic'
     # )
 
     def __repr__(self):

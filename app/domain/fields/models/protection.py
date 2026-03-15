@@ -1,24 +1,34 @@
-from datetime import datetime
+from datetime import date
+from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import (
     CheckConstraint,
+    Date,
     ForeignKey,
+    Index,
     String,
-    UniqueConstraint,
     Uuid,
     func,
+    text,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.domain.fields.enums import FieldProtectionKind
 from app.shared.model import BaseModel
+
+if TYPE_CHECKING:
+    from app.domain.accounts.models.user import User
+    from app.domain.fields.models.field import Field
 
 
 class FieldProtection(BaseModel):
     __tablename__ = 'field_protections'
     __table_args__ = (
-        UniqueConstraint(
-            'field_id', 'protection_type', name='uq_field_protection'
+        Index(  # Only one active protection per field at a time
+            'ix_field_active_protection',
+            'field_id',
+            unique=True,
+            postgresql_where=text('expires_at IS NULL'),
         ),
         CheckConstraint(
             'expires_at IS NULL OR expires_at > started_at',
@@ -26,20 +36,34 @@ class FieldProtection(BaseModel):
         ),
     )
 
-    field_id: Mapped[Uuid] = mapped_column(ForeignKey('fields.id'))
-    created_by_id: Mapped[Uuid] = mapped_column(ForeignKey('users.id'))
-
-    kind: Mapped[FieldProtectionKind] = mapped_column(nullable=False)
-    reason: Mapped[str | None] = mapped_column(String(256), nullable=True)
-
-    expires_at: Mapped[datetime | None] = mapped_column(
-        nullable=True, init=False
+    field_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey('fields.id'), nullable=False
     )
-    started_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False, init=False
+    created_by_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey('users.id', ondelete='RESTRICT'), nullable=False
     )
 
-    # What operations are restricted
-    blocks_deletion: Mapped[bool] = mapped_column(default=True)
-    blocks_transition: Mapped[bool] = mapped_column(default=True)
-    blocks_boundary_change: Mapped[bool] = mapped_column(default=False)
+    kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    reason: Mapped[str | None] = mapped_column(
+        String(256),
+        nullable=True,
+        default=None,
+        comment='What is the reason this field is protected, related to kind',
+    )
+
+    expires_at: Mapped[date | None] = mapped_column(
+        Date, nullable=True, default=None
+    )
+    started_at: Mapped[date] = mapped_column(
+        Date, server_default=func.current_date(), nullable=False
+    )
+
+    field: Mapped['Field'] = relationship(
+        back_populates='protections',
+        lazy='raise',
+        init=False,
+    )
+    created_by: Mapped['User'] = relationship(
+        lazy='raise',
+        init=False,
+    )

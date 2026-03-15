@@ -3,10 +3,12 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, List
+from uuid import UUID
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
     Computed,
+    Date,
     ForeignKey,
     Numeric,
     String,
@@ -16,7 +18,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.shared.enums import GeometrySource
 from app.shared.model import BaseModel
 
 if TYPE_CHECKING:
@@ -33,91 +34,101 @@ class Field(BaseModel):
         UniqueConstraint('estate_id', 'slug', name='uq_estate_field_slug'),
     )
 
-    estate_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('estates.id', ondelete='CASCADE')
+    estate_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey('estates.id', ondelete='CASCADE'), nullable=False
     )
-    creator_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('users.id', ondelete='RESTRICT')
+    creator_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey('users.id', ondelete='RESTRICT'), nullable=False
     )
 
     slug: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
-        index=True,
         comment='URL-safe identifier within Estate',
     )
 
     label: Mapped[str] = mapped_column(
-        String(96), comment='Human-readable name'
+        String(96), comment='Human-readable name', nullable=False
     )
 
-    notes: Mapped[str | None] = mapped_column(String(500), default=None)
+    notes: Mapped[str | None] = mapped_column(
+        String(500), default=None, nullable=True
+    )
 
-    boundary: Mapped[Geometry] = mapped_column(
+    boundary: Mapped[Geometry | None] = mapped_column(
         Geometry(
             geometry_type='POLYGON',
             spatial_index=False,
             srid=4326,
         ),
-        nullable=False,
+        nullable=True,
+        default=None,
         comment='Field boundary polygon',
     )
-    boundary_source: Mapped[GeometrySource | None] = mapped_column(
-        default=None
+    boundary_source: Mapped[str | None] = mapped_column(
+        String(32), default=None, nullable=True
     )
 
-    calculated_area_m2: Mapped[Decimal] = mapped_column(
-        Numeric(16, 2),
+    calculated_area_m2: Mapped[Decimal | None] = mapped_column(
+        Numeric(12, 2),
         Computed('ST_Area(boundary::geography)', persisted=True),
-        comment='Computed measurement',
         init=False,
+        nullable=True,
+        comment='Computed measurement',
     )
 
     perimeter_m: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),
         Computed('ST_Perimeter(boundary::geography)', persisted=True),
-        comment='Computed measurement',
+        nullable=True,
         init=False,
+        comment='Computed measurement',
     )
 
     # Temporal validity (zones can be split, merged, or retired)
     active_from: Mapped[date] = mapped_column(
-        server_default=func.current_date(), nullable=False, init=False
+        Date, server_default=func.current_date(), nullable=False
     )
     active_to: Mapped[date | None] = mapped_column(
-        comment='NULL means currently active', init=False, default=None
+        Date,
+        comment='NULL means currently active',
+        init=False,
+        default=None,
+        nullable=True,
     )
 
-    creator: Mapped['User'] = relationship(lazy='raise', init=False)
+    creator: Mapped['User'] = relationship('User', lazy='raise', init=False)
     estate: Mapped['Estate'] = relationship(
-        back_populates='fields', lazy='raise'
+        'Estate', back_populates='fields', lazy='raise'
     )
-    # activities: Mapped[List['Activity']] = relationship(
+    # activities: Mapped[List['Activity']] = relationship('Activity',
     #     back_populates='field',
     #     cascade='all, delete-orphan',
     #     init=False,
-    #     lazy='joined',
+    #     lazy='raise',
     # )
     protections: Mapped[List['FieldProtection']] = relationship(
-        lazy='dynamic', cascade='all, delete-orphan', init=False
+        lazy='raise', cascade='all, delete-orphan', init=False
     )
     # soil_analyses: Mapped[List['SoilAnalysis']] = relationship(
-    #     back_populates='field'
+    #     back_populates='field', lazy='raise
     # )
     # Transitions where this field is the predecessor (it was replaced)
     transitions_as_predecessor: Mapped[List['FieldTransition']] = relationship(
+        'FieldTransition',
         foreign_keys='FieldTransition.predecessor_id',
         back_populates='predecessor',
-        lazy='selectin',
+        lazy='raise',
         cascade='all, delete-orphan',
         init=False,
     )
 
     # Transitions where this field is the successor (it replaced others)
     transitions_as_successor: Mapped[List['FieldTransition']] = relationship(
+        'FieldTransition',
         foreign_keys='FieldTransition.successor_id',
         back_populates='successor',
-        lazy='selectin',
+        lazy='raise',
         cascade='all, delete-orphan',
         init=False,
     )
