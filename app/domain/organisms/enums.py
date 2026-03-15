@@ -35,7 +35,7 @@ class PlantUse(str, Enum):
     GREEN_MANURE = 'green_manure'  # plowed-under crops
 
 
-class WaterRequirement(str, Enum):
+class Level(str, Enum):
     LOW = 'low'
     MEDIUM = 'medium'
     HIGH = 'high'
@@ -50,7 +50,6 @@ class PlantCycle(str, Enum):
 class GrowthHabit(str, Enum):
     TREE = 'tree'
     SHRUB = 'shrub'
-    BRUSH = 'brush'
     HERB = 'herb'
     CROP = 'crop'
     GRASS = 'grass'
