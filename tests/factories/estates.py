@@ -47,7 +47,6 @@ class EstateFactory(AsyncSQLAlchemyFactory):
     opened_at = factory.LazyFunction(datetime.now)
     label = Faker('word')
     slug = factory.Sequence(lambda n: f'estate#{n}')
-    description = Faker('sentence')
     boundary = from_shape(polygon, srid=4326)
     entrance_point = from_shape(point, srid=4326)
     declared_area_m2 = 1800000
