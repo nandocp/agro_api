@@ -30,7 +30,7 @@ def upgrade() -> None:
     sa.Column('expires_at', sa.Date(), nullable=True),
     sa.Column('notes', sa.String(length=500), nullable=True),
     sa.Column('status', sa.String(length=32), nullable=False),
-    sa.Column('id', sa.Uuid(), nullable=False),
+    sa.Column('id', sa.Uuid(), server_default=sa.text('uuidv7()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.CheckConstraint('length(trim(code)) > 0', name='ck_registry_code_not_empty'),

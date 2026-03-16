@@ -34,7 +34,7 @@ def upgrade() -> None:
     sa.Column('perimeter_m', sa.Numeric(precision=12, scale=2), sa.Computed('ST_Perimeter(boundary::geography)', persisted=True), nullable=True, comment='Computed measurement'),
     sa.Column('active_from', sa.Date(), server_default=sa.text('CURRENT_DATE'), nullable=False),
     sa.Column('active_to', sa.Date(), nullable=True, comment='NULL means currently active'),
-    sa.Column('id', sa.Uuid(), nullable=False),
+    sa.Column('id', sa.Uuid(), server_default=sa.text('uuidv7()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['creator_id'], ['users.id'], ondelete='RESTRICT'),

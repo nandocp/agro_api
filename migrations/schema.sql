@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict PBHnbp6qq8lxSU0YTn64SYBTWVg21x5utfyOVm4QCwxRZDBogC4L1GXqr4mZRRO
+\restrict WjNzFEIlI5f4d6EmBkdshujKCO9H6kbzBy7qQLM791pv6NdIsR9WVaod6fICXLg
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.1
@@ -40,7 +40,7 @@ CREATE TABLE public.accounts (
     document character varying(32) NOT NULL,
     plan character varying(32) NOT NULL,
     archived_at timestamp with time zone,
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -60,7 +60,7 @@ CREATE TABLE public.addresses (
     country character varying(2) NOT NULL,
     postal_code character varying(10),
     reference character varying(300),
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -88,7 +88,7 @@ CREATE TABLE public.estate_registries (
     expires_at date,
     notes character varying(500),
     status character varying(32) NOT NULL,
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_registry_code_not_empty CHECK ((length(TRIM(BOTH FROM code)) > 0))
@@ -126,7 +126,7 @@ CASE
     WHEN (boundary IS NOT NULL) THEN public.st_area((boundary)::public.geography)
     ELSE NULL::double precision
 END) STORED,
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_estate_positive_declared_area CHECK (((declared_area_m2 IS NULL) OR (declared_area_m2 > (0)::numeric)))
@@ -162,7 +162,7 @@ CREATE TABLE public.field_transitions (
     transitioned_at date DEFAULT CURRENT_DATE NOT NULL,
     transitioned_by_id uuid NOT NULL,
     reason character varying(500),
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_field_transition_no_self_reference CHECK ((predecessor_id <> successor_id))
@@ -185,7 +185,7 @@ CREATE TABLE public.fields (
     perimeter_m numeric(12,2) GENERATED ALWAYS AS (public.st_perimeter((boundary)::public.geography)) STORED,
     active_from date DEFAULT CURRENT_DATE NOT NULL,
     active_to date,
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -242,6 +242,20 @@ CREATE TABLE public.organism_synonyms (
 
 
 --
+-- Name: organism_traits; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.organism_traits (
+    name character varying(50) NOT NULL,
+    category character varying(50) NOT NULL,
+    description character varying(500),
+    id uuid DEFAULT uuidv7() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: organisms; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -264,7 +278,7 @@ CREATE TABLE public.organisms (
 CREATE TABLE public.permissions (
     resource character varying(50) NOT NULL,
     action character varying(50) NOT NULL,
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -275,7 +289,7 @@ CREATE TABLE public.permissions (
 --
 
 CREATE TABLE public.plants (
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     plant_cycle character varying(50),
     growth_habit character varying(50),
     primary_use character varying(50),
@@ -320,7 +334,7 @@ CREATE TABLE public.role_permissions (
 CREATE TABLE public.roles (
     name character varying(50) NOT NULL,
     description character varying(200),
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -384,7 +398,7 @@ CREATE TABLE public.users (
     failed_attempts integer NOT NULL,
     locked_at timestamp with time zone,
     unlock_token uuid,
-    id uuid NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -476,6 +490,22 @@ ALTER TABLE ONLY public.organism_common_names
 
 ALTER TABLE ONLY public.organism_synonyms
     ADD CONSTRAINT organism_synonyms_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: organism_traits organism_traits_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.organism_traits
+    ADD CONSTRAINT organism_traits_name_key UNIQUE (name);
+
+
+--
+-- Name: organism_traits organism_traits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.organism_traits
+    ADD CONSTRAINT organism_traits_pkey PRIMARY KEY (id);
 
 
 --
@@ -931,5 +961,5 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict PBHnbp6qq8lxSU0YTn64SYBTWVg21x5utfyOVm4QCwxRZDBogC4L1GXqr4mZRRO
+\unrestrict WjNzFEIlI5f4d6EmBkdshujKCO9H6kbzBy7qQLM791pv6NdIsR9WVaod6fICXLg
 

@@ -28,7 +28,7 @@ def upgrade() -> None:
     sa.Column('transitioned_at', sa.Date(), server_default=sa.text('CURRENT_DATE'), nullable=False, comment='When the transition happened'),
     sa.Column('transitioned_by_id', sa.Uuid(), nullable=False, comment='User who performed the transition'),
     sa.Column('reason', sa.String(length=500), nullable=True),
-    sa.Column('id', sa.Uuid(), nullable=False),
+    sa.Column('id', sa.Uuid(), server_default=sa.text('uuidv7()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.CheckConstraint('predecessor_id != successor_id', name='ck_field_transition_no_self_reference'),

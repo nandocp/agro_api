@@ -31,7 +31,7 @@ def upgrade() -> None:
     sa.Column('country', sa.String(length=2), nullable=False),
     sa.Column('postal_code', sa.String(length=10), nullable=True),
     sa.Column('reference', sa.String(length=300), nullable=True, comment='Reference — Km marker, road name, landmark'),
-    sa.Column('id', sa.Uuid(), nullable=False),
+    sa.Column('id', sa.Uuid(), server_default=sa.text('uuidv7()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id')

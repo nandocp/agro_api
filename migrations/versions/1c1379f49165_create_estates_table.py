@@ -41,7 +41,7 @@ def upgrade() -> None:
     sa.Column('boundary_source', sa.String(length=32), nullable=True),
     sa.Column('perimeter_m', sa.Numeric(precision=14, scale=2), sa.Computed('\n            CASE\n                WHEN boundary IS NOT NULL\n                THEN ST_Perimeter(boundary::geography)\n                ELSE NULL\n            END\n            ', persisted=True), nullable=True, comment='Automatically updated when boundary changes'),
     sa.Column('calculated_area_m2', sa.Numeric(precision=14, scale=2), sa.Computed('\n            CASE\n                WHEN boundary IS NOT NULL\n                THEN ST_Area(boundary::geography)\n                ELSE NULL\n            END\n            ', persisted=True), nullable=True, comment='Automatically updated when boundary changes'),
-    sa.Column('id', sa.Uuid(), nullable=False),
+    sa.Column('id', sa.Uuid(), server_default=sa.text('uuidv7()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.CheckConstraint('declared_area_m2 IS NULL OR declared_area_m2 > 0', name='ck_estate_positive_declared_area'),

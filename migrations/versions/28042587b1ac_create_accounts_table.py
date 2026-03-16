@@ -27,7 +27,7 @@ def upgrade() -> None:
     sa.Column('document', sa.String(length=32), nullable=False),
     sa.Column('plan', sa.String(length=32), nullable=False),
     sa.Column('archived_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('id', sa.Uuid(), nullable=False),
+    sa.Column('id', sa.Uuid(), server_default=sa.text('uuidv7()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['address_id'], ['addresses.id'], ondelete='SET NULL'),

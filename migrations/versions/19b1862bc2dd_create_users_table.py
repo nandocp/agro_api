@@ -36,7 +36,7 @@ def upgrade() -> None:
     sa.Column('failed_attempts', sa.Integer(), nullable=False),
     sa.Column('locked_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('unlock_token', sa.Uuid(), nullable=True),
-    sa.Column('id', sa.Uuid(), nullable=False),
+    sa.Column('id', sa.Uuid(), server_default=sa.text('uuidv7()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['account_id'], ['accounts.id'], ondelete='CASCADE'),
