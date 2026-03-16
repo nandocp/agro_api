@@ -20,17 +20,19 @@ class OrganismTrait(BaseModel):
     )
 
 
-# OrganismTraitAssociation = Table(
-#     'organism_trait_associations',
+# from sqlalchemy import Table, Column, ForeignKey
+# from app.shared.model import DeclarativeModel
+# PlantingCompositionTrait = Table(
+#     'planting_composition_traits',
 #     DeclarativeModel.metadata,
 #     Column(
-#         'organism_id',
-#         ForeignKey('organisms.id', ondelete='CASCADE'),
+#         'composition_id',
+#         ForeignKey('planting_compositions.id', ondelete='CASCADE'),
 #         primary_key=True,
 #     ),
 #     Column(
 #         'trait_id',
-#         ForeignKey('organism_traits.id', ondelete='CASCADE'),
+#         ForeignKey('organism_traits.id', ondelete='RESTRICT'),
 #         primary_key=True,
 #     ),
 # )
