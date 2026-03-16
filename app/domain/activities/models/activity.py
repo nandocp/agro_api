@@ -25,14 +25,17 @@ class Activity(BaseModel):
     )
     __mapper_args__ = {
         'polymorphic_identity': 'activity',
-        # discriminator: value that indicates object type
         'polymorphic_on': 'activity_type',
     }
 
     activity_type: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
-        comment='Polymorphic discriminator: planting, grazing, processing...',
+        comment=(
+            'Polymorphic discriminator '
+            'indicating object type.'
+            'Ex: planting, grazing, processing...'
+        ),
     )
 
     field_id: Mapped[UUID] = mapped_column(
