@@ -180,7 +180,7 @@ class Estate(BaseModel):
 
     @property
     def is_urban(self):
-        return 'urban' in self.kind.value
+        return 'urban' in self.zone.value
 
     @property
     def area_ha(self) -> Decimal | None:
