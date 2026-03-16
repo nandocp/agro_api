@@ -81,7 +81,7 @@ class Estate(BaseModel):
         String(50),
         default=None,
         nullable=True,
-        comment='Predominant usage — family_farm, extractive, etc',
+        comment='Predominant usage: family_farm, extractive, etc',
     )
     status: Mapped[str] = mapped_column(
         String(50), default=EstateStatus.ACTIVE, nullable=False

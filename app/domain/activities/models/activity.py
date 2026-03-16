@@ -48,11 +48,11 @@ class Activity(BaseModel):
         Uuid, ForeignKey('users.id', ondelete='RESTRICT'), nullable=False
     )
 
-    kind = Mapped[str] = mapped_column(
+    kind: Mapped[str | None] = mapped_column(
         String(50),
         nullable=False,
         default=None,
-        comment='ActivityKind enum — validated by API layer',
+        comment='ActivityKind enum',
     )
 
     started_at: Mapped[date] = mapped_column(Date, index=True, nullable=False)
@@ -72,8 +72,8 @@ class Activity(BaseModel):
 
     # Relationships
     creator: Mapped['User'] = relationship(
-        'User', back_populates='created_activities', init=False
+        'User', back_populates='created_activities', init=False, lazy='raise'
     )
     field: Mapped['Field'] = relationship(
-        'Field', back_populates='activities', init=False
+        'Field', back_populates='activities', init=False, lazy='raise'
     )

@@ -1,4 +1,4 @@
-# FieldTransition só para SPLIT e MERGE — sempre tem predecessor e successor
+# FieldTransition só para SPLIT e MERGE - sempre tem predecessor e successor
 # para realizar transição, utilizar permissão
 # DEACTIVATE apenas para manager e admin
 

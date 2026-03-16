@@ -31,5 +31,5 @@ class Address(BaseModel):
         String(300),
         default=None,
         nullable=True,
-        comment='Reference — Km marker, road name, landmark',
+        comment='Reference. Km marker, road name, landmark',
     )

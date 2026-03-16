@@ -60,7 +60,7 @@ class FieldSoilAnalysis(BaseModel):
         Integer,
         nullable=False,
         default=None,
-        comment='Sampling depth in centimeters — typically 0-20cm or 20-40cm',
+        comment='Sampling depth in centimeters. Typically 0-20cm or 20-40cm',
     )
 
     ph_h2o: Mapped[Decimal | None] = mapped_column(
@@ -76,7 +76,7 @@ class FieldSoilAnalysis(BaseModel):
         String(50),
         nullable=True,
         default=None,
-        comment='Textural classification — clayey, medium, sandy...',
+        comment='Textural classification. Ex: clayey, medium, sandy, etc',
     )
 
     chemical: Mapped[dict | None] = mapped_column(

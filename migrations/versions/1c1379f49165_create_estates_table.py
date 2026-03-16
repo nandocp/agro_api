@@ -32,7 +32,7 @@ def upgrade() -> None:
     sa.Column('description', sa.String(length=200), nullable=True),
     sa.Column('timezone', sa.String(length=64), nullable=False),
     sa.Column('zone', sa.String(length=16), nullable=False, comment='Geographic location'),
-    sa.Column('usage', sa.String(length=50), nullable=True, comment='Predominant usage — family_farm, extractive, etc'),
+    sa.Column('usage', sa.String(length=50), nullable=True, comment='Predominant usage: family_farm, extractive, etc'),
     sa.Column('status', sa.String(length=50), nullable=False),
     sa.Column('ownership_type', sa.String(length=50), nullable=False),
     sa.Column('declared_area_m2', sa.Numeric(precision=14, scale=2), nullable=True),

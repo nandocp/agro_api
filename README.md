@@ -32,7 +32,7 @@ In this app there are included some facilities to handle db management:
 ## Development Environment
 
 This project uses Fedora Toolbox. If your default shell is not bash,
-you may see a warning when entering the toolbox — this is expected and
+you may see a warning when entering the toolbox. This is expected and
 does not affect functionality.
 
 The toolbox will fall back to bash automatically.
