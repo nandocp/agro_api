@@ -34,7 +34,8 @@ dev = [
     'faker (>=40.5.1,<41.0.0)',
     'factory-boy (>=3.3.3,<4.0.0)',
     "br-cpf-cnpj (>=0.2.1,<0.3.0)",
-    "pytest-env (>=1.6.0,<2.0.0)"
+    "pytest-env (>=1.6.0,<2.0.0)",
+    "testcontainers (>=4.14.1,<5.0.0)",
 ]
 
 [tool.poetry]
@@ -84,7 +85,8 @@ quote-style = 'single'
 [tool.pytest.ini_options]
 pythonpath = '.'
 addopts = '-p no:warnings'
-asyncio_default_fixture_loop_scope = 'function'
+asyncio_default_fixture_loop_scope = 'session'
+asyncio_mode = 'auto'
 
 [tool.pytest_env]
 ENVIRONMENT = 'test'
@@ -106,11 +108,10 @@ post_test = 'coverage html'
 
 db-create = 'python scripts/db/create.py'
 db-drop = 'python scripts/db/drop.py'
-db-migrate = 'alembic upgrade head'
+db-migrate = 'alembic upgrade head && python scripts/dump_schema.py && task build-test-db'
+build-test-db = "podman-remote build -f scripts/toolbox/Containerfile.db -t localhost/agro-test-db:latest ."
 db-rollback = 'alembic downgrade -1'
-db-reset = 'task db-drop && task db-create && alembic upgrade head'
-db-migrate-test = "ENVIRONMENT=test alembic upgrade head"
-db-reset-test = "ENVIRONMENT=test alembic downgrade base && ENVIRONMENT=test alembic upgrade head"
+db-reset = 'task db-drop && task db-create && task db-migrate'
 
 [tool.coverage.run]
 concurrency = ['thread', 'greenlet']
