@@ -28,3 +28,11 @@ In this app there are included some facilities to handle db management:
 * Create db: [poetry run] task db-create
 * Drop db: [poetry run] task db-drop
 * Reset db: [poetry run] task db-reset
+
+## Development Environment
+
+This project uses Fedora Toolbox. If your default shell is not bash,
+you may see a warning when entering the toolbox — this is expected and
+does not affect functionality.
+
+The toolbox will fall back to bash automatically.
