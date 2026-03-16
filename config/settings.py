@@ -22,9 +22,6 @@ class Settings(BaseSettings):
         'postgresql+psycopg://postgres:postgres@127.0.0.1:5432/agro_db'
     )
 
-    TEST_DATABASE_URL: str = (
-        'postgresql+psycopg://postgres:postgres@127.0.0.1:5432/agro_db_test'
-    )
     # Security
     SECRET_KEY: str = (
         '076cf379f99ac223aead2e9e03e1b90466e03e8a3f0ec58e983d52589be70f22'
@@ -41,12 +38,6 @@ class Settings(BaseSettings):
     SUPERADMIN_PASSWORD: str = 'password'
 
     MAX_FAILED_ATTEMPTS: int = 5
-
-    @property
-    def active_database_url(self) -> str:
-        if self.ENVIRONMENT == 'test':
-            return self.TEST_DATABASE_URL
-        return self.DATABASE_URL
 
 
 settings = Settings()
