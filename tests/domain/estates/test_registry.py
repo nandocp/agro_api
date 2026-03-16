@@ -26,6 +26,6 @@ async def test_is_active(estate):
 @pytest.mark.asyncio
 async def test_is_not_active(estate):
     registry = await EstateRegistryFactory.build(
-        estate_id=estate.id, status=RegistryStatus.ANALYZING
+        estate_id=estate.id, status=RegistryStatus.CANCELLED
     )
     assert not registry.is_active
