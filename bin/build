@@ -1,0 +1,4 @@
+#! /bin/sh
+
+$(pwd)/scripts/toolbox/dbbuild.sh
+$(pwd)/scripts/toolbox/boxbuild.sh
