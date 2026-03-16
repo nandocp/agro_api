@@ -1,2 +1,2 @@
 from .activity import Activity as Activity
-# from .task import ActivityTask as ActivityTask
+from .task import ActivityTask as ActivityTask
