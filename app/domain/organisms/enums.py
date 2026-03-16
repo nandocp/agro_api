@@ -18,6 +18,8 @@ class TraitCategory(str, Enum):
     ORIGIN = 'origin'  # Heirloom, creole, etc.
     QUALITY = 'quality'  # High oleic, etc.
     RESISTANCE = 'resistance'  # Pest/disease resistance
+    BREED = 'breed'  # raça/linhagem — nelore, angus, duroc, cobb500
+    ADAPTATION = 'adaptation'  # adaptação climática/regional zebuíno, taurino
 
 
 class PlantUse(str, Enum):
