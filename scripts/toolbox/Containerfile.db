@@ -1,0 +1,4 @@
+FROM docker.io/postgis/postgis:18-3.6-alpine
+
+# schema aplicado automaticamente na inicialização
+COPY migrations/schema.sql /docker-entrypoint-initdb.d/01_schema.sql
