@@ -1,8 +1,13 @@
 FROM registry.fedoraproject.org/fedora-toolbox:43
-ARG USER_SHELL
-ENV PATH="/root/.local/bin:${PATH}"
-COPY packages /
-RUN dnf -y --setopt=install_weak_deps=False install $(<packages) \
-    && rm /packages
+
+RUN dnf -y --setopt=install_weak_deps=False install \
+    postgresql-18.1-1.fc43 \
+    python3-3.14.3-1.fc43 \
+    pipx-1.8.0-4.fc43 \
+    podman-remote
+
+# creates symlink for testcontainers
+RUN mkdir -p /var/run && \
+    ln -sf /run/user/1000/podman/podman.sock /var/run/docker.sock
 
 RUN pipx install poetry black alembic
