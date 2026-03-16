@@ -1,46 +1,55 @@
+import os
 from secrets import token_hex
 from uuid import uuid4
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-
-# from sqlalchemy import event
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     create_async_engine,
 )
 from sqlalchemy.pool import StaticPool
+from testcontainers.postgres import PostgresContainer
 
 from app.domain.accounts.auth import create_access_token
 from app.main import app
 from app.shared.dependencies import get_session, get_session_with_commit
 from app.shared.model.declarative import DeclarativeModel
-from config.settings import settings
 from tests.factories.accounts import AccountFactory, UserFactory
 from tests.factories.estates import EstateFactory
 
-
-@pytest_asyncio.fixture
-async def client(session):
-    async def get_session_override():
-        yield session
-
-    app.dependency_overrides[get_session] = get_session_override
-    app.dependency_overrides[get_session_with_commit] = get_session_override
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url='http://localhost:8000'
-    ) as client:
-        yield client
-
-    app.dependency_overrides.clear()
+os.environ.setdefault(
+    'DOCKER_HOST', f'unix:///run/user/{os.getuid()}/podman/podman.sock'
+)
+os.environ.setdefault('TESTCONTAINERS_RYUK_DISABLED', 'true')
 
 
-@pytest_asyncio.fixture
-async def session():
+@pytest.fixture(scope='session')
+def postgres_container():
+    with PostgresContainer(
+        image='localhost/agro-test-db:latest',
+        username='test',
+        password='test',
+        dbname='agro_api_test',
+    ) as container:
+        yield container
+
+
+# Engine compartilhada em toda a sessão
+@pytest_asyncio.fixture(scope='session')
+async def engine(postgres_container):
+    pass
+
+
+@pytest_asyncio.fixture(scope='function')
+async def session(postgres_container):
+    db_url = postgres_container.get_connection_url().replace(
+        'postgresql+psycopg2://', 'postgresql+psycopg://'
+    )
     engine: AsyncEngine = create_async_engine(
-        f'{settings.DATABASE_URL}_test',
+        db_url,
         poolclass=StaticPool,
         plugins=['geoalchemy2'],
     )
@@ -58,6 +67,21 @@ async def session():
         await conn.run_sync(DeclarativeModel.metadata.drop_all)
 
     await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def client(session):
+    async def get_session_override():
+        yield session
+
+    app.dependency_overrides[get_session] = get_session_override
+    app.dependency_overrides[get_session_with_commit] = get_session_override
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url='http://localhost:8000'
+    ) as client:
+        yield client
+
+    app.dependency_overrides.clear()
 
 
 @pytest_asyncio.fixture
@@ -109,36 +133,3 @@ async def account(session) -> AccountFactory:
 @pytest_asyncio.fixture
 async def main_account(session):
     return await AccountFactory()
-
-
-# @pytest_asyncio.fixture
-# async def main_user(session, main_account):
-#     user = await UserFactory.build(account_id=main_account.id)
-
-
-# @pytest_asyncio.fixture
-# async def user(session):
-#     password = token_hex(4)
-#     user = UserFactory.build(pwd=password)
-#     user.password = hash_password(password)
-#     session.add(user)
-#     await session.commit()
-#     await session.refresh(user)
-
-#     user.clean_password = password
-
-#     return user
-
-
-# @pytest_asyncio.fixture
-# async def other_user(session):
-#     password = token_hex(4)
-#     user = UserFactory.build(pwd=password)
-#     user.password = hash_password(password)
-#     session.add(user)
-#     await session.commit()
-#     await session.refresh(user)
-
-#     user.clean_password = password
-
-#     return user
