@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict WjNzFEIlI5f4d6EmBkdshujKCO9H6kbzBy7qQLM791pv6NdIsR9WVaod6fICXLg
+\restrict UymkhaBi9FMbyKbxzDf6c05VhhyzCQlm9AKgWneWyla1ZAOVHZRzIxJWwj8Q3vc
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.1
@@ -43,6 +43,27 @@ CREATE TABLE public.accounts (
     id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: activities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activities (
+    activity_type character varying(50) NOT NULL,
+    field_id uuid NOT NULL,
+    creator_id uuid NOT NULL,
+    kind character varying(50) NOT NULL,
+    started_at date NOT NULL,
+    finished_at date,
+    total_area_m2 numeric(12,2),
+    status character varying(64) NOT NULL,
+    id uuid DEFAULT uuidv7() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT activities_check CHECK (((finished_at IS NULL) OR (finished_at >= started_at))),
+    CONSTRAINT ck_activity_area_positive CHECK (((total_area_m2 IS NULL) OR (total_area_m2 > (0)::numeric)))
 );
 
 
@@ -413,6 +434,14 @@ ALTER TABLE ONLY public.accounts
 
 
 --
+-- Name: activities activities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: addresses addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -692,6 +721,20 @@ CREATE INDEX idx_common_name_search ON public.organism_common_names USING btree 
 
 
 --
+-- Name: ix_activities_field_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_activities_field_id ON public.activities USING btree (field_id);
+
+
+--
+-- Name: ix_activities_started_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_activities_started_at ON public.activities USING btree (started_at);
+
+
+--
 -- Name: ix_estate_registries_estate_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -795,6 +838,22 @@ CREATE INDEX ix_soil_analyses_field_id ON public.soil_analyses USING btree (fiel
 
 ALTER TABLE ONLY public.accounts
     ADD CONSTRAINT accounts_address_id_fkey FOREIGN KEY (address_id) REFERENCES public.addresses(id) ON DELETE SET NULL;
+
+
+--
+-- Name: activities activities_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT activities_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: activities activities_field_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT activities_field_id_fkey FOREIGN KEY (field_id) REFERENCES public.fields(id) ON DELETE CASCADE;
 
 
 --
@@ -961,5 +1020,5 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict WjNzFEIlI5f4d6EmBkdshujKCO9H6kbzBy7qQLM791pv6NdIsR9WVaod6fICXLg
+\unrestrict UymkhaBi9FMbyKbxzDf6c05VhhyzCQlm9AKgWneWyla1ZAOVHZRzIxJWwj8Q3vc
 
