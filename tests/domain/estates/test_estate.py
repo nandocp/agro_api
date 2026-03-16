@@ -10,21 +10,21 @@ from tests.factories.estates import EstateFactory
 
 @pytest.mark.asyncio
 async def test_is_urban_true_with_periurban():
-    estate = await EstateFactory.build(kind=EstateZone.PERIURBAN)
+    estate = await EstateFactory.build(zone=EstateZone.PERIURBAN)
 
     assert estate.is_urban
 
 
 @pytest.mark.asyncio
 async def test_is_urban_true_with_intraurban():
-    estate = await EstateFactory.build(kind=EstateZone.INTRAURBAN)
+    estate = await EstateFactory.build(zone=EstateZone.INTRAURBAN)
 
     assert estate.is_urban
 
 
 @pytest.mark.asyncio
 async def test_is_urban_false():
-    estate = await EstateFactory.build(kind=EstateZone.RURAL)
+    estate = await EstateFactory.build(zone=EstateZone.RURAL)
 
     assert not estate.is_urban
 
@@ -63,7 +63,7 @@ async def test_account_slug_uniqueness(session, estate):
 
     err_message = (
         'duplicate key value violates '
-        'unique constraint "idx_account_estate_slug"'
+        'unique constraint "uq_account_estate_slug"'
     )
     with pytest.raises(IntegrityError, match=err_message):
         await session.commit()
