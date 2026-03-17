@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict UymkhaBi9FMbyKbxzDf6c05VhhyzCQlm9AKgWneWyla1ZAOVHZRzIxJWwj8Q3vc
+\restrict s5ZLcJCpBJzzeZ4KgKSm3mMeaijGN04sIyFbVfPphP4nCnglp8lRB6sW4Nfn1Fl
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.1
@@ -64,6 +64,30 @@ CREATE TABLE public.activities (
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT activities_check CHECK (((finished_at IS NULL) OR (finished_at >= started_at))),
     CONSTRAINT ck_activity_area_positive CHECK (((total_area_m2 IS NULL) OR (total_area_m2 > (0)::numeric)))
+);
+
+
+--
+-- Name: activity_tasks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activity_tasks (
+    activity_id uuid NOT NULL,
+    creator_id uuid NOT NULL,
+    assigned_to_id uuid,
+    title character varying(200),
+    description text NOT NULL,
+    status character varying(50) NOT NULL,
+    priority character varying(50),
+    due_date date,
+    started_at timestamp with time zone,
+    completed_at timestamp with time zone,
+    parent_task_id uuid,
+    id uuid DEFAULT uuidv7() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_task_completed_after_started CHECK (((completed_at IS NULL) OR (started_at IS NULL) OR (completed_at >= started_at))),
+    CONSTRAINT ck_task_no_self_reference CHECK ((parent_task_id <> id))
 );
 
 
@@ -442,6 +466,14 @@ ALTER TABLE ONLY public.activities
 
 
 --
+-- Name: activity_tasks activity_tasks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activity_tasks
+    ADD CONSTRAINT activity_tasks_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: addresses addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -735,6 +767,13 @@ CREATE INDEX ix_activities_started_at ON public.activities USING btree (started_
 
 
 --
+-- Name: ix_activity_tasks_activity_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_activity_tasks_activity_id ON public.activity_tasks USING btree (activity_id);
+
+
+--
 -- Name: ix_estate_registries_estate_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -854,6 +893,38 @@ ALTER TABLE ONLY public.activities
 
 ALTER TABLE ONLY public.activities
     ADD CONSTRAINT activities_field_id_fkey FOREIGN KEY (field_id) REFERENCES public.fields(id) ON DELETE CASCADE;
+
+
+--
+-- Name: activity_tasks activity_tasks_activity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activity_tasks
+    ADD CONSTRAINT activity_tasks_activity_id_fkey FOREIGN KEY (activity_id) REFERENCES public.activities(id) ON DELETE CASCADE;
+
+
+--
+-- Name: activity_tasks activity_tasks_assigned_to_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activity_tasks
+    ADD CONSTRAINT activity_tasks_assigned_to_id_fkey FOREIGN KEY (assigned_to_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: activity_tasks activity_tasks_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activity_tasks
+    ADD CONSTRAINT activity_tasks_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: activity_tasks activity_tasks_parent_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activity_tasks
+    ADD CONSTRAINT activity_tasks_parent_task_id_fkey FOREIGN KEY (parent_task_id) REFERENCES public.activity_tasks(id) ON DELETE SET NULL;
 
 
 --
@@ -1020,5 +1091,5 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict UymkhaBi9FMbyKbxzDf6c05VhhyzCQlm9AKgWneWyla1ZAOVHZRzIxJWwj8Q3vc
+\unrestrict s5ZLcJCpBJzzeZ4KgKSm3mMeaijGN04sIyFbVfPphP4nCnglp8lRB6sW4Nfn1Fl
 
