@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import List
 
-from app.entities.base import BaseEntity
 from sqlalchemy import (
     CheckConstraint,
     ForeignKey,
@@ -13,12 +12,11 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from config.database import table_registry
+from app.shared.model import BaseModel
 
 from ..planting import Planting
 
 
-@table_registry.mapped_as_dataclass(kw_only=True)
 class RowPlanting(Planting):
     __tablename__ = 'row_plantings'
     __mapper_args__ = {'polymorphic_identity': 'row_planting'}
@@ -31,7 +29,6 @@ class RowPlanting(Planting):
         ForeignKey('plantings.id'), primary_key=True
     )
 
-    # Row global parameters
     row_spacing_cm: Mapped[float] = mapped_column(nullable=False)
     total_rows: Mapped[int]
 
@@ -42,8 +39,7 @@ class RowPlanting(Planting):
 
 
 # Defines a row type inside a Row Planting method
-@table_registry.mapped_as_dataclass(kw_only=True)
-class RowType(BaseEntity):
+class RowType(BaseModel):
     __tablename__ = 'row_types'
     __table_args__ = (UniqueConstraint('row_planting_id', 'code'),)
 
@@ -59,8 +55,7 @@ class RowType(BaseEntity):
     order: Mapped[RowTypeOrder] = relationship(init=False)
 
 
-@table_registry.mapped_as_dataclass(kw_only=True)
-class RowTypeOrder(BaseEntity):
+class RowTypeOrder(BaseModel):
     __tablename__ = 'row_type_orders'
     __table_args__ = (
         PrimaryKeyConstraint(
@@ -79,8 +74,7 @@ class RowTypeOrder(BaseEntity):
 
 
 # Defines an element in the repetition pattern inside a row
-@table_registry.mapped_as_dataclass(kw_only=True)
-class RowTypeElement(BaseEntity):
+class RowTypeElement(BaseModel):
     __tablename__ = 'row_type_elements'
 
     row_type_id: Mapped[Uuid] = mapped_column(ForeignKey('row_types.id'))

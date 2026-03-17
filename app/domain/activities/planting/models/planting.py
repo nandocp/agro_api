@@ -10,32 +10,32 @@ até sistemas agroflorestais complexos. Vamos
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, List
+from uuid import UUID
 
-from app.entities.activity import Activity
 from sqlalchemy import ForeignKey, Uuid
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_as_dataclass,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from config.database import table_registry
+from app.domain.activities.models import Activity
 
 if TYPE_CHECKING:
-    from app.entities.activity.planting import PlantingComposition
+    from app.domain.activities.models import PlantingComposition
 
 
-@mapped_as_dataclass(table_registry, kw_only=True)
 class Planting(Activity):
     __tablename__ = 'plantings'
     __mapper_args__ = {'polymorphic_identity': 'planting'}
 
-    id: Mapped[Uuid] = mapped_column(
-        UUID, ForeignKey('activities.id'), primary_key=True, init=False
+    id: Mapped[UUID] = mapped_column(
+        Uuid,
+        ForeignKey('activities.id'),
+        primary_key=True,
+        init=False,
+        nullable=False,
     )
 
     composition: Mapped[List['PlantingComposition']] = relationship(
-        back_populates='planting', cascade='all, delete-orphan', init=False
+        'PlantingComposition',
+        back_populates='planting',
+        cascade='all, delete-orphan',
+        init=False,
     )

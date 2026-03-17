@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class GeneticSource(str, Enum):
+class PlantingGeneticSource(str, Enum):
     """Origin of planting material."""
 
     FARM_SAVED = 'farm_saved'  # Saved from previous harvest
@@ -9,6 +9,7 @@ class GeneticSource(str, Enum):
     LOCAL_EXCHANGE = 'local_exchange'  # Swapped with other farmers
     PURCHASED = 'purchased'  # Bought but not certified
     RESEARCH = 'research'  # From research institution
+    DONATED = 'donated'
     UNKNOWN = 'unknown'
 
 
