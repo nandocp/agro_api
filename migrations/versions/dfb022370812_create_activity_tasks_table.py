@@ -1,4 +1,4 @@
-"""create activitie_tasks table
+"""create activity_tasks table
 
 Revision ID: dfb022370812
 Revises: 22facfa4e3a1
