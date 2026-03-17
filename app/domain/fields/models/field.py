@@ -22,14 +22,14 @@ from app.shared.model import BaseModel
 
 if TYPE_CHECKING:
     from app.domain.accounts.models import User
+    from app.domain.activities.models import Activity
     from app.domain.estates.models import Estate
     from app.domain.fields.models import (
         FieldProtection,
         FieldSoilAnalysis,
         FieldTransition,
+        SoilClassification,
     )
-    # from app.entities.activity import Activity
-    # from app.entities.soil import SoilAnalysis
 
 
 class Field(BaseModel):
@@ -105,18 +105,20 @@ class Field(BaseModel):
     estate: Mapped['Estate'] = relationship(
         'Estate', back_populates='fields', lazy='raise'
     )
-    # activities: Mapped[List['Activity']] = relationship('Activity',
-    #     back_populates='field',
-    #     cascade='all, delete-orphan',
-    #     init=False,
-    #     lazy='raise',
-    # )
+    activities: Mapped[List['Activity']] = relationship(
+        'Activity',
+        back_populates='field',
+        cascade='all, delete-orphan',
+        init=False,
+        lazy='raise',
+    )
     protections: Mapped[List['FieldProtection']] = relationship(
         lazy='raise', cascade='all, delete-orphan', init=False
     )
     soil_analyses: Mapped[List['FieldSoilAnalysis']] = relationship(
         'FieldSoilAnalysis', back_populates='field', lazy='raise'
     )
+    soil_classifications: Mapped[List['SoilClassification']] = relationship()
     # Transitions where this field is the predecessor (it was replaced)
     transitions_as_predecessor: Mapped[List['FieldTransition']] = relationship(
         'FieldTransition',
