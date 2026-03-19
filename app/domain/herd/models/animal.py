@@ -1,0 +1,2 @@
+class HerdAnimal(BaseModel):
+    pass
