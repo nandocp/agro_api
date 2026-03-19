@@ -36,3 +36,8 @@ you may see a warning when entering the toolbox. This is expected and
 does not affect functionality.
 
 The toolbox will fall back to bash automatically.
+
+# ============================================================================
+# REFERENCES
+# ============================================================================
+* https://medium.com/@notarious2/working-with-spatial-data-using-fastapi-and-geoalchemy-797d414d2fe7
