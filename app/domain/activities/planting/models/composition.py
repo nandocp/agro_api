@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List
 from uuid import UUID
 
 from sqlalchemy import (
+    ARRAY,
     Boolean,
     CheckConstraint,
     ForeignKey,
@@ -54,12 +55,17 @@ class PlantingComposition(BaseModel):
         nullable=True,
         default=None,
     )
-
     # Commercial info
     primary_purpose: Mapped[str | None] = mapped_column(
         String(50),
         default=None,
         nullable=True,
+        comment='PlantingPurpose enum. Validated by API layer',
+    )
+    secondary_purposes: Mapped[List[str] | None] = mapped_column(
+        ARRAY(String(50)),
+        nullable=True,
+        default=None,
         comment='PlantingPurpose enum. Validated by API layer',
     )
     is_commodity: Mapped[bool] = mapped_column(
