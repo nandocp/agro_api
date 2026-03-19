@@ -1,4 +1,9 @@
 #! /bin/sh
 
-$(pwd)/scripts/toolbox/dbbuild.sh
-$(pwd)/scripts/toolbox/boxbuild.sh
+if command -v toolbox &> /dev/null; then
+    $(pwd)/scripts/toolbox/build.sh --build-ollama "$@"
+else
+    echo -e "${RED}❌ This script only runs with toolbox containers solution"
+    exit 1
+fi
+

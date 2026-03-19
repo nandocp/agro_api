@@ -1,3 +1,8 @@
 #! /bin/sh
 
-$(pwd)/scripts/toolbox/boxrun.sh
+if command -v toolbox &> /dev/null; then
+    $(pwd)/scripts/toolbox/start.sh
+else
+    echo -e "${RED}❌ This script only runs with toolbox containers solution"
+    exit 1
+fi
