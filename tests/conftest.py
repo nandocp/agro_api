@@ -29,7 +29,7 @@ os.environ.setdefault('TESTCONTAINERS_RYUK_DISABLED', 'true')
 @pytest.fixture(scope='session')
 def postgres_container():
     with PostgresContainer(
-        image='localhost/agro-test-db:latest',
+        image='localhost/agro_api-test-db:latest',
         username='test',
         password='test',
         dbname='agro_api_test',
