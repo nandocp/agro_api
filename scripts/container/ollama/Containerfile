@@ -1,0 +1,24 @@
+FROM docker.io/ollama/ollama:latest
+
+# Argumentos de build
+ARG OLLAMA_MODEL=deepseek-r1:7b
+ARG OLLAMA_MODELS_DIR=/home/ubuntu/.ollama
+ENV OLLAMA_HOST=0.0.0.0
+ENV OLLAMA_ORIGINS="*"
+
+# Expõe a porta da API
+EXPOSE 11434
+
+# Copia script de inicialização
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Passa os argumentos para o script via variáveis de ambiente
+ENV MODEL_NAME=${OLLAMA_MODEL}
+ENV MODELS_DIR=${OLLAMA_MODELS_DIR}
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD ollama list || exit 1
+
+ENTRYPOINT ["/start.sh"]

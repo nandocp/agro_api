@@ -6,7 +6,6 @@ RUN dnf -y --setopt=install_weak_deps=False install \
     pipx-1.8.0-4.fc43 \
     podman-remote
 
-# creates symlink for testcontainers
 RUN mkdir -p /var/run && \
     ln -sf /run/user/1000/podman/podman.sock /var/run/docker.sock
 
