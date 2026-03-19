@@ -16,9 +16,9 @@ class BroadcastPlanting(Planting):
     __mapper_args__ = {'polymorphic_identity': 'broadcast_planting'}
 
     id: Mapped[Uuid] = mapped_column(
-        ForeignKey('plantings.id'), primary_key=True
+        ForeignKey('plantings.id'), primary_key=True, nullable=False
     )
 
     total_seeding_rate_kg_ha: Mapped[Decimal | None] = mapped_column(
-        Numeric(10, 2)
+        Numeric(10, 2), nullable=True, default=None
     )
