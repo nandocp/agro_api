@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import CheckConstraint, ForeignKey, Uuid
+from sqlalchemy import CheckConstraint, ForeignKey, Integer, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from config.database import table_registry
@@ -18,11 +18,11 @@ class BedPlanting(Planting):
     )
 
     id: Mapped[Uuid] = mapped_column(
-        ForeignKey('plantings.id'), primary_key=True
+        ForeignKey('plantings.id'), primary_key=True, nullable=False
     )
 
-    row_spacing_cm: Mapped[float]
-    bed_spacing_cm: Mapped[float]
-    seeds_per_bed: Mapped[
-        int | None
-    ]
+    row_spacing_cm: Mapped[int] = mapped_column(Integer, nullable=False)
+    bed_spacing_cm: Mapped[int] = mapped_column(Integer, nullable=False)
+    seeds_per_bed: Mapped[int | None] = mapped_column(
+        Integer, nullable=True, default=None
+    )
