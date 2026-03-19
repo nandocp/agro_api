@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from typing import List
+from uuid import UUID
 
 from sqlalchemy import (
     CheckConstraint,
     ForeignKey,
     Index,
+    Integer,
     PrimaryKeyConstraint,
     UniqueConstraint,
     Uuid,
@@ -25,16 +27,19 @@ class RowPlanting(Planting):
         CheckConstraint('total_rows > 0'),
     )
 
-    id: Mapped[Uuid] = mapped_column(
-        ForeignKey('plantings.id'), primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey('plantings.id'), primary_key=True
     )
 
-    row_spacing_cm: Mapped[float] = mapped_column(nullable=False)
-    total_rows: Mapped[int]
+    row_spacing_cm: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_rows: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Relacionamento com a definição detalhada de cada tipo de linha
     row_types: Mapped[List['RowType']] = relationship(
-        back_populates='row_planting', cascade='all, delete-orphan', init=False
+        'RowType',
+        back_populates='row_planting',
+        cascade='all, delete-orphan',
+        init=False,
     )
 
 
@@ -50,9 +55,9 @@ class RowType(BaseModel):
     # Padrão de repetição de espécies DENTRO desta linha
     # Ex: para linha tipo 'A' com padrão [sp1, sp2, sp1, sp2] a cada 30cm
     row_type_elements: Mapped[List['RowTypeElement']] = relationship(
-        cascade='all, delete-orphan'
+        'RowTypeElement', cascade='all, delete-orphan', init=False
     )
-    order: Mapped[RowTypeOrder] = relationship(init=False)
+    order: Mapped['RowTypeOrder'] = relationship('RowTypeOrder', init=False)
 
 
 class RowTypeOrder(BaseModel):
@@ -64,12 +69,14 @@ class RowTypeOrder(BaseModel):
         Index('ix_row_planting_type_order_type', 'row_type_id'),
     )
 
+    row_type_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey('row_types.id', ondelete='RESTRICT'), nullable=False
+    )
+
     position: Mapped[int] = mapped_column(
+        Integer,
         nullable=False,
         comment='Ordem do tipo de linha na sequência (0,1,2...)',
-    )
-    row_type_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('row_types.id', ondelete='RESTRICT'), nullable=False
     )
 
 
@@ -77,11 +84,17 @@ class RowTypeOrder(BaseModel):
 class RowTypeElement(BaseModel):
     __tablename__ = 'row_type_elements'
 
-    row_type_id: Mapped[Uuid] = mapped_column(ForeignKey('row_types.id'))
-    planting_composition_id: Mapped[Uuid] = mapped_column(
-        ForeignKey('planting_compositions.id')
+    row_type_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey('row_types.id'), nullable=False
     )
-    sequence_position: Mapped[int]  # 1º, 2º, 3º elemento do padrão
-    distance_to_next_cm: Mapped[float] = mapped_column(
-        comment='Distância para o próximo elemento na sequência.'
+    planting_composition_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey('planting_compositions.id')
+    )
+    sequence_position: Mapped[int] = mapped_column(
+        Integer, nullable=False
+    )  # 1º, 2º, 3º elemento do padrão
+    distance_to_next_cm: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        comment='Distância para o próximo elemento na sequência.',
     )
