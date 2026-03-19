@@ -25,6 +25,7 @@ PERMISSIONS_MATRIX = {
         (Resource.USER, Action.CREATE),
         (Resource.USER, Action.UPDATE),
         (Resource.USER, Action.DEACTIVATE),
+        (Resource.ESTATE, Action.APPROVE),
     ],
     'admin': [
         (Resource.ACCOUNT, Action.UPDATE),
