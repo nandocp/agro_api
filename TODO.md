@@ -24,3 +24,8 @@ A management solution for agropecuary workers
   - [ ] Create: based on geospatial locations
 
 ### Done ✓
+- [✓] 20.03.26 - Implement seeds
+  - [✓] 20.03.26 - Rbac seeds - development
+  - [✓] 20.03.26 - Rbac seeds - production
+  - [✓] 20.03.26 - Organism traits
+  - [✓] 20.03.26 - Soil classifications
