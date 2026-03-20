@@ -13,14 +13,15 @@ else
 fi
 
 echo -e "${BLUE}🔨 Building development box${NC}"
-$CMD build -t localhost/agro_api-toolbox:latest -f scripts/toolbox/Containerfile.dev
+$CMD build -t localhost/agro_api-toolbox:latest -f scripts/container/toolbox/Containerfile
 
 
 echo -e "${BLUE}🔨 Building database${NC}"
 $CMD volume create --ignore agro_api_db > /dev/null 2>&1
 
-echo -e "${BLUE}🔨 Building ollama${NC}"
-$(pwd)/scripts/container/ollama/build.sh --model qwen3:4b
+# echo -e "${BLUE}🔨 Building ollama${NC}"
+# echo "$@"
+# $(pwd)/scripts/container/ollama/build.sh "$@"
 
 # if [[ "$@" == "--build-ollama"]] && [["$@" != "--no-build-ollama" ]]
 # then

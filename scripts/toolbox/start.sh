@@ -34,34 +34,34 @@ $CMD run -d \
     --replace \
     docker.io/postgis/postgis:18-3.6-alpine "$@" > /dev/null 2>&1
 
-if $CMD image inspect agro_api-ollama >/dev/null 2>&1; then
-    echo '🐳 Initializing agro-api Ollama server'
-    $CMD run -d \
-        --name agro_api-ollama \
-        --network agro_api_network \
-        -p 11434:11434 \
-        -v agro_api_ollama:/home/ubuntu/.ollama \
-        --user 1000:1000 \
-        --userns=keep-id \
-        --device nvidia.com/gpu=all \
-        --security-opt label=disable \
-        --replace \
-        localhost/agro_api-ollama:latest
+# if $CMD image inspect agro_api-ollama >/dev/null 2>&1; then
+#     echo '🐳 Initializing agro-api Ollama server'
+#     $CMD run -d \
+#         --name agro_api-ollama \
+#         --network agro_api_network \
+#         -p 11434:11434 \
+#         -v agro_api_ollama:/home/ubuntu/.ollama \
+#         --user 1000:1000 \
+#         --userns=keep-id \
+#         --device nvidia.com/gpu=all \
+#         --security-opt label=disable \
+#         --replace \
+#         localhost/agro_api-ollama:latest
 
-    echo "🚀 Initializing agro-api Open WebUI"
-    $CMD run -d \
-        --name agro_api-openwebui \
-        --network agro_api_network \
-        -p 3000:8080 \
-        -v agro_api_openwebui:/app/backend/data \
-        -e OLLAMA_BASE_URL=http://agro_api-ollama:11434 \
-        -e USER_AGENT=agro_api \
-        -e WEBUI_AUTH=False \
-        --replace \
-        ghcr.io/open-webui/open-webui:main-slim
-else
-    echo "⚠️ WARN: Image localhost/agro_api-ollama not found!" >&2
-fi
+#     echo "🚀 Initializing agro-api Open WebUI"
+#     $CMD run -d \
+#         --name agro_api-openwebui \
+#         --network agro_api_network \
+#         -p 3000:8080 \
+#         -v agro_api_openwebui:/app/backend/data \
+#         -e OLLAMA_BASE_URL=http://agro_api-ollama:11434 \
+#         -e USER_AGENT=agro_api \
+#         -e WEBUI_AUTH=False \
+#         --replace \
+#         ghcr.io/open-webui/open-webui:main-slim
+# else
+#     echo "⚠️ WARN: Image localhost/agro_api-ollama not found!" >&2
+# fi
 
 echo '📦 Initializing agro-api toolbox'
 toolbox create --image localhost/agro_api-toolbox:latest agro_api-toolbox > /dev/null 2>&1
