@@ -10,13 +10,14 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     create_async_engine,
 )
-from sqlalchemy.pool import StaticPool
 from testcontainers.postgres import PostgresContainer
 
 from app.domain.accounts.auth import create_access_token
 from app.main import app
 from app.shared.dependencies import get_session, get_session_with_commit
-from app.shared.model.declarative import DeclarativeModel
+from seeds.production.organism_traits import seed as seed_traits
+from seeds.production.rbac import seed as seed_rbac
+from seeds.production.soil_classifications import seed as seed_soil
 from tests.factories.accounts import AccountFactory, UserFactory
 from tests.factories.estates import EstateFactory
 
@@ -40,33 +41,36 @@ def postgres_container():
 # Engine compartilhada em toda a sessão
 @pytest_asyncio.fixture(scope='session')
 async def engine(postgres_container):
-    pass
-
-
-@pytest_asyncio.fixture(scope='function')
-async def session(postgres_container):
     db_url = postgres_container.get_connection_url().replace(
         'postgresql+psycopg2://', 'postgresql+psycopg://'
     )
     engine: AsyncEngine = create_async_engine(
         db_url,
-        poolclass=StaticPool,
         plugins=['geoalchemy2'],
     )
 
-    async with engine.begin() as conn:
-        await conn.run_sync(DeclarativeModel.metadata.create_all)
+    # async with engine.begin() as conn:
+    #     await conn.run_sync(DeclarativeModel.metadata.create_all)
 
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        await seed_rbac(session)
+        await seed_soil(session)
+        await seed_traits(session)
+        await session.commit()
+
+    yield engine
+
+    # sem drop_all — container é destruído pelo testcontainers no teardown
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture(scope='function')
+async def session(engine):
     async with engine.connect() as conn:
         await conn.begin_nested()  # savepoint
         async with AsyncSession(bind=conn, expire_on_commit=False) as session:
             yield session
-            await conn.rollback()  # rollback após cada teste
-
-    async with engine.begin() as conn:
-        await conn.run_sync(DeclarativeModel.metadata.drop_all)
-
-    await engine.dispose()
+            await conn.rollback()  # rollback after each test
 
 
 @pytest_asyncio.fixture
