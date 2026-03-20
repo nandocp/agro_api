@@ -106,9 +106,9 @@ pre_test = 'task lint'
 test = 'pytest -s -x --cov=app -vv'
 post_test = 'coverage html'
 
-db-create = 'python scripts/db/create.py'
-db-drop = 'python scripts/db/drop.py'
-db-migrate = 'alembic upgrade head && python scripts/db/dump_schema.py && task build-test-db'
+db-create = 'python scripts/database/create.py'
+db-drop = 'python scripts/database/drop.py'
+db-migrate = 'alembic upgrade head && python scripts/database/dump_schema.py && task build-test-db'
 build-test-db = "podman-remote build -f scripts/toolbox/Containerfile.db -t localhost/agro_api-test-db:latest ."
 db-rollback = 'alembic downgrade -1'
 db-reset = 'task db-drop && task db-create && task db-migrate'
