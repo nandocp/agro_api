@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 1MvUaX2pFAhjS1nZmbmpsvEWw7W0fMzwgOkgGW5ZF2pevkEN1tAZIHX6lE4pRSh
+\restrict euHMkmnSfHZXceGDfGyEMyn4eoBbXCaYdAS1DbwWJAJDwN1BBqLbbJJb9ncax2B
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.1
@@ -247,7 +247,9 @@ CREATE TABLE public.fields (
     active_to date,
     id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    slope_percent numeric(5,2),
+    slope_class character varying(50)
 );
 
 
@@ -1089,5 +1091,5 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 1MvUaX2pFAhjS1nZmbmpsvEWw7W0fMzwgOkgGW5ZF2pevkEN1tAZIHX6lE4pRSh
+\unrestrict euHMkmnSfHZXceGDfGyEMyn4eoBbXCaYdAS1DbwWJAJDwN1BBqLbbJJb9ncax2B
 

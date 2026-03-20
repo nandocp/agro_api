@@ -101,6 +101,22 @@ class Field(BaseModel):
         nullable=True,
     )
 
+    # Soil slope data
+    slope_percent: Mapped[Decimal | None] = mapped_column(
+        Numeric(5, 2),
+        nullable=True,
+        default=None,
+        comment='Slope in percent: measured or estimated',
+    )
+    slope_class: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+        default=None,
+        comment=(
+            'SlopeClass enum: classified automatically '
+            'if slope_percent informed'
+        ),
+    )
     creator: Mapped['User'] = relationship('User', lazy='raise', init=False)
     estate: Mapped['Estate'] = relationship(
         'Estate', back_populates='fields', lazy='raise'
