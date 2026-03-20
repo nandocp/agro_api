@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict s5ZLcJCpBJzzeZ4KgKSm3mMeaijGN04sIyFbVfPphP4nCnglp8lRB6sW4Nfn1Fl
+\restrict HycfU0hmilqc0I1gl8Xh0lXselvBff2SoqBYbV1NQJttAZnmIHt4bVtUkDp5CfY
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.1
@@ -64,30 +64,6 @@ CREATE TABLE public.activities (
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT activities_check CHECK (((finished_at IS NULL) OR (finished_at >= started_at))),
     CONSTRAINT ck_activity_area_positive CHECK (((total_area_m2 IS NULL) OR (total_area_m2 > (0)::numeric)))
-);
-
-
---
--- Name: activity_tasks; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.activity_tasks (
-    activity_id uuid NOT NULL,
-    creator_id uuid NOT NULL,
-    assigned_to_id uuid,
-    title character varying(200),
-    description text NOT NULL,
-    status character varying(50) NOT NULL,
-    priority character varying(50),
-    due_date date,
-    started_at timestamp with time zone,
-    completed_at timestamp with time zone,
-    parent_task_id uuid,
-    id uuid DEFAULT uuidv7() NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT ck_task_completed_after_started CHECK (((completed_at IS NULL) OR (started_at IS NULL) OR (completed_at >= started_at))),
-    CONSTRAINT ck_task_no_self_reference CHECK ((parent_task_id <> id))
 );
 
 
@@ -193,6 +169,45 @@ CREATE TABLE public.field_protections (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_field_protection_expiry CHECK (((expires_at IS NULL) OR (expires_at > started_at)))
+);
+
+
+--
+-- Name: field_soil_analyses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.field_soil_analyses (
+    field_id uuid NOT NULL,
+    collected_at date NOT NULL,
+    analyzed_at date,
+    sampling_depth_cm integer NOT NULL,
+    ph_h2o numeric(3,1),
+    base_saturation_percent numeric(5,2),
+    organic_matter_g_dm3 numeric(5,2),
+    texture_class character varying(50),
+    chemical jsonb,
+    physical jsonb,
+    biological jsonb,
+    collector_name character varying(255) NOT NULL,
+    collector_registry character varying(64) NOT NULL,
+    laboratory_name character varying(255) NOT NULL,
+    laboratory_protocol character varying(128),
+    id uuid DEFAULT uuidv7() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_analysis_date_after_collection CHECK (((analyzed_at IS NULL) OR (analyzed_at >= collected_at))),
+    CONSTRAINT ck_dsampling_epth_positive CHECK ((sampling_depth_cm > 0)),
+    CONSTRAINT ck_ph_h2o_range CHECK (((ph_h2o IS NULL) OR ((ph_h2o >= (0)::numeric) AND (ph_h2o <= (14)::numeric))))
+);
+
+
+--
+-- Name: field_soil_classifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.field_soil_classifications (
+    field_id uuid NOT NULL,
+    soil_classification_id uuid NOT NULL
 );
 
 
@@ -334,18 +349,16 @@ CREATE TABLE public.permissions (
 --
 
 CREATE TABLE public.plants (
-    id uuid DEFAULT uuidv7() NOT NULL,
+    id uuid NOT NULL,
     plant_cycle character varying(50),
     growth_habit character varying(50),
-    primary_use character varying(50),
-    secondary_uses character varying(50)[],
     max_height_cm integer,
     min_temperature_c numeric(3,1),
     max_temperature_c numeric(3,1),
     water_requirement character varying(50),
-    days_to_maturity integer,
-    days_to_germination integer,
     drought_tolerance character varying(32),
+    days_to_germination integer,
+    days_to_maturity integer,
     frost_tolerance character varying(32),
     flood_tolerance character varying(32),
     soil_ph_min numeric(3,1),
@@ -386,31 +399,16 @@ CREATE TABLE public.roles (
 
 
 --
--- Name: soil_analyses; Type: TABLE; Schema: public; Owner: -
+-- Name: soil_classifications; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.soil_analyses (
-    field_id uuid NOT NULL,
-    collected_at date NOT NULL,
-    analyzed_at date,
-    sampling_depth_cm integer NOT NULL,
-    ph_h2o numeric(3,1),
-    base_saturation_percent numeric(5,2),
-    organic_matter_g_dm3 numeric(5,2),
-    texture_class character varying(50),
-    chemical jsonb,
-    physical jsonb,
-    biological jsonb,
-    collector_name character varying(255) NOT NULL,
-    collector_registry character varying(64) NOT NULL,
-    laboratory_name character varying(255) NOT NULL,
-    laboratory_protocol character varying(128),
+CREATE TABLE public.soil_classifications (
+    name character varying(100) NOT NULL,
+    source character varying(50) NOT NULL,
+    parent_id uuid,
     id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT ck_analysis_date_after_collection CHECK (((analyzed_at IS NULL) OR (analyzed_at >= collected_at))),
-    CONSTRAINT ck_dsampling_epth_positive CHECK ((sampling_depth_cm > 0)),
-    CONSTRAINT ck_ph_h2o_range CHECK (((ph_h2o IS NULL) OR ((ph_h2o >= (0)::numeric) AND (ph_h2o <= (14)::numeric))))
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -466,14 +464,6 @@ ALTER TABLE ONLY public.activities
 
 
 --
--- Name: activity_tasks activity_tasks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.activity_tasks
-    ADD CONSTRAINT activity_tasks_pkey PRIMARY KEY (id);
-
-
---
 -- Name: addresses addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -511,6 +501,22 @@ ALTER TABLE ONLY public.estates
 
 ALTER TABLE ONLY public.field_protections
     ADD CONSTRAINT field_protections_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: field_soil_analyses field_soil_analyses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.field_soil_analyses
+    ADD CONSTRAINT field_soil_analyses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: field_soil_classifications field_soil_classifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.field_soil_classifications
+    ADD CONSTRAINT field_soil_classifications_pkey PRIMARY KEY (field_id, soil_classification_id);
 
 
 --
@@ -618,11 +624,11 @@ ALTER TABLE ONLY public.roles
 
 
 --
--- Name: soil_analyses soil_analyses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: soil_classifications soil_classifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.soil_analyses
-    ADD CONSTRAINT soil_analyses_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.soil_classifications
+    ADD CONSTRAINT soil_classifications_pkey PRIMARY KEY (id);
 
 
 --
@@ -706,6 +712,14 @@ ALTER TABLE ONLY public.permissions
 
 
 --
+-- Name: soil_classifications uq_soil_name_source; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.soil_classifications
+    ADD CONSTRAINT uq_soil_name_source UNIQUE (name, source);
+
+
+--
 -- Name: user_roles user_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -767,13 +781,6 @@ CREATE INDEX ix_activities_started_at ON public.activities USING btree (started_
 
 
 --
--- Name: ix_activity_tasks_activity_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_activity_tasks_activity_id ON public.activity_tasks USING btree (activity_id);
-
-
---
 -- Name: ix_estate_registries_estate_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -799,6 +806,20 @@ CREATE INDEX ix_estates_slug ON public.estates USING btree (slug);
 --
 
 CREATE UNIQUE INDEX ix_field_active_protection ON public.field_protections USING btree (field_id) WHERE (expires_at IS NULL);
+
+
+--
+-- Name: ix_field_soil_analyses_collected_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_field_soil_analyses_collected_at ON public.field_soil_analyses USING btree (collected_at);
+
+
+--
+-- Name: ix_field_soil_analyses_field_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_field_soil_analyses_field_id ON public.field_soil_analyses USING btree (field_id);
 
 
 --
@@ -858,20 +879,6 @@ CREATE INDEX ix_organisms_scientific_name ON public.organisms USING btree (scien
 
 
 --
--- Name: ix_soil_analyses_collected_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_soil_analyses_collected_at ON public.soil_analyses USING btree (collected_at);
-
-
---
--- Name: ix_soil_analyses_field_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_soil_analyses_field_id ON public.soil_analyses USING btree (field_id);
-
-
---
 -- Name: accounts accounts_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -893,38 +900,6 @@ ALTER TABLE ONLY public.activities
 
 ALTER TABLE ONLY public.activities
     ADD CONSTRAINT activities_field_id_fkey FOREIGN KEY (field_id) REFERENCES public.fields(id) ON DELETE CASCADE;
-
-
---
--- Name: activity_tasks activity_tasks_activity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.activity_tasks
-    ADD CONSTRAINT activity_tasks_activity_id_fkey FOREIGN KEY (activity_id) REFERENCES public.activities(id) ON DELETE CASCADE;
-
-
---
--- Name: activity_tasks activity_tasks_assigned_to_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.activity_tasks
-    ADD CONSTRAINT activity_tasks_assigned_to_id_fkey FOREIGN KEY (assigned_to_id) REFERENCES public.users(id) ON DELETE SET NULL;
-
-
---
--- Name: activity_tasks activity_tasks_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.activity_tasks
-    ADD CONSTRAINT activity_tasks_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id) ON DELETE RESTRICT;
-
-
---
--- Name: activity_tasks activity_tasks_parent_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.activity_tasks
-    ADD CONSTRAINT activity_tasks_parent_task_id_fkey FOREIGN KEY (parent_task_id) REFERENCES public.activity_tasks(id) ON DELETE SET NULL;
 
 
 --
@@ -965,6 +940,30 @@ ALTER TABLE ONLY public.field_protections
 
 ALTER TABLE ONLY public.field_protections
     ADD CONSTRAINT field_protections_field_id_fkey FOREIGN KEY (field_id) REFERENCES public.fields(id);
+
+
+--
+-- Name: field_soil_analyses field_soil_analyses_field_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.field_soil_analyses
+    ADD CONSTRAINT field_soil_analyses_field_id_fkey FOREIGN KEY (field_id) REFERENCES public.fields(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: field_soil_classifications field_soil_classifications_field_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.field_soil_classifications
+    ADD CONSTRAINT field_soil_classifications_field_id_fkey FOREIGN KEY (field_id) REFERENCES public.fields(id) ON DELETE CASCADE;
+
+
+--
+-- Name: field_soil_classifications field_soil_classifications_soil_classification_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.field_soil_classifications
+    ADD CONSTRAINT field_soil_classifications_soil_classification_id_fkey FOREIGN KEY (soil_classification_id) REFERENCES public.soil_classifications(id) ON DELETE RESTRICT;
 
 
 --
@@ -1056,11 +1055,11 @@ ALTER TABLE ONLY public.role_permissions
 
 
 --
--- Name: soil_analyses soil_analyses_field_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: soil_classifications soil_classifications_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.soil_analyses
-    ADD CONSTRAINT soil_analyses_field_id_fkey FOREIGN KEY (field_id) REFERENCES public.fields(id) ON DELETE RESTRICT;
+ALTER TABLE ONLY public.soil_classifications
+    ADD CONSTRAINT soil_classifications_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.soil_classifications(id) ON DELETE SET NULL;
 
 
 --
@@ -1091,5 +1090,5 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict s5ZLcJCpBJzzeZ4KgKSm3mMeaijGN04sIyFbVfPphP4nCnglp8lRB6sW4Nfn1Fl
+\unrestrict HycfU0hmilqc0I1gl8Xh0lXselvBff2SoqBYbV1NQJttAZnmIHt4bVtUkDp5CfY
 
