@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict HycfU0hmilqc0I1gl8Xh0lXselvBff2SoqBYbV1NQJttAZnmIHt4bVtUkDp5CfY
+\restrict 1MvUaX2pFAhjS1nZmbmpsvEWw7W0fMzwgOkgGW5ZF2pevkEN1tAZIHX6lE4pRSh
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.1
@@ -306,9 +306,8 @@ CREATE TABLE public.organism_synonyms (
 --
 
 CREATE TABLE public.organism_traits (
-    name character varying(50) NOT NULL,
+    name character varying(100) NOT NULL,
     category character varying(50) NOT NULL,
-    description character varying(500),
     id uuid DEFAULT uuidv7() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
@@ -560,14 +559,6 @@ ALTER TABLE ONLY public.organism_synonyms
 
 
 --
--- Name: organism_traits organism_traits_name_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organism_traits
-    ADD CONSTRAINT organism_traits_name_key UNIQUE (name);
-
-
---
 -- Name: organism_traits organism_traits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -605,14 +596,6 @@ ALTER TABLE ONLY public.plants
 
 ALTER TABLE ONLY public.role_permissions
     ADD CONSTRAINT role_permissions_pkey PRIMARY KEY (role_id, permission_id);
-
-
---
--- Name: roles roles_name_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.roles
-    ADD CONSTRAINT roles_name_key UNIQUE (name);
 
 
 --
@@ -704,11 +687,27 @@ ALTER TABLE ONLY public.organism_synonyms
 
 
 --
+-- Name: organism_traits uq_organism_trait_name; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.organism_traits
+    ADD CONSTRAINT uq_organism_trait_name UNIQUE (name);
+
+
+--
 -- Name: permissions uq_permission_resource_action; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.permissions
     ADD CONSTRAINT uq_permission_resource_action UNIQUE (resource, action);
+
+
+--
+-- Name: roles uq_role_name; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT uq_role_name UNIQUE (name);
 
 
 --
@@ -1043,7 +1042,7 @@ ALTER TABLE ONLY public.plants
 --
 
 ALTER TABLE ONLY public.role_permissions
-    ADD CONSTRAINT role_permissions_permission_id_fkey FOREIGN KEY (permission_id) REFERENCES public.permissions(id);
+    ADD CONSTRAINT role_permissions_permission_id_fkey FOREIGN KEY (permission_id) REFERENCES public.permissions(id) ON DELETE CASCADE;
 
 
 --
@@ -1051,7 +1050,7 @@ ALTER TABLE ONLY public.role_permissions
 --
 
 ALTER TABLE ONLY public.role_permissions
-    ADD CONSTRAINT role_permissions_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id);
+    ADD CONSTRAINT role_permissions_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id) ON DELETE CASCADE;
 
 
 --
@@ -1067,7 +1066,7 @@ ALTER TABLE ONLY public.soil_classifications
 --
 
 ALTER TABLE ONLY public.user_roles
-    ADD CONSTRAINT user_roles_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id);
+    ADD CONSTRAINT user_roles_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id) ON DELETE CASCADE;
 
 
 --
@@ -1075,7 +1074,7 @@ ALTER TABLE ONLY public.user_roles
 --
 
 ALTER TABLE ONLY public.user_roles
-    ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+    ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -1090,5 +1089,5 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict HycfU0hmilqc0I1gl8Xh0lXselvBff2SoqBYbV1NQJttAZnmIHt4bVtUkDp5CfY
+\unrestrict 1MvUaX2pFAhjS1nZmbmpsvEWw7W0fMzwgOkgGW5ZF2pevkEN1tAZIHX6lE4pRSh
 

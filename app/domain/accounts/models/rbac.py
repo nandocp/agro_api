@@ -31,6 +31,7 @@ class Permission(BaseModel):
 
 class Role(BaseModel):
     __tablename__ = 'roles'
+    __table_args__ = (UniqueConstraint('name', name='uq_role_name'),)
 
     name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     description: Mapped[str | None] = mapped_column(String(200))
@@ -55,11 +56,14 @@ role_permissions = Table(
     'role_permissions',
     DeclarativeModel.metadata,
     Column(
-        'role_id', ForeignKey('roles.id'), primary_key=True, nullable=False
+        'role_id',
+        ForeignKey('roles.id', ondelete='CASCADE'),
+        primary_key=True,
+        nullable=False,
     ),
     Column(
         'permission_id',
-        ForeignKey('permissions.id'),
+        ForeignKey('permissions.id', ondelete='CASCADE'),
         primary_key=True,
         nullable=False,
     ),
@@ -69,9 +73,15 @@ user_roles = Table(
     'user_roles',
     DeclarativeModel.metadata,
     Column(
-        'user_id', ForeignKey('users.id'), primary_key=True, nullable=False
+        'user_id',
+        ForeignKey('users.id', ondelete='CASCADE'),
+        primary_key=True,
+        nullable=False,
     ),
     Column(
-        'role_id', ForeignKey('roles.id'), primary_key=True, nullable=False
+        'role_id',
+        ForeignKey('roles.id', ondelete='CASCADE'),
+        primary_key=True,
+        nullable=False,
     ),
 )

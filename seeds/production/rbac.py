@@ -99,9 +99,7 @@ async def seed_roles(
 ) -> None:
     for role_name, permissions in PERMISSIONS_MATRIX.items():
         await session.execute(
-            insert(Role)
-            .values(name=role_name)
-            .on_conflict_do_nothing(constraint='uq_roles_name')
+            insert(Role).values(name=role_name).on_conflict_do_nothing()
         )
         await session.flush()
 
@@ -112,13 +110,12 @@ async def seed_roles(
             await session.execute(
                 insert(role_permissions)
                 .values(role_id=role.id, permission_id=permission.id)
-                .on_conflict_do_nothing()
+                .on_conflict_do_nothing(constraint='uq_role_name')
             )
 
     await session.flush()
 
 
-async def _seed(session: AsyncSession) -> None:
+async def seed(session: AsyncSession) -> None:
     permission_map = await seed_permissions(session)
     await seed_roles(session, permission_map)
-    await session.commit()

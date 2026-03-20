@@ -37,20 +37,20 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name')
+    sa.UniqueConstraint('name', name='uq_role_name')
     )
     op.create_table('role_permissions',
     sa.Column('role_id', sa.Uuid(), nullable=False),
     sa.Column('permission_id', sa.Uuid(), nullable=False),
-    sa.ForeignKeyConstraint(['permission_id'], ['permissions.id'], ),
-    sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
+    sa.ForeignKeyConstraint(['permission_id'], ['permissions.id'], ondelete='CASCADE', ),
+    sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ondelete='CASCADE', ),
     sa.PrimaryKeyConstraint('role_id', 'permission_id')
     )
     op.create_table('user_roles',
     sa.Column('user_id', sa.Uuid(), nullable=False),
     sa.Column('role_id', sa.Uuid(), nullable=False),
-    sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ondelete='CASCADE', ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE', ),
     sa.PrimaryKeyConstraint('user_id', 'role_id')
     )
     # ### end Alembic commands ###
