@@ -118,7 +118,12 @@ class Field(BaseModel):
     soil_analyses: Mapped[List['FieldSoilAnalysis']] = relationship(
         'FieldSoilAnalysis', back_populates='field', lazy='raise'
     )
-    soil_classifications: Mapped[List['SoilClassification']] = relationship()
+    soil_classifications: Mapped[List['SoilClassification']] = relationship(
+        'SoilClassification',
+        secondary='field_soil_classifications',
+        lazy='raise',
+        init=False,
+    )
     # Transitions where this field is the predecessor (it was replaced)
     transitions_as_predecessor: Mapped[List['FieldTransition']] = relationship(
         'FieldTransition',

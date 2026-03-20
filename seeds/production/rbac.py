@@ -1,21 +1,13 @@
-import asyncio
-
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.accounts.enums import AccountPlan
-from app.domain.accounts.models.account import Account
 from app.domain.accounts.models.rbac import (
     Permission,
     Role,
-    RolePermission,
-    UserRole,
+    role_permissions,
 )
-from app.domain.accounts.models.user import User
 from app.shared.enums import Action, Resource
-from app.shared.security import hash_password
-from config.settings import settings
 
 PERMISSIONS_MATRIX = {
     'superuser': [
@@ -94,9 +86,7 @@ async def seed_permissions(session: AsyncSession) -> dict[tuple, Permission]:
         await session.execute(
             insert(Permission)
             .values(resource=resource.value, action=action.value)
-            .on_conflict_do_nothing(
-                constraint='uq_permissions_resource_action'
-            )
+            .on_conflict_do_nothing(constraint='uq_permission_resource_action')
         )
     await session.flush()
 
@@ -120,7 +110,7 @@ async def seed_roles(
         for resource, action in permissions:
             permission = permission_map[(resource.value, action.value)]
             await session.execute(
-                insert(RolePermission)
+                insert(role_permissions)
                 .values(role_id=role.id, permission_id=permission.id)
                 .on_conflict_do_nothing()
             )
@@ -128,60 +118,7 @@ async def seed_roles(
     await session.flush()
 
 
-async def seed_superuser(session: AsyncSession) -> None:
-    existing = await session.scalar(
-        select(User).where(User.email == settings.SUPERADMIN_EMAIL)
-    )
-    if existing:
-        return
-
-    account = Account(
-        name='Institutional',
-        document='00000000000000',
-        plan=AccountPlan.ENTERPRISE,
-    )
-    session.add(account)
-    await session.flush()
-
-    email = settings.SUPERADMIN_EMAIL
-    password = settings.SUPERADMIN_PASSWORD
-    if email == 'user@system.br' or password == 'password':
-        raise RuntimeError(
-            f'Forbidden{settings.ENVIRONMENT} superadmin credentials'
-        )
-    user = User(
-        name='Super Admin',
-        email=email,
-        password=hash_password(password),
-        account_id=account.id,
-    )
-    session.add(user)
-    await session.flush()
-
-    superuser_role = await session.scalar(
-        select(Role).where(Role.name == 'superuser')
-    )
-    await session.execute(
-        insert(UserRole)
-        .values(user_id=user.id, role_id=superuser_role.id)
-        .on_conflict_do_nothing()
-    )
-    await session.commit()
-
-
-async def run(session: AsyncSession) -> None:
+async def _seed(session: AsyncSession) -> None:
     permission_map = await seed_permissions(session)
     await seed_roles(session, permission_map)
-    await seed_superuser(session)
     await session.commit()
-    print('Seed completed successfully.')
-
-
-if __name__ == '__main__':
-
-    async def main():
-        engine = create_async_engine(settings.DATABASE_URL)
-        async with AsyncSession(engine, expire_on_commit=False) as session:
-            await run(session)
-
-    asyncio.run(main())

@@ -8,7 +8,6 @@ from sqlalchemy import (
     ForeignKey,
     String,
     Table,
-    Text,
     UniqueConstraint,
     Uuid,
 )
@@ -34,9 +33,6 @@ class SoilClassification(BaseModel):
         String(50),
         nullable=False,
         comment="Classification system, e.g., 'SiBCS', 'WRB'",
-    )
-    description: Mapped[str | None] = mapped_column(
-        Text, nullable=True, default=None
     )
 
     # Optional: hierarchical relationship (for systems with multiple levels)

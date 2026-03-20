@@ -1,5 +1,5 @@
 from app.shared.model import BaseModel
 
 
-class HerdAnimal(BaseModel):
+class EstateService(BaseModel):
     pass

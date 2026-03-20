@@ -247,3 +247,16 @@ class FieldService(BaseService):
 # #         unprocessable('Plot not inside Estate limits')
 
 # #     return True
+
+# async def _check_field_within_estate(
+#     self,
+#     field_boundary: WKBElement,
+#     estate_id: UUID,
+# ) -> None:
+#     estate = await self.estate_repo.get_one(estate_id)
+#     if estate.boundary is None:
+#         return  # estate sem boundary — sem validação possível
+#     estate_shape = wkb_to_shape(estate.boundary)
+#     field_shape = wkb_to_shape(field_boundary)
+#     if not estate_shape.contains(field_shape):
+#         raise AgroAPIError(code='field.outside_estate_boundary')

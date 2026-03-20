@@ -19,7 +19,7 @@ from app.shared.model import BaseModel
 
 if TYPE_CHECKING:
     from app.domain.accounts.models import Account, Role
-    # from app.entities.activity import Activity
+    from app.domain.activities.models import Activity
 
 
 class User(BaseModel):
@@ -89,9 +89,9 @@ class User(BaseModel):
         init=False,
     )
 
-    # created_activities: Mapped[List['Activity']] = relationship(
-    #     back_populates='creator', init=False, lazy='raise
-    # )
+    created_activities: Mapped[List['Activity']] = relationship(
+        'Activity', back_populates='creator', init=False, lazy='raise'
+    )
 
     def __repr__(self):
         return f'User(id={self.id}, name={self.name}, email={self.email})'

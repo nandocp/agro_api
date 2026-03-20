@@ -1,4 +1,10 @@
-class Herd(ModelBase):
+from sqlalchemy import UUID, Boolean, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.shared.model import BaseModel
+
+
+class Herd(BaseModel):
     __tablename__ = 'herds'
 
     estate_id: Mapped[UUID] = mapped_column(
@@ -36,19 +42,19 @@ class Herd(ModelBase):
     status: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
-        default=HerdStatus.ACTIVE.value,
+        # default=HerdStatus.ACTIVE.value,
     )
     notes: Mapped[str | None] = mapped_column(
         Text, nullable=True, default=None
     )
 
-    estate: Mapped['Estate'] = relationship(
-        back_populates='herds', lazy='raise', init=False
-    )
-    species: Mapped['Organism'] = relationship(lazy='raise', init=False)
-    animals: Mapped[list['HerdAnimal']] = relationship(
-        back_populates='herd',
-        cascade='all, delete-orphan',
-        lazy='raise',
-        init=False,
-    )
+    # estate: Mapped['Estate'] = relationship(
+    #     back_populates='herds', lazy='raise', init=False
+    # )
+    # species: Mapped['Organism'] = relationship(lazy='raise', init=False)
+    # animals: Mapped[list['HerdAnimal']] = relationship(
+    #     back_populates='herd',
+    #     cascade='all, delete-orphan',
+    #     lazy='raise',
+    #     init=False,
+    # )

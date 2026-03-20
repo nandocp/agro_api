@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class FieldSoilAnalysis(BaseModel):
-    __tablename__ = 'soil_analyses'
+    __tablename__ = 'field_soil_analyses'
     __table_args__ = (
         CheckConstraint(
             'sampling_depth_cm > 0', name='ck_dsampling_epth_positive'

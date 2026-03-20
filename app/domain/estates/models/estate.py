@@ -60,10 +60,13 @@ class Estate(BaseModel):
 
     # Estate common data
     label: Mapped[str] = mapped_column(
-        String(96), init=True, comment='Human-readable name'
+        String(96), init=True, comment='Human-readable Estate name'
     )
     slug: Mapped[str] = mapped_column(
-        String(64), nullable=False, index=True, comment='URL-safe identifier'
+        String(64),
+        nullable=False,
+        index=True,
+        comment='URL-friendly identifier',
     )
     description: Mapped[str | None] = mapped_column(
         String(200), default=None, nullable=True, init=False
@@ -75,19 +78,25 @@ class Estate(BaseModel):
         String(16),
         default=EstateZone.RURAL.value,
         nullable=False,
-        comment='Geographic location',
+        comment='API validation with EstateZone Enum',
     )
     usage: Mapped[str | None] = mapped_column(
         String(50),
         default=None,
         nullable=True,
-        comment='Predominant usage: family_farm, extractive, etc',
+        comment='API validation with EstateUsage Enum',
     )
     status: Mapped[str] = mapped_column(
-        String(50), default=EstateStatus.ACTIVE, nullable=False
+        String(50),
+        default=EstateStatus.ACTIVE,
+        nullable=False,
+        comment='API validation with EstateStatus Enum',
     )
     ownership_type: Mapped[str] = mapped_column(
-        String(50), default=OwnershipType.OWNED.value, nullable=False
+        String(50),
+        default=OwnershipType.OWNED.value,
+        nullable=False,
+        comment='API validation with OwnershipType Enum',
     )
     declared_area_m2: Mapped[Decimal | None] = mapped_column(
         Numeric(14, 2), nullable=True, default=None
@@ -104,10 +113,13 @@ class Estate(BaseModel):
         Geometry(geometry_type='MULTIPOLYGON', srid=4326, spatial_index=False),
         default=None,
         nullable=True,
-        comment='Always 4326 (universal exchange format)',
+        comment='Estate boundary as a multipolygon geometry',
     )
     boundary_source: Mapped[str | None] = mapped_column(
-        String(32), default=None, nullable=True
+        String(32),
+        default=None,
+        nullable=True,
+        comment='API validation with GeometrySource Enum',
     )
 
     # Calculated data from Geometries

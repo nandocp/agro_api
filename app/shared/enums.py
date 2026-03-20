@@ -7,6 +7,7 @@ class Resource(str, Enum):
     ESTATE = 'estate'
     FIELD = 'field'
     USER = 'user'
+    TASK = 'task'
 
 
 class Action(str, Enum):
@@ -40,10 +41,10 @@ class EPSG(int, Enum):
 
 
 class GeometrySource(str, Enum):
-    survey = 'survey'
-    satellite = 'satellite'
-    manual = 'manual'
-    imported = 'imported'
+    SURVEY = 'survey'
+    SATELLITE = 'satellite'
+    MANUAL = 'manual'
+    IMPORTED = 'imported'
 
 
 # E no seed, a permissão activity:execute é atribuída aos roles que podem

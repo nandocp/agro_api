@@ -1,7 +1,12 @@
-class ActivityEvent(ORMBase):
+from sqlalchemy import JSONB, UUID, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.shared.model import BaseModel
+
+
+class ActivityEvent(BaseModel):
     __tablename__ = 'activity_events'
 
-    id: Mapped[UUID] = mapped_column(primary_key=True, default_factory=uuid4)
     activity_id: Mapped[UUID] = mapped_column(
         ForeignKey('activities.id'), nullable=False, index=True
     )
@@ -16,14 +21,11 @@ class ActivityEvent(ORMBase):
     current_hash: Mapped[str] = mapped_column(
         String(64), unique=True, nullable=False
     )
-    created_at: Mapped[datetime] = mapped_column(
-        default_factory=lambda: datetime.now(timezone.utc), nullable=False
-    )
     created_by: Mapped[UUID] = mapped_column(
         ForeignKey('users.id'), nullable=False
     )
 
-    activity: Mapped['Activity'] = relationship(lazy='raise', init=False)
-    document: Mapped['ActivityDocument | None'] = relationship(
-        lazy='raise', init=False
-    )
+    # activity: Mapped['Activity'] = relationship(lazy='raise', init=False)
+    # document: Mapped['ActivityDocument | None'] = relationship(
+    #     lazy='raise', init=False
+    # )
