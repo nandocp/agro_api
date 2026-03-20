@@ -16,7 +16,11 @@ A management solution for agropecuary workers
   - [ ] Fungus
   - [ ] Review Plant
 - [ ] Herd domain
+- [ ] Build Field services
+  - [ ] Create: based on geospatial locations with validations
 
 ### In Progress
+- [ ] Build Estate services
+  - [ ] Create: based on geospatial locations
 
-### Done
+### Done ✓
