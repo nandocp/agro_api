@@ -101,7 +101,6 @@ async def seed_roles(
         await session.execute(
             insert(Role).values(name=role_name).on_conflict_do_nothing()
         )
-        await session.flush()
 
         role = await session.scalar(select(Role).where(Role.name == role_name))
 
@@ -110,7 +109,7 @@ async def seed_roles(
             await session.execute(
                 insert(role_permissions)
                 .values(role_id=role.id, permission_id=permission.id)
-                .on_conflict_do_nothing(constraint='uq_role_name')
+                .on_conflict_do_nothing()
             )
 
     await session.flush()
