@@ -25,6 +25,17 @@ VALID_BOUNDARY = (
     ')))'
 )
 
+OVERLAPPING_BOUNDARY_WKT = (
+    'MULTIPOLYGON ((('
+    '-45.8800 -21.7342, '  # começa dentro do DEFAULT_BOUNDARY
+    '-45.8600 -21.7342, '
+    '-45.8500 -21.7428, '
+    '-45.8400 -21.7584, '
+    '-45.8800 -21.7584, '
+    '-45.8800 -21.7342'
+    ')))'
+)
+
 VALID_ENTRANCE_POINT = 'POINT (-45.8800 -21.7600)'
 
 
