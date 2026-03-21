@@ -128,17 +128,16 @@ The toolbox will fall back to bash automatically.
 
 ### Available tasks
 ```bash
-poetry run task dev            # start development server
+poetry run task serve          # start development server
 poetry run task test           # run all tests
-poetry run task test-unit      # run unit tests only (no database)
 poetry run task lint           # lint with ruff
 poetry run task format         # format with ruff
 poetry run task db-migrate     # run migrations + dump schema + rebuild test image
 poetry run task db-rollback    # rollback last migration
 poetry run task db-reset       # reset database (downgrade + upgrade)
-poetry run task seed           # run production seeds
-poetry run task seed-dev       # run development fixtures
+poetry run task db-seed        # run production seeds
 ```
+The most used are these, but there are many more at pyproject.toml.
 
 ### Database migrations
 
@@ -158,14 +157,11 @@ poetry run task db-migrate
 
 Tests use [Testcontainers](https://testcontainers.com/) - Podman socket must be active.
 ```bash
-# all tests
+# all tests - they run with coverage by default
 poetry run task test
 
 # specific domain
-poetry run pytest tests/domain/estates/
-
-# with coverage
-poetry run pytest --cov=app --cov-report=term-missing
+poetry run task test tests/domain/estates/
 ```
 
 Test isolation is handled via savepoints (`begin_nested`) - each test rolls back after execution without recreating the schema.
@@ -183,7 +179,7 @@ Model Layer     → SQLAlchemy mapped dataclasses
 
 ### Key conventions
 
-- **Models** inherit from `ModelBase` - provides `id` (UUIDv7), `created_at`, `updated_at`
+- **Models** inherit from `BaseModel` - provides `id` (UUIDv7), `created_at`, `updated_at`
 - **Enums** stored as `String` in database - validated by Pydantic at API layer
 - **Geometries** stored as PostGIS types - WKT input/GeoJSON output at API layer
 - **Relationships** use `lazy='raise'` - explicit loading required
@@ -194,7 +190,7 @@ Model Layer     → SQLAlchemy mapped dataclasses
 
 All data is scoped to an `Account` (tenant). Isolation is enforced at the service layer - every query filters by `account_id` derived from the authenticated user.
 
-### Event sourcing
+### Event sourcing [WIP]
 
 `EstateEvent` and `ActivityEvent` provide immutable audit logs with hash chaining for tamper detection. Events are published via `EventBus` from service methods.
 
