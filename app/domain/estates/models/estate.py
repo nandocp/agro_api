@@ -69,7 +69,7 @@ class Estate(BaseModel):
         comment='URL-friendly identifier',
     )
     description: Mapped[str | None] = mapped_column(
-        String(200), default=None, nullable=True, init=False
+        String(200), default=None, nullable=True
     )
     timezone: Mapped[str] = mapped_column(
         String(64), default='America/Sao_Paulo', nullable=False
