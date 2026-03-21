@@ -91,7 +91,7 @@ class Field(BaseModel):
 
     # Temporal validity (zones can be split, merged, or retired)
     active_from: Mapped[date] = mapped_column(
-        Date, server_default=func.current_date(), nullable=False
+        Date, server_default=func.current_date(), nullable=False, init=False
     )
     active_to: Mapped[date | None] = mapped_column(
         Date,
@@ -119,7 +119,7 @@ class Field(BaseModel):
     )
     creator: Mapped['User'] = relationship('User', lazy='raise', init=False)
     estate: Mapped['Estate'] = relationship(
-        'Estate', back_populates='fields', lazy='raise'
+        'Estate', back_populates='fields', lazy='raise', init=False
     )
     activities: Mapped[List['Activity']] = relationship(
         'Activity',
@@ -132,7 +132,7 @@ class Field(BaseModel):
         lazy='raise', cascade='all, delete-orphan', init=False
     )
     soil_analyses: Mapped[List['FieldSoilAnalysis']] = relationship(
-        'FieldSoilAnalysis', back_populates='field', lazy='raise'
+        'FieldSoilAnalysis', back_populates='field', lazy='raise', init=False
     )
     soil_classifications: Mapped[List['SoilClassification']] = relationship(
         'SoilClassification',
@@ -165,7 +165,7 @@ class Field(BaseModel):
             f'Field('
             f'id={self.id}, '
             f'slug={self.slug}, '
-            f'estate={self.estate.slug}, '
+            f'estate={self.estate_id}, '
             f'created_at={self.created_at}'
             ')'
         )
