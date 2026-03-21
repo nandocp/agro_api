@@ -67,4 +67,4 @@ echo '📦 Initializing agro-api toolbox'
 toolbox create --image localhost/agro_api-toolbox:latest agro_api-toolbox > /dev/null 2>&1
 toolbox enter agro_api-toolbox
 
-./stop.sh
+$(pwd)/scripts/toolbox/stop.sh
