@@ -34,7 +34,7 @@ async def test_estate_repr_(estate):
     repr_attrs = [
         f'id={estate.id}',
         f'slug={estate.slug}',
-        f'status={estate.status.value}',
+        f'status={estate.status}',
         f'created_at={estate.created_at}',
     ]
     assert str(estate) == f'Estate({", ".join(repr_attrs)})'
