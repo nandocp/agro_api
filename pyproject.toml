@@ -112,10 +112,12 @@ post_test = 'coverage html'
 db-seed = 'python seeds/seed.py'
 db-create = 'python scripts/database/create.py'
 db-drop = 'python scripts/database/drop.py'
-db-migrate = 'alembic upgrade head && python scripts/database/dump_schema.py && task build-test-db'
-build-test-db = "podman-remote build -f scripts/container/database/Containerfile -t localhost/agro_api-test-db:latest ."
+db-migrate = 'alembic upgrade head && task db-dump-schema && task db-dump-seeds && task build-test-db'
+build-test-db = "podman-remote build -f scripts/container/database/Containerfile.test -t localhost/agro_api-test-db:latest ."
 db-rollback = 'alembic downgrade -1'
 db-reset = 'task db-drop && task db-create && task db-migrate'
+db-dump-schema = "python scripts/database/dump_schema.py"
+db-dump-seeds = "python scripts/database/dump_seed_data.py"
 
 [tool.coverage.run]
 concurrency = ['thread', 'greenlet']
