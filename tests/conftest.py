@@ -5,14 +5,17 @@ from uuid import uuid4
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     create_async_engine,
 )
+from sqlalchemy.orm import selectinload
 from testcontainers.postgres import PostgresContainer
 
 from app.domain.accounts.auth import create_access_token
+from app.domain.accounts.models import Role, User, user_roles
 from app.main import app
 from app.shared.dependencies import get_session, get_session_with_commit
 from seeds.production.organism_traits import seed as seed_traits
@@ -103,7 +106,36 @@ async def user(session, account):
         session, account_id=account.id, pwd=token_hex(4)
     )
 
-    return user
+    user_with_role = await session.scalar(
+        select(User)
+        .where(User.id == user.id)
+        .options(
+            selectinload(User.roles).selectinload(Role.permissions),
+            selectinload(User.account),
+        )
+    )
+    return user_with_role
+
+
+@pytest_asyncio.fixture
+async def admin_user(session, account) -> User:
+    user = await UserFactory.create(session, account_id=account.id)
+    role = await session.scalar(select(Role).where(Role.name == 'admin'))
+
+    await session.execute(
+        insert(user_roles).values(user_id=user.id, role_id=role.id)
+    )
+    await session.flush()
+
+    user_with_role = await session.scalar(
+        select(User)
+        .where(User.id == user.id)
+        .options(
+            selectinload(User.roles).selectinload(Role.permissions),
+            selectinload(User.account),
+        )
+    )
+    return user_with_role
 
 
 @pytest_asyncio.fixture
