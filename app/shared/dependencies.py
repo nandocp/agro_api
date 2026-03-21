@@ -4,11 +4,12 @@ from fastapi import Depends, Query
 from fastapi.security import OAuth2PasswordBearer
 from jwt import DecodeError
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.domain.accounts.auth import decode_access_token
-from app.domain.accounts.models import User
-from app.shared.crud import CRUDBase
+from app.domain.accounts.models import Role, User
 from app.shared.exceptions import InvalidCredentialsError
 from config.database import engine
 from config.logging import logger
@@ -62,7 +63,15 @@ async def get_current_user(
     except DecodeError:
         raise InvalidCredentialsError
 
-    user = await CRUDBase[User](User, session).get_by({'jti': jti})
+    user = await session.scalar(
+        select(User)
+        .where(User.jti == jti)
+        .options(
+            selectinload(User.roles).selectinload(Role.permissions),
+            selectinload(User.account),
+        )
+    )
+
     if not user or str(user.id) != sub:
         raise InvalidCredentialsError
 
