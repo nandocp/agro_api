@@ -81,6 +81,11 @@ def test_entrance_point_without_boundary_is_valid():
     assert data.entrance_point_wkt == VALID_POINT_INSIDE
 
 
+def test_none_entrance_point():
+    data = EstateCreate(**base_data(entrance_point_wkt=None))
+    assert data.entrance_point_wkt is None
+
+
 def test_invalid_entrance_point_wkt_raises():
     with pytest.raises(ValueError, match='Not valid WKT'):
         EstateCreate(
@@ -113,6 +118,11 @@ def test_slug_too_short_raises():
         ValueError, match='String should have at least 5 characters'
     ):
         EstateCreate(**base_data(slug='abcd'))
+
+
+def test_slug_generation_from_label():
+    data = EstateCreate(**base_data(label='Label Test', slug=None))
+    assert data.slug == 'label-test'
 
 
 # declared_area_m2
