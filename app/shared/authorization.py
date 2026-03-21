@@ -32,6 +32,14 @@ def require_permission(resource: Resource, action: Action):
         @wraps(func)
         async def wrapper(self, *args, **kwargs):
             current_user = kwargs.get('current_user')
+            if current_user is None:
+                # fallback — busca nos args pela tipagem
+                current_user = next(
+                    (a for a in args if isinstance(a, User)), None
+                )
+            if current_user is None:
+                raise UnauthorizedError()
+
             AuthorizationService.check(current_user, resource, action)
             return await func(self, *args, **kwargs)
 
