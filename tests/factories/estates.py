@@ -10,7 +10,6 @@ from .async_factory import AsyncSQLAlchemyFactory
 
 Faker = factory.Faker
 
-
 """
 Polygon orientation: Points should be listed in counter-clockwise order.
 If you list them clockwise, PostGIS will interpret it as a "hole"
@@ -22,6 +21,7 @@ to close the shape.
 Coordinate order: Always longitude first, then latitude
 in WKT format and in Shapely.
 """
+
 polygon = geometry.Polygon([
     (-45.8923, -21.7342),  # Ponto 1 (NW) (lon, lat)
     (-45.8745, -21.7342),  # Ponto 2 (NE)
