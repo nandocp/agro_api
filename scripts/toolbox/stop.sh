@@ -3,17 +3,15 @@
 # Verifica se podman/docker está instalado
 if command -v podman &> /dev/null; then
     CMD="podman"
-    echo -e "${GREEN}🐳 Usando Podman${NC}"
 elif command -v docker &> /dev/null; then
     CMD="docker"
-    echo -e "${GREEN}🐳 Usando Docker${NC}"
 else
     echo -e "${RED}❌ Neither docker or podman found${NC}"
     exit 1
 fi
 
 echo 'Cleaning containers'
-for container in db toolbox ollama openwebui
+for container in db toolbox
 do
     name=agro_api-$container
     echo $name
