@@ -106,7 +106,7 @@ pre_format = 'ruff check --fix'
 format = 'ruff format'
 
 pre_test = 'task lint'
-test = 'pytest -s -x --cov=app -vv'
+test = 'pytest -s -x --cov=app -vv --cov-report=term-missing'
 post_test = 'coverage html'
 
 db-seed = 'python seeds/seed.py'
