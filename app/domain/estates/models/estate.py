@@ -88,7 +88,7 @@ class Estate(BaseModel):
     )
     status: Mapped[str] = mapped_column(
         String(50),
-        default=EstateStatus.ACTIVE,
+        default=EstateStatus.ACTIVE.value,
         nullable=False,
         comment='API validation with EstateStatus Enum',
     )
@@ -185,14 +185,14 @@ class Estate(BaseModel):
             f'Estate('
             f'id={self.id}, '
             f'slug={self.slug}, '
-            f'status={self.status.value if self.status else None}, '
+            f'status={self.status if self.status else None}, '
             f'created_at={self.created_at}'
             ')'
         )
 
     @property
     def is_urban(self):
-        return 'urban' in self.zone.value
+        return 'urban' in self.zone
 
     @property
     def area_ha(self) -> Decimal | None:
