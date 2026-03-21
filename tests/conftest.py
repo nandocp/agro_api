@@ -20,6 +20,7 @@ from seeds.production.rbac import seed as seed_rbac
 from seeds.production.soil_classifications import seed as seed_soil
 from tests.factories.accounts import AccountFactory, UserFactory
 from tests.factories.estates import EstateFactory
+from tests.factories.fields import FieldFactory
 
 os.environ.setdefault(
     'DOCKER_HOST', f'unix:///run/user/{os.getuid()}/podman/podman.sock'
@@ -89,25 +90,6 @@ async def client(session):
 
 
 @pytest_asyncio.fixture
-async def persist(session):
-    async def _persist():
-        await session.commit()
-        session.expire_all()
-
-    return _persist
-
-
-@pytest_asyncio.fixture
-async def estate(session, account) -> EstateFactory:
-    return await EstateFactory.create(session, account_id=account.id)
-
-
-@pytest_asyncio.fixture
-async def account(session) -> AccountFactory:
-    return await AccountFactory.create(session)
-
-
-@pytest_asyncio.fixture
 async def token(user, session) -> str:
     user.jti = uuid4()
     session.add(user)
@@ -115,15 +97,10 @@ async def token(user, session) -> str:
     return create_access_token(sub=user.id, jti=user.jti)
 
 
-@pytest.fixture
-def password():
-    return token_hex(4)
-
-
 @pytest_asyncio.fixture
-async def user(session, account, password):
+async def user(session, account):
     user = await UserFactory.create(
-        session, account_id=account.id, pwd=password
+        session, account_id=account.id, pwd=token_hex(4)
     )
 
     return user
@@ -135,5 +112,12 @@ async def account(session) -> AccountFactory:
 
 
 @pytest_asyncio.fixture
-async def main_account(session):
-    return await AccountFactory()
+async def estate(session, account) -> EstateFactory:
+    return await EstateFactory.create(session, account_id=account.id)
+
+
+@pytest_asyncio.fixture
+async def field(session, estate, user) -> EstateFactory:
+    return await FieldFactory.create(
+        session, estate_id=estate.id, creator_id=user.id
+    )
