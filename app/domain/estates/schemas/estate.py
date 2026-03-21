@@ -86,3 +86,12 @@ class EstateResponse(BaseModel):
     label: str
 
     model_config = {'from_attributes': True}
+
+
+class EstateUpdate(BaseModel):
+    archived_at: date | None
+    description: str | None
+    declared_area_m2: Decimal | None
+    entrance_point: str | None
+    boundary: str | None
+    boundar_source: GeometrySource
