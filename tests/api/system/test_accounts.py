@@ -1,0 +1,166 @@
+from http import HTTPStatus
+from uuid import uuid7
+
+import pytest
+from br_cpf_cnpj import generate_random_cnpj, generate_random_cpf
+
+from app.domain.accounts.auth import create_access_token
+from app.domain.accounts.enums import AccountPlan
+from app.domain.accounts.models import Account
+from app.shared.crud import CRUDBase
+from app.shared.utils import digits_only
+from tests.factories.accounts import AccountFactory
+
+SYSTEM_PATH = '/system/accounts'
+
+
+@pytest.mark.asyncio
+async def test_create_account_without_auth_headers(client):
+    response = await client.post(SYSTEM_PATH, json={}, headers={})
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_create_account_with_incorrect_auth_headers(client):
+    token = create_access_token(sub=uuid7(), jti=uuid7())
+
+    response = await client.post(
+        SYSTEM_PATH,
+        json={},
+        headers={'Authorization': f'Bearer {token}'},
+    )
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_create_account_with_cpf(client, superuser_token, session):
+    cpf = generate_random_cpf(masked=True)
+    params = {'name': 'Account CPF', 'document': cpf}
+
+    response = await client.post(
+        SYSTEM_PATH,
+        json=params,
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    assert cpf == response.json()['document']
+
+    id_object = await CRUDBase[Account](Account, session).get_one(
+        response.json()['id']
+    )
+    assert id_object is not None
+
+
+@pytest.mark.asyncio
+async def test_create_account_with_cnpj(client, superuser_token, session):
+    cnpj = generate_random_cnpj(alphanumeric=False, masked=True)
+    params = {'name': 'Account CNPJ', 'document': cnpj}
+
+    response = await client.post(
+        SYSTEM_PATH,
+        json=params,
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    assert cnpj == response.json()['document']
+
+    id_object = await CRUDBase[Account](Account, session).get_one(
+        response.json()['id']
+    )
+    assert id_object is not None
+
+
+@pytest.mark.asyncio
+async def test_create_account_with_other_doc(client, superuser_token, session):
+    doc = '00.123-543/10'
+    params = {'name': 'Account CPF', 'document': doc}
+
+    response = await client.post(
+        SYSTEM_PATH,
+        json=params,
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    assert digits_only(doc) == response.json()['document']
+
+    id_object = await CRUDBase[Account](Account, session).get_one(
+        response.json()['id']
+    )
+    assert id_object is not None
+
+
+@pytest.mark.asyncio
+async def test_create_account_with_repeated_doc(
+    client, superuser_token, session
+):
+    account = await AccountFactory.build()
+
+    response_original = await client.post(
+        SYSTEM_PATH,
+        json={'name': account.name, 'document': account.document},
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    id_object = await CRUDBase[Account](Account, session).get_one(
+        response_original.json()['id']
+    )
+    assert id_object is not None
+
+    params = {'name': 'Repeated Account', 'document': account.document}
+
+    response = await client.post(
+        SYSTEM_PATH,
+        json=params,
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.CONFLICT
+
+
+@pytest.mark.asyncio
+async def test_update_account_plan_with_no_superuser(client, account, token):
+    response = await client.patch(
+        f'{SYSTEM_PATH}/{account.id}/plan',
+        json={},
+        headers={'authorization': f'Bearer {token}'},
+    )
+
+    assert response.status_code == HTTPStatus.FORBIDDEN
+
+
+@pytest.mark.asyncio
+async def test_update_account_plan_with_superuser(
+    client, account, superuser_token
+):
+    assert account.plan == AccountPlan.FREE
+    new_plan = AccountPlan.ENTERPRISE.value
+
+    response = await client.patch(
+        f'{SYSTEM_PATH}/{account.id}/plan',
+        json={'plan': new_plan},
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    test_response = await client.get(
+        f'{SYSTEM_PATH}/{account.id}',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert test_response.json()['plan'] == new_plan
+
+
+@pytest.mark.asyncio
+async def test_get_account(client, account, superuser_token):
+    assert account.plan == AccountPlan.FREE
+
+    response = await client.get(
+        f'{SYSTEM_PATH}/{account.id}',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
