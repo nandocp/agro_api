@@ -2,9 +2,15 @@ from uuid import UUID
 
 from app.domain.accounts.models import Account
 from app.domain.accounts.repositories import AccountRepository
-from app.domain.accounts.schemas import AccountCreate, AccountUpdatePlan
+from app.domain.accounts.schemas import (
+    AccountCreate,
+    AccountFilters,
+    AccountUpdatePlan,
+)
 from app.shared.exceptions import NotFoundError
+from app.shared.schemas import PaginatedResponse
 from app.shared.service import BaseService
+from app.shared.utils import sanitize_filters
 
 
 class AccountService(BaseService):
@@ -34,3 +40,11 @@ class AccountService(BaseService):
             raise NotFoundError('account')
 
         return account
+
+    async def index(
+        self, filters: AccountFilters
+    ) -> PaginatedResponse[Account]:
+        clean_filters = sanitize_filters(filters)
+        return await self.repo.get_many(
+            filters=clean_filters, offset=filters.offset, limit=filters.limit
+        )
