@@ -15,7 +15,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         if exc_code.startswith('not_found'):
             return HTTPStatus.NOT_FOUND
         if exc_code.startswith('auth'):
-            return HTTPStatus.UNAUTHORIZED
+            return _auth_status(exc_code)
         if exc_code.startswith('quota'):
             return HTTPStatus.PAYMENT_REQUIRED
         if exc_code.startswith(('integrity_error', 'conflict')):
@@ -23,6 +23,11 @@ def register_exception_handlers(app: FastAPI) -> None:
         if exc_code.startswith('unprocessable'):
             return HTTPStatus.UNPROCESSABLE_ENTITY
         return HTTPStatus.INTERNAL_SERVER_ERROR
+
+    def _auth_status(exc):
+        if 'forbidden' in exc:
+            return HTTPStatus.FORBIDDEN
+        return HTTPStatus.UNAUTHORIZED
 
     @app.exception_handler(AgroAPIError)
     async def agro_api_error_handler(request: Request, exc: AgroAPIError):
