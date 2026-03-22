@@ -6,24 +6,20 @@ from jwt import DecodeError, ExpiredSignatureError
 from app.domain.accounts.auth import create_access_token, decode_access_token
 from app.domain.accounts.models import User
 from app.domain.accounts.repositories import UserRepository
-from app.domain.accounts.schemas import (
-    LoginRequest,
-    UserCreate,
-    UserUpdate,
-)
+from app.domain.accounts.schemas import LoginRequest
 from app.shared.exceptions import AgroAPIError, InvalidCredentialsError
 from app.shared.security import verify_password
 from app.shared.service import BaseService
 from config.settings import settings
 
 
-class UserService(BaseService[User, UserCreate, UserUpdate]):
+class UserService(BaseService):
     def __init__(self, session):
-        self.user_repo = UserRepository(User, session)
-        super().__init__(User, session)
+        super().__init__(session)
+        self.repo = UserRepository(session)
 
     async def login(self, login_data: LoginRequest) -> str:
-        user = await self.user_repo.get_by_email_and_account(
+        user = await self.repo.get_by_email_and_account(
             login_data.username, login_data.account_id
         )
 
