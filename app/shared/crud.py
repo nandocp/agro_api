@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from config.logging import logger
+
 ModelType = TypeVar('ModelType')
 CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel, default=Any)
 UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel, default=Any)
@@ -68,13 +70,32 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def save(self, db_obj: ModelType) -> ModelType:
         self.session.add(db_obj)
-        # Adicionar logger para, quando em desenvolvimento,
-        # verificar se o objeto está sendo adicionado corretamente
-        # utilizar self.session.new
+
+        logger.debug(
+            'Adding object to session',
+            extra={
+                'model': db_obj.__class__.__name__,
+                'pending': [
+                    obj.__class__.__name__ for obj in self.session.new
+                ],
+            },
+        )
+
         await self.session.flush()
-        # Pode colocar um logger aqui para, quando em desenolvimento,
-        # inspecionar o objeto que foi flushed.
-        # utilizar self.session.identity_map.values()
+        await self.session.refresh(db_obj)
+
+        logger.debug(
+            'Object flushed and refreshed',
+            extra={
+                'model': db_obj.__class__.__name__,
+                'identity_map': [
+                    f'{obj.__class__.__name__}({obj.id})'
+                    for obj in self.session.identity_map.values()
+                    if hasattr(obj, 'id')
+                ],
+            },
+        )
+
         return db_obj
 
     async def delete(self, db_obj: ModelType) -> None:
