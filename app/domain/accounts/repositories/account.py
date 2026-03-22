@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
@@ -11,6 +12,11 @@ from app.shared.crud import CRUDBase
 class AccountRepository(CRUDBase[Account, AccountCreate]):
     def __init__(self, session):
         super().__init__(Account, session)
+
+    def _build_filter_clause(self, col: str, val: Any):
+        if col == 'name' and val is not None:
+            return Account.name.ilike(f'%{val}%')
+        return super()._build_filter_clause(col, val)
 
     async def get_with_relations(self, account_id: UUID) -> Account | None:
         return await self.session.scalar(
