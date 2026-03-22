@@ -1,9 +1,8 @@
-from sqlalchemy import select
+from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.accounts.enums import AccountPlan
-from app.domain.accounts.models.account import Account
-from app.domain.accounts.models.user import User
+from app.domain.accounts.models import Account, Role, User, user_roles
 from app.shared.security import hash_password
 from config.settings import settings
 
@@ -40,12 +39,13 @@ async def seed(session: AsyncSession) -> None:
     session.add(user)
     await session.flush()
 
-    # superuser_role = await session.scalar(
-    #     select(Role).where(Role.name == 'superuser')
-    # )
-    # await session.execute(
-    #     insert(user_roles)
-    #     .values(user_id=user.id, role_id=superuser_role.id)
-    #     .on_conflict_do_nothing()
-    # )
+    superuser_role = await session.scalar(
+        select(Role).where(Role.name == 'superuser')
+    )
+    await session.execute(
+        insert(user_roles)
+        .values(user_id=user.id, role_id=superuser_role.id)
+        .on_conflict_do_nothing()
+    )
+
     await session.commit()
