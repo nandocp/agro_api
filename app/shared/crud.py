@@ -6,9 +6,10 @@ Commiting permanently happens at router level.
 from typing import Any, Generic, Type, TypeVar
 
 from pydantic import BaseModel
-from sqlalchemy import Select, select
+from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.shared.schemas import PaginatedResponse
 from config.logging import logger
 
 ModelType = TypeVar('ModelType')
@@ -21,12 +22,21 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
         self.session = session
 
+    """
+    Override in specific repositories to customize filter behavior.
+    Default: exact match.
+    """
+
+    def _build_filter_clause(self, col: str, val: Any):
+        column = getattr(self.model, col)
+        if val is None:
+            return column.is_(None)
+        return column == val
+
     def _apply_filters(self, stmt: Select, filters: dict[str, Any]) -> Select:
         for col, val in filters.items():
-            column = getattr(self.model, col)
-            stmt = stmt.where(
-                column.is_(None) if val is None else column == val
-            )
+            stmt = stmt.where(self._build_filter_clause(col, val))
+
         return stmt
 
     async def get_one(self, id: Any) -> ModelType | None:
@@ -42,12 +52,27 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         offset: int = 0,
         limit: int = 100,
-    ) -> list[ModelType]:
-        stmt = self._apply_filters(
-            select(self.model).offset(offset).limit(limit), (filters or {})
-        )
+    ) -> PaginatedResponse:
+        stmt = select(self.model).offset(offset).limit(limit)
+
+        if filters:
+            stmt = self._apply_filters(stmt, filters)
         result = await self.session.scalars(stmt)
-        return result.all()
+        data = result.all()
+
+        count_stmt = select(func.count()).select_from(self.model)
+        if filters:
+            count_stmt = self._apply_filters(count_stmt, filters)
+        total = await self.session.scalar(count_stmt) or 0
+
+        return PaginatedResponse(
+            data=data,
+            total=total,
+            offset=offset,
+            limit=limit,
+            has_next=offset + limit < total,
+            has_previous=offset > 0,
+        )
 
     async def create(self, obj_in: CreateSchemaType) -> ModelType:
         db_obj = self.model(**obj_in.model_dump())
