@@ -15,6 +15,62 @@ SYSTEM_PATH = '/system/accounts'
 
 
 @pytest.mark.asyncio
+async def test_list_accounts_without_filters(client, session, superuser_token):
+    await AccountFactory.create_batch(20, session=session)
+    response = await client.get(
+        SYSTEM_PATH, headers={'authorization': f'Bearer {superuser_token}'}
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+
+async def test_list_accounts_filter_by_plan(client, session, superuser_token):
+    await AccountFactory.create(session, plan=AccountPlan.FREE)
+    await AccountFactory.create(session, plan=AccountPlan.PRO)
+    await session.flush()
+
+    response = await client.get(
+        '/system/accounts',
+        params={'plan': 'free'},
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+    assert response.status_code == HTTPStatus.OK
+    data = response.json()['data']
+    assert all(a['plan'] == 'free' for a in data)
+
+
+async def test_list_accounts_filter_by_name(client, session, superuser_token):
+    await AccountFactory.create(session, name='Fazenda Alpha')
+    await AccountFactory.create(session, name='Fazenda Beta')
+    await session.flush()
+
+    response = await client.get(
+        '/system/accounts',
+        params={'name': 'Alpha'},
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+    data = response.json()['data']
+    assert len(data) == 1
+    assert data[0]['name'] == 'Fazenda Alpha'
+
+
+async def test_list_accounts_pagination(client, session, superuser_token):
+    await AccountFactory.create_batch(5, session=session)
+    await session.flush()
+
+    limit = 2
+    response = await client.get(
+        '/system/accounts',
+        params={'limit': limit, 'offset': 0},
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+    body = response.json()
+    assert len(body['data']) == limit
+    assert body['has_next'] is True
+    assert body['has_previous'] is False
+
+
+@pytest.mark.asyncio
 async def test_create_account_without_auth_headers(client):
     response = await client.post(SYSTEM_PATH, json={}, headers={})
     assert response.status_code == HTTPStatus.UNAUTHORIZED
