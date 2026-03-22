@@ -155,6 +155,17 @@ async def test_update_account_plan_with_superuser(
 
 
 @pytest.mark.asyncio
+async def test_update_account_plan_with_wrong_id(client, superuser_token):
+    response = await client.patch(
+        f'{SYSTEM_PATH}/{uuid7()}/plan',
+        json={'plan': AccountPlan.PRO.value},
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.asyncio
 async def test_get_account(client, account, superuser_token):
     assert account.plan == AccountPlan.FREE
 
@@ -164,3 +175,15 @@ async def test_get_account(client, account, superuser_token):
     )
 
     assert response.status_code == HTTPStatus.OK
+
+
+@pytest.mark.asyncio
+async def test_get_account_with_wrong_id(client, account, superuser_token):
+    assert account.plan == AccountPlan.FREE
+
+    response = await client.get(
+        f'{SYSTEM_PATH}/{uuid7()}',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
