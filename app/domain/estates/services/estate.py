@@ -6,10 +6,9 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.accounts.models.account import Account
 from app.domain.estates.enums import EstateStatus
 from app.domain.estates.models.estate import Estate
-from app.domain.estates.schemas.estate import EstateCreate, EstateUpdate
+from app.domain.estates.schemas.estate import EstateCreate
 from app.shared.authorization import require_permission
 from app.shared.crud import CRUDBase
 from app.shared.enums import Action, Resource
@@ -25,10 +24,10 @@ if TYPE_CHECKING:
     from app.domain.accounts.models.user import User
 
 
-class EstateService(BaseService[Estate, EstateCreate, EstateUpdate]):
+class EstateService(BaseService):
     def __init__(self, session: AsyncSession) -> None:
-        super().__init__(Estate, session)
-        self.account_repo = CRUDBase[Account](Account, session)
+        super().__init__(session)
+        self.repo = CRUDBase[Estate](Estate, session)
 
     @require_permission(Resource.ESTATE, Action.CREATE)
     async def create(self, data: EstateCreate, current_user: User) -> Estate:
