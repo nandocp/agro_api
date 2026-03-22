@@ -1,10 +1,17 @@
 from datetime import datetime
 
-from pydantic import BaseModel, field_serializer, field_validator
+from pydantic import BaseModel, Field, field_serializer, field_validator
 
 from app.domain.accounts.enums import AccountPlan
-from app.shared.schemas import BaseSchema
+from app.shared.schemas import BaseSchema, Pagination
 from app.shared.utils import digits_only
+
+
+class AccountFilters(Pagination):
+    plan: AccountPlan | None = Field(None)
+    name: str | None = Field(None, max_length=255)
+    document: str | None = Field(None)
+    archived: bool | None = Field(None)
 
 
 class AccountCreate(BaseModel):
