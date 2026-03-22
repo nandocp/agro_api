@@ -2,6 +2,8 @@ import re
 import unicodedata
 from decimal import Decimal
 
+from pydantic import BaseModel
+
 from .enums import MaxSlopePercent, SlopeClass
 
 
@@ -31,3 +33,10 @@ def classify_slope(slope_percent: Decimal) -> SlopeClass:
     if slope_percent <= MaxSlopePercent.STEEP:
         return SlopeClass.STEEP
     return SlopeClass.VERY_STEEP
+
+
+def sanitize_filters(filters: BaseModel) -> dict:
+    filters_dict = filters.model_dump()
+    for key in ['offset', 'limit']:
+        filters_dict.pop(key, None)
+    return {key: val for key, val in filters_dict.items() if val is not None}
