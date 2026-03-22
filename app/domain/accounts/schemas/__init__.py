@@ -1,6 +1,6 @@
 from .account import AccountCreate as AccountCreate
 from .account import AccountResponse as AccountResponse
-from .account import AccountUpdate as AccountUpdate
+from .account import AccountUpdatePlan as AccountUpdatePlan
 from .auth import LoginRequest as LoginRequest
 from .auth import TokenResponse as TokenResponse
 from .user import UserCreate as UserCreate
