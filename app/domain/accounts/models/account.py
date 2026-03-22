@@ -51,12 +51,17 @@ class Account(BaseModel):
         DateTime(timezone=True), init=False, nullable=True, default=None
     )
 
+    # address = Mapped['Address'] = relationship(
+    #     'Address',
+    #     init=False,
+    # )
+
     users: Mapped[List['User']] = relationship(
         'User',
         back_populates='account',
         init=False,
         cascade='all, delete-orphan',
-        lazy='selectin',
+        lazy='raise',
     )
 
     estates: Mapped[List['Estate']] = relationship(
@@ -64,7 +69,7 @@ class Account(BaseModel):
         back_populates='account',
         init=False,
         cascade='all, delete-orphan',
-        lazy='selectin',
+        lazy='raise',
     )
 
     def __repr__(self):
