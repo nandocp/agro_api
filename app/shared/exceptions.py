@@ -14,6 +14,11 @@ class UnauthorizedError(AgroAPIError):
         super().__init__(code='auth.unauthorized')
 
 
+class ForbiddenError(AgroAPIError):
+    def __init__(self):
+        super().__init__(code='auth.forbidden')
+
+
 class InvalidCredentialsError(AgroAPIError):
     def __init__(self):
         super().__init__(code='auth.invalid_credentials')
