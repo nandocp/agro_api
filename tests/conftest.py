@@ -101,6 +101,19 @@ async def token(user, session) -> str:
 
 
 @pytest_asyncio.fixture
+async def superuser_token(superuser, session) -> str:
+    superuser.jti = uuid4()
+    session.add(superuser)
+    await session.commit()
+    return create_access_token(sub=superuser.id, jti=superuser.jti)
+
+
+@pytest_asyncio.fixture
+async def auth_headers(token) -> dict:
+    return {'authorization': f'Bearer {token}'}
+
+
+@pytest_asyncio.fixture
 async def user(session, account):
     user = await UserFactory.create(
         session, account_id=account.id, pwd=token_hex(4)
@@ -121,6 +134,27 @@ async def user(session, account):
 async def admin_user(session, account) -> User:
     user = await UserFactory.create(session, account_id=account.id)
     role = await session.scalar(select(Role).where(Role.name == 'admin'))
+
+    await session.execute(
+        insert(user_roles).values(user_id=user.id, role_id=role.id)
+    )
+    await session.flush()
+
+    user_with_role = await session.scalar(
+        select(User)
+        .where(User.id == user.id)
+        .options(
+            selectinload(User.roles).selectinload(Role.permissions),
+            selectinload(User.account),
+        )
+    )
+    return user_with_role
+
+
+@pytest_asyncio.fixture
+async def superuser(session, account) -> User:
+    user = await UserFactory.create(session, account_id=account.id)
+    role = await session.scalar(select(Role).where(Role.name == 'superuser'))
 
     await session.execute(
         insert(user_roles).values(user_id=user.id, role_id=role.id)
