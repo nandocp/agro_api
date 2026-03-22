@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, field_serializer, field_validator
 
 from app.domain.accounts.enums import AccountPlan
@@ -19,6 +21,8 @@ class AccountCreate(BaseModel):
 class AccountResponse(BaseSchema):
     name: str
     document: str
+    plan: str
+    archived_at: datetime | None
 
     @field_serializer('document')
     def mask_document(value: str) -> str:
@@ -36,6 +40,5 @@ class AccountResponse(BaseSchema):
         return value
 
 
-class AccountUpdate(BaseModel):
-    name: str | None
+class AccountUpdatePlan(BaseModel):
     plan: AccountPlan
