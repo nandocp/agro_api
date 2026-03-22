@@ -8,6 +8,9 @@ from app.shared.crud import CRUDBase
 
 
 class UserRepository(CRUDBase[User, UserCreate, UserUpdate]):
+    def __init__(self, session):
+        super().__init__(User, session)
+
     async def get_by_email_and_account(
         self, email: str, account_id: UUID
     ) -> User | None:
