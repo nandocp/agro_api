@@ -30,7 +30,7 @@ async def test_list_accounts_filter_by_plan(client, session, superuser_token):
     await session.flush()
 
     response = await client.get(
-        '/system/accounts',
+        SYSTEM_PATH,
         params={'plan': 'free'},
         headers={'authorization': f'Bearer {superuser_token}'},
     )
@@ -45,7 +45,7 @@ async def test_list_accounts_filter_by_name(client, session, superuser_token):
     await session.flush()
 
     response = await client.get(
-        '/system/accounts',
+        SYSTEM_PATH,
         params={'name': 'Alpha'},
         headers={'authorization': f'Bearer {superuser_token}'},
     )
@@ -60,7 +60,7 @@ async def test_list_accounts_pagination(client, session, superuser_token):
 
     limit = 2
     response = await client.get(
-        '/system/accounts',
+        SYSTEM_PATH,
         params={'limit': limit, 'offset': 0},
         headers={'authorization': f'Bearer {superuser_token}'},
     )
@@ -243,3 +243,73 @@ async def test_get_account_with_wrong_id(client, account, superuser_token):
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_archive_account(client, account, superuser_token):
+    response = await client.patch(
+        f'{SYSTEM_PATH}/{account.id}/archive',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.NO_CONTENT
+
+
+@pytest.mark.asyncio
+async def test_archive_account_persists(
+    client, account, superuser_token, session
+):
+    await client.patch(
+        f'{SYSTEM_PATH}/{account.id}/archive',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+    await session.flush()
+    session.expire(account)
+    await session.refresh(account)
+    assert account.archived_at is not None
+
+
+@pytest.mark.asyncio
+async def test_archive_incorrect_account(client, session, superuser_token):
+    response = await client.patch(
+        f'{SYSTEM_PATH}/{uuid7()}/archive',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_delete_account(client, superuser_token, account):
+    response = await client.delete(
+        f'{SYSTEM_PATH}/{account.id}',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.NO_CONTENT
+
+
+@pytest.mark.asyncio
+async def test_delete_incorrect_account(client, session, superuser_token):
+    response = await client.delete(
+        f'{SYSTEM_PATH}/{uuid7()}',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_correctly_delete_account(client, session, superuser_token):
+    account = await AccountFactory.create(session)
+    await client.delete(
+        f'{SYSTEM_PATH}/{account.id}',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    test_response = await client.get(
+        f'{SYSTEM_PATH}/{account.id}',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert test_response.status_code == HTTPStatus.NOT_FOUND

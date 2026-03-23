@@ -1,3 +1,4 @@
+import pytest
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import from_shape
 from shapely.geometry import MultiPolygon, Point, Polygon
@@ -7,10 +8,13 @@ from app.shared.geometry import (
     shape_to_wkb,
     to_geojson,
     to_geometry,
+    validate_multipolygon_wkt,
+    validate_point_wkt,
+    validate_polygon_wkt,
     wkb_to_shape,
 )
 
-# fixtures
+# ========== fixtures ==========
 POINT = Point(1.0, 2.0)
 POLYGON = Polygon([(0, 0), (1, 0), (1, 1), (0, 1), (0, 0)])
 MULTIPOLYGON = MultiPolygon([POLYGON])
@@ -19,6 +23,96 @@ POLYGON_GEOJSON = {
     'type': 'Polygon',
     'coordinates': (((0, 0), (1, 0), (1, 1), (0, 1), (0, 0)),),
 }
+VALID_MULTIPOLYGON = 'MULTIPOLYGON (((0 0, 1 0, 1 1, 0 1, 0 0)))'
+VALID_POLYGON = 'POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))'
+VALID_POINT = 'POINT (0.5 0.5)'
+INVALID_WKT = 'NOT VALID WKT'
+SELF_INTERSECTING_POLYGON = 'POLYGON ((0 0, 1 1, 1 0, 0 1, 0 0))'  # bowtie
+
+
+# ========== validate_multipolygon_wkt ==========
+
+
+def test_valid_multipolygon_returns_value():
+    result = validate_multipolygon_wkt(VALID_MULTIPOLYGON)
+    assert result == VALID_MULTIPOLYGON
+
+
+def test_multipolygon_invalid_wkt_raises():
+    with pytest.raises(ValueError, match='Not valid WKT'):
+        validate_multipolygon_wkt(INVALID_WKT)
+
+
+def test_multipolygon_wrong_type_raises():
+    with pytest.raises(ValueError, match='Must be a MultiPolygon'):
+        validate_multipolygon_wkt(VALID_POLYGON)
+
+
+def test_multipolygon_point_raises():
+    with pytest.raises(ValueError, match='Must be a MultiPolygon'):
+        validate_multipolygon_wkt(VALID_POINT)
+
+
+def test_multipolygon_invalid_geometry_raises():
+    invalid = 'MULTIPOLYGON (((0 0, 1 1, 1 0, 0 1, 0 0)))'  # self-intersecting
+    with pytest.raises(ValueError, match='Invalid geometry'):
+        validate_multipolygon_wkt(invalid)
+
+
+# ========== validate_polygon_wkt ==========
+
+
+def test_valid_polygon_returns_value():
+    result = validate_polygon_wkt(VALID_POLYGON)
+    assert result == VALID_POLYGON
+
+
+def test_polygon_invalid_wkt_raises():
+    with pytest.raises(ValueError, match='Not valid WKT'):
+        validate_polygon_wkt(INVALID_WKT)
+
+
+def test_polygon_wrong_type_raises():
+    with pytest.raises(ValueError, match='Must be a Polygon'):
+        validate_polygon_wkt(VALID_MULTIPOLYGON)
+
+
+def test_polygon_point_raises():
+    with pytest.raises(ValueError, match='Must be a Polygon'):
+        validate_polygon_wkt(VALID_POINT)
+
+
+def test_polygon_self_intersecting_raises():
+    with pytest.raises(ValueError, match='Invalid geometry'):
+        validate_polygon_wkt(SELF_INTERSECTING_POLYGON)
+
+
+# ========== validate_point_wkt ==========
+
+
+def test_valid_point_returns_value():
+    result = validate_point_wkt(VALID_POINT)
+    assert result == VALID_POINT
+
+
+def test_point_invalid_wkt_raises():
+    with pytest.raises(ValueError, match='Not valid WKT'):
+        validate_point_wkt(INVALID_WKT)
+
+
+def test_point_wrong_type_raises():
+    with pytest.raises(ValueError, match='Must be a Point'):
+        validate_point_wkt(VALID_POLYGON)
+
+
+def test_point_multipolygon_raises():
+    with pytest.raises(ValueError, match='Must be a Point'):
+        validate_point_wkt(VALID_MULTIPOLYGON)
+
+
+def test_point_empty_string_raises():
+    with pytest.raises(ValueError, match='Not valid WKT'):
+        validate_point_wkt('')
 
 
 # shape_to_wkb
