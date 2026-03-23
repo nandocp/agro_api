@@ -5,6 +5,7 @@ from geoalchemy2 import WKBElement
 from shapely import wkt
 from shapely.geometry import MultiPolygon, Point, Polygon, shape
 from shapely.geometry.base import BaseGeometry
+from shapely.validation import explain_validity
 
 from app.shared.enums import EPSG
 
@@ -68,7 +69,7 @@ def validate_multipolygon_wkt(value: str) -> str:
     if not isinstance(geom, MultiPolygon):
         raise ValueError('Must be a MultiPolygon')
     if not geom.is_valid:
-        raise ValueError(f'Invalid geometry: {geom.is_valid_reason}')
+        raise ValueError(f'Invalid geometry: {explain_validity(geom)}')
     return value
 
 
@@ -80,7 +81,7 @@ def validate_polygon_wkt(value: str) -> str:
     if not isinstance(geom, Polygon):
         raise ValueError('Must be a Polygon')
     if not geom.is_valid:
-        raise ValueError(f'Invalid geometry: {geom.is_valid_reason}')
+        raise ValueError(f'Invalid geometry: {explain_validity(geom)}')
     return value
 
 
