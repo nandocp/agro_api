@@ -130,5 +130,7 @@ class FieldSoilAnalysis(BaseModel):
 
     def __repr__(self):
         return (
-            f'SoilAnalysis(field={self.field_id}, date={self.sampling_date})'
+            f'FieldSoilAnalysis(field={self.field_id}, '
+            f'collected_at={self.collected_at}, '
+            f'analyzed_at={self.analyzed_at})'
         )
