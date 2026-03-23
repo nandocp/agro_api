@@ -10,7 +10,7 @@ from app.domain.accounts.schemas import (
 )
 from app.domain.accounts.schemas import AccountResponse as Response
 from app.domain.accounts.services import AccountService
-from app.shared.dependencies import SessionWithCommit
+from app.shared.dependencies import CurrentUser, SessionWithCommit
 from app.shared.schemas import PaginatedResponse
 
 router = APIRouter(tags=['accounts'])
@@ -20,27 +20,62 @@ router = APIRouter(tags=['accounts'])
     '', response_model=PaginatedResponse[Response], status_code=HTTPStatus.OK
 )
 async def list_accounts(
-    session: SessionWithCommit, filters: AccountFilters = Depends()
+    session: SessionWithCommit,
+    current_user: CurrentUser,
+    filters: AccountFilters = Depends(),
 ):
-    return await AccountService(session).index(filters)
+    return await AccountService(session).index(
+        filters, current_user=current_user
+    )
 
 
 @router.get(
     '/{account_id}', response_model=Response, status_code=HTTPStatus.OK
 )
-async def show_account(account_id, session: SessionWithCommit):
-    return await AccountService(session).show(account_id)
+async def show_account(
+    account_id, session: SessionWithCommit, current_user: CurrentUser
+):
+    return await AccountService(session).show(
+        account_id, current_user=current_user
+    )
 
 
 @router.post('', response_model=Response, status_code=HTTPStatus.CREATED)
-async def create_account(data: AccountCreate, session: SessionWithCommit):
-    return await AccountService(session).create(data)
+async def create_account(
+    data: AccountCreate, session: SessionWithCommit, current_user: CurrentUser
+):
+    return await AccountService(session).create(
+        data, current_user=current_user
+    )
 
 
 @router.patch(
     '/{account_id}/plan', response_model=Response, status_code=HTTPStatus.OK
 )
 async def update_plan(
-    data: AccountUpdatePlan, session: SessionWithCommit, account_id: UUID
+    data: AccountUpdatePlan,
+    session: SessionWithCommit,
+    account_id: UUID,
+    current_user: CurrentUser,
 ):
-    return await AccountService(session).update_plan(data, account_id)
+    return await AccountService(session).update_plan(
+        data, account_id, current_user=current_user
+    )
+
+
+@router.patch('/{account_id}/archive', status_code=HTTPStatus.NO_CONTENT)
+async def archive_account(
+    session: SessionWithCommit, account_id: UUID, current_user: CurrentUser
+):
+    return await AccountService(session).archive(
+        account_id, current_user=current_user
+    )
+
+
+@router.delete('/{account_id}', status_code=HTTPStatus.NO_CONTENT)
+async def delete_account(
+    session: SessionWithCommit, account_id: UUID, current_user: CurrentUser
+):
+    return await AccountService(session).delete(
+        account_id, current_user=current_user
+    )
