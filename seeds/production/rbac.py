@@ -11,19 +11,27 @@ from app.shared.enums import Action, Resource
 
 PERMISSIONS_MATRIX = {
     'superuser': [
+        (Resource.ACCOUNT, Action.READ),
         (Resource.ACCOUNT, Action.CREATE),
         (Resource.ACCOUNT, Action.UPDATE),
         (Resource.ACCOUNT, Action.ARCHIVE),
+        (Resource.ACCOUNT, Action.DELETE),
+        (Resource.ACCOUNT, Action.EXPORT),
+        (Resource.USER, Action.READ),
         (Resource.USER, Action.CREATE),
         (Resource.USER, Action.UPDATE),
         (Resource.USER, Action.DEACTIVATE),
-        (Resource.ESTATE, Action.APPROVE),
+        (Resource.USER, Action.DELETE),
     ],
     'admin': [
-        (Resource.ACCOUNT, Action.UPDATE),
+        (Resource.ACCOUNT, Action.READ),
+        (Resource.ACCOUNT, Action.DEACTIVATE),
+        (Resource.ACCOUNT, Action.EXPORT),
+        (Resource.USER, Action.READ),
         (Resource.USER, Action.CREATE),
         (Resource.USER, Action.UPDATE),
         (Resource.USER, Action.DEACTIVATE),
+        (Resource.USER, Action.EXPORT),
         (Resource.ESTATE, Action.CREATE),
         (Resource.ESTATE, Action.UPDATE),
         (Resource.ESTATE, Action.ARCHIVE),
@@ -67,6 +75,7 @@ PERMISSIONS_MATRIX = {
         (Resource.ESTATE, Action.EXPORT),
     ],
     'worker': [
+        (Resource.ACTIVITY, Action.READ),
         (Resource.ACTIVITY, Action.EXECUTE),
         (Resource.ACTIVITY, Action.EXPORT),
         (Resource.TASK, Action.EXECUTE),
