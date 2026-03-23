@@ -75,7 +75,7 @@ class JournalEntry(BaseModel):
             f'JournalEntry('
             f'id={self.id}, '
             f'entity={self.entity_type}, '
-            f'title={self.title[:19]}, '
+            f'title={self.title[:19].strip()}, '
             f'date={self.logged_at.date()}'
             ')'
         )
