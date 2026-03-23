@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING, List
 from uuid import UUID
@@ -174,15 +174,15 @@ class Field(BaseModel):
     def is_active(self) -> bool:
         return self.active_to is None
 
-    @property
-    def is_protected(self) -> bool:
-        """Currently under any active protection."""
-        now = datetime.now()
-        return any(
-            p.started_at <= now
-            and (p.expires_at is None or p.expires_at >= now)
-            for p in self.protections
-        )
+    # @property
+    # def is_protected(self) -> bool:
+    #     """Currently under any active protection."""
+    #     now = datetime.now()
+    #     return any(
+    #         p.started_at <= now
+    #         and (p.expires_at is None or p.expires_at >= now)
+    #         for p in self.protections
+    #     )
 
     # @property
     # def can_delete(self) -> bool:
