@@ -3,12 +3,14 @@ from typing import Generic, TypeVar
 
 from pydantic import UUID7, BaseModel, Field
 
+from config.settings import settings
+
 T = TypeVar('T')
 
 
 class Pagination(BaseModel):
     offset: int | None = Field(ge=0, default=0)
-    limit: int | None = Field(ge=0, default=10)
+    limit: int | None = Field(ge=0, default=settings.PAGINATION_LIMIT)
 
 
 class PaginatedResponse(BaseModel, Generic[T]):
