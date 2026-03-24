@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     SUPERADMIN_PASSWORD: str = 'password'
 
     MAX_FAILED_ATTEMPTS: int = 5
+    PAGINATION_LIMIT: int = 10
 
 
 settings = Settings()
