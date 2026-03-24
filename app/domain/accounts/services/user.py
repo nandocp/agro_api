@@ -7,10 +7,13 @@ from app.domain.accounts.auth import (
 )
 from app.domain.accounts.models import User
 from app.domain.accounts.repositories import UserRepository
-from app.domain.accounts.schemas import LoginRequest
+from app.domain.accounts.schemas import LoginRequest, UserFilters
+from app.shared.authorization import require_permission
+from app.shared.enums import Action, Resource
 from app.shared.exceptions import InvalidCredentialsError
 from app.shared.security import verify_password
 from app.shared.service import BaseService
+from app.shared.utils import sanitize_filters
 from config.settings import settings
 
 
@@ -18,6 +21,14 @@ class UserService(BaseService):
     def __init__(self, session):
         super().__init__(session)
         self.repo = UserRepository(session)
+
+    @require_permission(Resource.USER, Action.READ)
+    async def index(self, filters: UserFilters, current_user: User):
+        clean_filters = sanitize_filters(filters)
+
+        return await self.repo.get_many(
+            filters=clean_filters, offset=filters.offset, limit=filters.limit
+        )
 
     async def login(self, login_data: LoginRequest) -> str:
         user = await self.repo.get_by_email_and_account(
