@@ -4,6 +4,7 @@ from app.shared.dependencies import CurrentUser
 from app.shared.exceptions import ForbiddenError
 
 from .accounts import router as account_router
+from .users import router as users_router
 
 
 async def require_superuser(current_user: CurrentUser) -> None:
@@ -19,3 +20,4 @@ router = APIRouter(
 )
 
 router.include_router(account_router, prefix='/accounts')
+router.include_router(users_router, prefix='/users')
