@@ -10,3 +10,5 @@ RUN mkdir -p /var/run && \
     ln -sf /run/user/1000/podman/podman.sock /var/run/docker.sock
 
 RUN pipx install poetry black alembic
+
+RUN curl -fsSL https://claude.ai/install.sh | bash
