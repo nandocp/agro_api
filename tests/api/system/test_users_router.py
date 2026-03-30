@@ -19,3 +19,14 @@ async def test_list_users(client, superuser_token, session, account):
 
     assert response.status_code == HTTPStatus.OK
     assert len(response.json()['data']) == settings.PAGINATION_LIMIT
+
+
+@pytest.mark.asyncio
+async def test_show_user(client, superuser_token, user):
+    response = await client.get(
+        f'{SYSTEM_PATH}/{user.id}',
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['id'] == str(user.id)

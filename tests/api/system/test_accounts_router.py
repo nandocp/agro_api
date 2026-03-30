@@ -9,7 +9,7 @@ from app.domain.accounts.enums import AccountPlan
 from app.domain.accounts.models import Account
 from app.shared.crud import CRUDBase
 from app.shared.utils import digits_only
-from tests.factories.accounts import AccountFactory
+from tests.factories.accounts import AccountFactory, UserFactory
 
 SYSTEM_PATH = '/system/accounts'
 
@@ -290,7 +290,7 @@ async def test_delete_account(client, superuser_token, account):
 
 
 @pytest.mark.asyncio
-async def test_delete_incorrect_account(client, session, superuser_token):
+async def test_delete_incorrect_account(client, superuser_token):
     response = await client.delete(
         f'{SYSTEM_PATH}/{uuid7()}',
         headers={'authorization': f'Bearer {superuser_token}'},
@@ -313,3 +313,19 @@ async def test_correctly_delete_account(client, session, superuser_token):
     )
 
     assert test_response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_create_account_user(client, superuser_token, account):
+    user = await UserFactory.build()
+
+    response = await client.post(
+        f'{SYSTEM_PATH}/{account.id}/users',
+        json={
+            'name': user.name,
+            'email': user.email,
+        },
+        headers={'authorization': f'Bearer {superuser_token}'},
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
