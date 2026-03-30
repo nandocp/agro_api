@@ -51,7 +51,7 @@ class AccountService(BaseService):
 
         return account
 
-    @require_permission(Resource.ACCOUNT, Action.READ)
+    @require_permission(Resource.ACCOUNT, Action.LIST)
     async def index(
         self, filters: AccountFilters, current_user: User
     ) -> PaginatedResponse[Account]:
