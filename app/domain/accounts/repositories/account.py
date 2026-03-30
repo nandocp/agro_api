@@ -23,7 +23,7 @@ class AccountRepository(CRUDBase[Account, AccountCreate]):
             select(Account)
             .where(Account.id == account_id)
             .options(
-                # selectinload(Account.address),
+                selectinload(Account.users),
                 selectinload(Account.estates),
             )
         )

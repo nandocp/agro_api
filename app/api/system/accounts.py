@@ -7,11 +7,12 @@ from app.domain.accounts.schemas import (
     AccountCreate,
     AccountFilters,
     AccountUpdatePlan,
+    UserCreateForm,
 )
 from app.domain.accounts.schemas import AccountResponse as Response
-from app.domain.accounts.services import AccountService
+from app.domain.accounts.services import AccountService, UserService
 from app.shared.dependencies import CurrentUser, SessionWithCommit
-from app.shared.schemas import PaginatedResponse
+from app.shared.schemas import BaseSchema, PaginatedResponse
 
 router = APIRouter(tags=['accounts'])
 
@@ -78,4 +79,20 @@ async def delete_account(
 ):
     return await AccountService(session).delete(
         account_id, current_user=current_user
+    )
+
+
+@router.post(
+    '/{account_id}/users',
+    status_code=HTTPStatus.CREATED,
+    response_model=BaseSchema,
+)
+async def create_account_user(
+    account_id: UUID,
+    current_user: CurrentUser,
+    data: UserCreateForm,
+    session: SessionWithCommit,
+):
+    return await UserService(session).create(
+        data, account_id, current_user=current_user
     )

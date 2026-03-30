@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.domain.accounts.models import User
 from app.domain.accounts.schemas import UserCreate, UserUpdate
@@ -22,3 +23,14 @@ class UserRepository(CRUDBase[User, UserCreate, UserUpdate]):
             )
         )
         return result.scalar_one_or_none()
+
+    async def get_with_relations(self, user_id: UUID) -> User | None:
+        return await self.session.scalar(
+            select(User)
+            .where(User.id == user_id)
+            .options(
+                selectinload(User.roles),
+                selectinload(User.account),
+                selectinload(User.created_activities),
+            )
+        )

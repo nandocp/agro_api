@@ -4,7 +4,9 @@ from .account import AccountResponse as AccountResponse
 from .account import AccountUpdatePlan as AccountUpdatePlan
 from .auth import LoginRequest as LoginRequest
 from .auth import TokenResponse as TokenResponse
+from .rbac import UserRoleCreate as UserRoleCreate
 from .user import UserCreate as UserCreate
+from .user import UserCreateForm as UserCreateForm
 from .user import UserFilters as UserFilters
 from .user import UserResponse as UserResponse
 from .user import UserUpdate as UserUpdate
