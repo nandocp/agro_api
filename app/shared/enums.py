@@ -16,6 +16,7 @@ class Action(str, Enum):
     READ = 'read'
     UPDATE = 'update'
     DELETE = 'delete'
+    LIST = 'list'
     # CUSTOM
     EXPORT = 'export'
     ASSIGN = 'assign'
