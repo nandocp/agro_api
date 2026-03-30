@@ -1,16 +1,30 @@
 from datetime import datetime, timezone
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from app.domain.accounts.auth import (
     create_access_token,
     decode_and_validate_token,
 )
-from app.domain.accounts.models import User
-from app.domain.accounts.repositories import UserRepository
-from app.domain.accounts.schemas import LoginRequest, UserFilters
+from app.domain.accounts.models import PLAN_QUOTAS, User
+from app.domain.accounts.repositories import (
+    AccountRepository,
+    RbacRepository,
+    UserRepository,
+)
+from app.domain.accounts.schemas import (
+    LoginRequest,
+    UserCreate,
+    UserCreateForm,
+    UserFilters,
+    UserRoleCreate,
+)
 from app.shared.authorization import require_permission
 from app.shared.enums import Action, Resource
-from app.shared.exceptions import InvalidCredentialsError
+from app.shared.exceptions import (
+    InvalidCredentialsError,
+    NotFoundError,
+    QuotaExceededError,
+)
 from app.shared.security import verify_password
 from app.shared.service import BaseService
 from app.shared.utils import sanitize_filters
@@ -21,14 +35,52 @@ class UserService(BaseService):
     def __init__(self, session):
         super().__init__(session)
         self.repo = UserRepository(session)
+        self.account_repo = AccountRepository(session)
+        self.rbac_repo = RbacRepository(session)
 
-    @require_permission(Resource.USER, Action.READ)
+    @require_permission(Resource.USER, Action.LIST)
     async def index(self, filters: UserFilters, current_user: User):
         clean_filters = sanitize_filters(filters)
 
         return await self.repo.get_many(
             filters=clean_filters, offset=filters.offset, limit=filters.limit
         )
+
+    @require_permission(Resource.USER, Action.READ)
+    async def show(self, user_id: UUID, current_user: User):
+        user = await self.repo.get_with_relations(user_id)
+
+        if not user:
+            raise NotFoundError('user')
+
+        return user
+
+    @require_permission(Resource.USER, Action.CREATE)
+    async def create(
+        self, params: UserCreateForm, account_id: UUID, current_user: User
+    ) -> User:
+        account = await self.account_repo.get_with_relations(account_id)
+        if not account:
+            raise NotFoundError('account')
+
+        if len(account.users) >= PLAN_QUOTAS[account.plan].max_users:
+            raise QuotaExceededError('account.users')
+
+        create_params = UserCreate(
+            name=params.name,
+            email=params.email,
+            account_id=account_id,
+            password=str(uuid4()),
+        )
+
+        user = await self.repo.create(create_params)
+        await self.session.flush()
+
+        rbac_params = UserRoleCreate(role=params.role, user_id=user.id)
+
+        await self.rbac_repo.assign_role(rbac_params)
+
+        return user
 
     async def login(self, login_data: LoginRequest) -> str:
         user = await self.repo.get_by_email_and_account(
